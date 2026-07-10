@@ -86,7 +86,7 @@ export const adminService = {
   getUsers: (): Promise<{ users: BasicUserSummary[] }> =>
     authenticatedRequest('/api/admin/users'),
 
-  createUser: (data: { email: string; password: string; paypal: string; reddit: string }): Promise<{ success: boolean; user: User }> =>
+  createUser: (data: { email: string; password: string; paypal?: string | null; reddit: string }): Promise<{ success: boolean; user: User }> =>
     authenticatedRequest('/api/admin/users', {
       method: 'POST',
       body: JSON.stringify(data),

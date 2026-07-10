@@ -171,8 +171,8 @@ export default function AdminDashboard() {
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newBasicEmail || !newBasicPassword || !newBasicPaypal || !newBasicReddit) {
-      setErrorMsg('All fields are required.');
+    if (!newBasicEmail || !newBasicPassword || !newBasicReddit) {
+      setErrorMsg('Email, password, and reddit username are required.');
       return;
     }
 
@@ -183,7 +183,7 @@ export default function AdminDashboard() {
       await adminService.createUser({
         email: newBasicEmail,
         password: newBasicPassword,
-        paypal: newBasicPaypal,
+        paypal: newBasicPaypal || null,
         reddit: newBasicReddit,
       });
       setSuccessMsg(`User ${newBasicEmail} registered successfully!`);
@@ -654,7 +654,7 @@ export default function AdminDashboard() {
                     <tr key={u.id}>
                       <td>{u.email}</td>
                       <td>u/{u.reddit}</td>
-                      <td style={{ fontWeight: 'bold' }}>{u.paypal}</td>
+                      <td style={{ fontWeight: 'bold' }}>{u.paypal || 'Not set'}</td>
                       <td
                         style={{
                           color:
@@ -722,7 +722,7 @@ export default function AdminDashboard() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="regPaypal">PayPal Email address*</label>
+                <label htmlFor="regPaypal">PayPal Email address (Optional)</label>
                 <input
                   id="regPaypal"
                   type="email"
@@ -730,7 +730,6 @@ export default function AdminDashboard() {
                   placeholder="paypal@example.com"
                   value={newBasicPaypal}
                   onChange={(e) => setNewBasicPaypal(e.target.value)}
-                  required
                 />
               </div>
               <div className="form-group" style={{ marginBottom: '1.75rem' }}>
@@ -764,7 +763,7 @@ export default function AdminDashboard() {
                 <div key={u.id} className="glass-card" style={{ padding: '1.25rem' }}>
                   <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{u.email}</div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Reddit: <strong>u/{u.reddit}</strong> | PayPal: <strong>{u.paypal}</strong>
+                    Reddit: <strong>u/{u.reddit}</strong> | PayPal: <strong>{u.paypal || 'Not set'}</strong>
                   </div>
                   <div
                     style={{

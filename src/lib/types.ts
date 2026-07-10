@@ -3,7 +3,7 @@
 export interface User {
   id: string;
   email: string;
-  paypal: string;
+  paypal: string | null;
   reddit: string;
   roles: string[];
 }
@@ -56,7 +56,7 @@ export interface ActiveBooking {
 export interface BasicUserSummary {
   id: string;
   email: string;
-  paypal: string;
+  paypal: string | null;
   reddit: string;
   createdAt: string;
   pendingBalance: number;
