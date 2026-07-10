@@ -81,18 +81,20 @@ export default function LoginPage({ isAdminRoute, onLogin, onSwitchRoute }: Logi
           </button>
         </form>
 
-        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              onSwitchRoute();
-            }}
-            style={{ color: 'var(--color-primary)', fontSize: '0.85rem', textDecoration: 'none' }}
-          >
-            {isAdminRoute ? '← Switch to User Login' : 'Admin Portal →'}
-          </a>
-        </div>
+        {isAdminRoute && (
+          <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                onSwitchRoute();
+              }}
+              style={{ color: 'var(--color-primary)', fontSize: '0.85rem', textDecoration: 'none' }}
+            >
+              ← Switch to User Login
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
