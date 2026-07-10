@@ -142,7 +142,7 @@ export default function BasicDashboard() {
                   <div key={task.id} className="glass-card" style={{ padding: '1.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                       <span style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>
-                        r/{task.subreddit}
+                        {task.subreddit ? `r/${task.subreddit}` : 'Direct Link'}
                       </span>
                       <span style={{ fontWeight: '600', color: 'var(--color-success)' }}>
                         ${parseFloat(task.price).toFixed(2)}
@@ -191,20 +191,20 @@ export default function BasicDashboard() {
 
                 <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
                   <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-                    r/{activeBooking.subreddit}
+                    {activeBooking.subreddit ? `r/${activeBooking.subreddit}` : 'Direct Link'}
                   </h3>
                   <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
                     {activeBooking.client_request}
                   </p>
 
-                  {activeBooking.post_url && (
+                  {activeBooking.url && (
                     <div style={{ marginBottom: '1rem' }}>
                       <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                        Target Link:
+                        Reddit URL:
                       </span>
                       <br />
                       <a
-                        href={activeBooking.post_url}
+                        href={activeBooking.url}
                         target="_blank"
                         rel="noreferrer"
                         style={{
@@ -214,7 +214,7 @@ export default function BasicDashboard() {
                           wordBreak: 'break-all',
                         }}
                       >
-                        {activeBooking.post_url}
+                        {activeBooking.url}
                       </a>
                     </div>
                   )}
@@ -335,7 +335,7 @@ export default function BasicDashboard() {
                 <tbody>
                   {earningsHistory.map((row) => (
                     <tr key={row.booking_id}>
-                      <td style={{ fontWeight: 'bold' }}>r/{row.subreddit}</td>
+                      <td style={{ fontWeight: 'bold' }}>{row.subreddit ? `r/${row.subreddit}` : 'Direct Link'}</td>
                       <td>{row.type_name}</td>
                       <td style={{ color: 'var(--color-success)', fontWeight: '600' }}>
                         ${parseFloat(row.price).toFixed(2)}

@@ -96,8 +96,8 @@ export const adminService = {
     authenticatedRequest('/api/admin/tasks'),
 
   createTask: (data: {
-    subreddit: string;
-    postUrl?: string | null;
+    subreddit?: string | null;
+    url: string;
     clientRequest: string;
     quota: number;
     price: number;
@@ -108,6 +108,26 @@ export const adminService = {
     authenticatedRequest('/api/admin/tasks', {
       method: 'POST',
       body: JSON.stringify(data),
+    }),
+
+  updateTask: (taskId: string, data: {
+    subreddit?: string | null;
+    url: string;
+    clientRequest: string;
+    quota: number;
+    price: number;
+    typeId: string;
+    assignedTo?: string | null;
+    deadline?: string | null;
+  }): Promise<{ success: boolean; task: Task }> =>
+    authenticatedRequest(`/api/admin/tasks/${taskId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteTask: (taskId: string): Promise<{ success: boolean; message: string }> =>
+    authenticatedRequest(`/api/admin/tasks/${taskId}`, {
+      method: 'DELETE',
     }),
 
   reviewSubmission: (bookingId: string, statusId: 'success' | 'failed', note?: string | null): Promise<{ success: boolean; booking: unknown }> =>

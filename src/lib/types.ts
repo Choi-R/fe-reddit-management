@@ -10,12 +10,13 @@ export interface User {
 
 export interface Task {
   id: string;
-  subreddit: string;
-  post_url: string | null;
+  subreddit: string | null;
+  url: string;
   client_request: string;
   quota: number;
   price: string;
   deadline: string | null;
+  type_id: string;
   type_name: string;
   assigned_to_email?: string | null;
   count_incomplete?: number;
@@ -43,8 +44,8 @@ export interface ActiveBooking {
   status_id: string;
   booked_at: string;
   id: string; // task_id
-  subreddit: string;
-  post_url: string | null;
+  subreddit: string | null;
+  url: string;
   client_request: string;
   quota: number;
   price: string;

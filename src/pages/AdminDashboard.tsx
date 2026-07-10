@@ -16,8 +16,9 @@ export default function AdminDashboard() {
   const [pendingSubmissions, setPendingSubmissions] = useState<PendingSubmission[]>([]);
 
   // Task form states
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [newTaskSubreddit, setNewTaskSubreddit] = useState('');
-  const [newTaskPostUrl, setNewTaskPostUrl] = useState('');
+  const [newTaskUrl, setNewTaskUrl] = useState('');
   const [newTaskClientRequest, setNewTaskClientRequest] = useState('');
   const [newTaskQuota, setNewTaskQuota] = useState(1);
   const [newTaskPrice, setNewTaskPrice] = useState('');
@@ -64,10 +65,10 @@ export default function AdminDashboard() {
 
   // ─── Action Handlers ──────────────────────────────────────────────
 
-  const handleAddTask = async (e: React.FormEvent) => {
+  const handleSaveTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTaskSubreddit || !newTaskClientRequest || !newTaskPrice) {
-      setErrorMsg('Subreddit, request, and price are required.');
+    if (!newTaskUrl || !newTaskClientRequest || !newTaskPrice) {
+      setErrorMsg('Reddit URL, request, and price are required.');
       return;
     }
 
@@ -75,19 +76,28 @@ export default function AdminDashboard() {
     setErrorMsg(null);
     setSuccessMsg(null);
     try {
-      await adminService.createTask({
-        subreddit: newTaskSubreddit,
-        postUrl: newTaskPostUrl || null,
+      const taskData = {
+        subreddit: newTaskSubreddit || null,
+        url: newTaskUrl,
         clientRequest: newTaskClientRequest,
         quota: parseInt(newTaskQuota.toString()),
         price: parseFloat(newTaskPrice),
         typeId: newTaskTypeId,
         assignedTo: newTaskAssignedTo || null,
         deadline: newTaskDeadline ? new Date(newTaskDeadline).toISOString() : null,
-      });
-      setSuccessMsg('New task added successfully!');
+      };
+
+      if (editingTask) {
+        await adminService.updateTask(editingTask.id, taskData);
+        setSuccessMsg('Task updated successfully!');
+      } else {
+        await adminService.createTask(taskData);
+        setSuccessMsg('New task added successfully!');
+      }
+
+      setEditingTask(null);
       setNewTaskSubreddit('');
-      setNewTaskPostUrl('');
+      setNewTaskUrl('');
       setNewTaskClientRequest('');
       setNewTaskQuota(1);
       setNewTaskPrice('');
@@ -95,7 +105,65 @@ export default function AdminDashboard() {
       setNewTaskDeadline('');
       loadTabData();
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to create task.');
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to save task.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTask(null);
+    setNewTaskSubreddit('');
+    setNewTaskUrl('');
+    setNewTaskClientRequest('');
+    setNewTaskQuota(1);
+    setNewTaskPrice('');
+    setNewTaskAssignedTo('');
+    setNewTaskDeadline('');
+    setErrorMsg(null);
+    setSuccessMsg(null);
+  };
+
+  const handleEditClick = (task: Task) => {
+    setEditingTask(task);
+    setNewTaskSubreddit(task.subreddit || '');
+    setNewTaskUrl(task.url);
+    setNewTaskClientRequest(task.client_request);
+    setNewTaskQuota(task.quota);
+    setNewTaskPrice(task.price);
+    setNewTaskTypeId(task.type_id);
+    setNewTaskAssignedTo(task.assigned_to_email || '');
+    if (task.deadline) {
+      const d = new Date(task.deadline);
+      const localISO = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().substring(0, 16);
+      setNewTaskDeadline(localISO);
+    } else {
+      setNewTaskDeadline('');
+    }
+    // Scroll form into view
+    const formElement = document.getElementById('taskFormTitle');
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    if (!window.confirm('Are you sure you want to delete this task? This will also remove any bookings associated with it.')) {
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    try {
+      await adminService.deleteTask(taskId);
+      setSuccessMsg('Task deleted successfully.');
+      if (editingTask?.id === taskId) {
+        handleCancelEdit();
+      }
+      loadTabData();
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to delete task.');
     } finally {
       setIsLoading(false);
     }
@@ -199,12 +267,14 @@ export default function AdminDashboard() {
       {/* ── Tasks Tab ──────────────────────────────────────────────── */}
       {adminTab === 'tasks' && (
         <div className="grid-2">
-          {/* Add Task Form */}
+          {/* Add/Edit Task Form */}
           <div className="glass-panel" style={{ padding: '1.75rem', height: 'fit-content' }}>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1.25rem' }}>Create New Task</h2>
-            <form onSubmit={handleAddTask}>
+            <h2 id="taskFormTitle" style={{ fontSize: '1.25rem', marginBottom: '1.25rem' }}>
+              {editingTask ? 'Edit Task' : 'Create New Task'}
+            </h2>
+            <form onSubmit={handleSaveTask}>
               <div className="form-group">
-                <label htmlFor="taskSubreddit">Subreddit Name*</label>
+                <label htmlFor="taskSubreddit">Subreddit Name (Optional)</label>
                 <input
                   id="taskSubreddit"
                   type="text"
@@ -212,18 +282,18 @@ export default function AdminDashboard() {
                   placeholder="reactjs (without r/)"
                   value={newTaskSubreddit}
                   onChange={(e) => setNewTaskSubreddit(e.target.value)}
-                  required
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="taskPostUrl">Reddit Post URL (Optional)</label>
+                <label htmlFor="taskUrl">Reddit URL (Post or Comment)*</label>
                 <input
-                  id="taskPostUrl"
+                  id="taskUrl"
                   type="url"
                   className="form-input"
                   placeholder="https://reddit.com/r/..."
-                  value={newTaskPostUrl}
-                  onChange={(e) => setNewTaskPostUrl(e.target.value)}
+                  value={newTaskUrl}
+                  onChange={(e) => setNewTaskUrl(e.target.value)}
+                  required
                 />
               </div>
               <div className="form-group">
@@ -282,12 +352,12 @@ export default function AdminDashboard() {
                   </select>
                 </div>
                 <div className="form-group" style={{ flex: '1' }}>
-                  <label htmlFor="taskAssignedTo">Assign User UUID (Optional)</label>
+                  <label htmlFor="taskAssignedTo">Assign User (Email or Reddit Username)</label>
                   <input
                     id="taskAssignedTo"
                     type="text"
                     className="form-input"
-                    placeholder="UUID key"
+                    placeholder="user@example.com or reddit_user"
                     value={newTaskAssignedTo}
                     onChange={(e) => setNewTaskAssignedTo(e.target.value)}
                   />
@@ -305,14 +375,36 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{ width: '100%' }}
-                disabled={isLoading}
-              >
-                Publish Task
-              </button>
+              {editingTask ? (
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="btn btn-secondary"
+                    style={{ flex: 1 }}
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    style={{ flex: 1 }}
+                    disabled={isLoading}
+                  >
+                    Update Task
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ width: '100%' }}
+                  disabled={isLoading}
+                >
+                  Publish Task
+                </button>
+              )}
             </form>
           </div>
 
@@ -334,7 +426,9 @@ export default function AdminDashboard() {
                         marginBottom: '0.5rem',
                       }}
                     >
-                      <span style={{ fontWeight: 'bold' }}>r/{task.subreddit}</span>
+                      <span style={{ fontWeight: 'bold' }}>
+                        {task.subreddit ? `r/${task.subreddit}` : 'Direct Link'}
+                      </span>
                       <span style={{ color: 'var(--color-success)', fontWeight: 'bold' }}>
                         ${parseFloat(task.price).toFixed(2)}
                       </span>
@@ -377,6 +471,33 @@ export default function AdminDashboard() {
                       <StatusTag status="success">Succ: {task.count_success}</StatusTag>
                       <StatusTag status="paid">Paid: {task.count_paid}</StatusTag>
                       <StatusTag status="failed">Fail: {task.count_failed}</StatusTag>
+                    </div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: '0.75rem',
+                        marginTop: '0.75rem',
+                        borderTop: '1px solid var(--border-color)',
+                        paddingTop: '0.75rem',
+                        justifyContent: 'flex-end',
+                      }}
+                    >
+                      <button
+                        onClick={() => handleEditClick(task)}
+                        className="btn btn-secondary"
+                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
+                        disabled={isLoading}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTask(task.id)}
+                        className="btn btn-danger"
+                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
+                        disabled={isLoading}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))
