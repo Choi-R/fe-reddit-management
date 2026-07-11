@@ -446,7 +446,7 @@ export default function AdminDashboard() {
                     }}
                     onFocus={() => setShowSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    autoComplete="off"
+                    autoComplete="nope"
                   />
                   {showSuggestions && suggestions.length > 0 && (
                     <div
