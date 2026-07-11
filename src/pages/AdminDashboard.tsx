@@ -25,6 +25,7 @@ export default function AdminDashboard() {
   const [newTaskTypeId, setNewTaskTypeId] = useState('normal');
   const [newTaskAssignedTo, setNewTaskAssignedTo] = useState('');
   const [newTaskDeadline, setNewTaskDeadline] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   // User form states
   const [newBasicEmail, setNewBasicEmail] = useState('');
@@ -45,6 +46,12 @@ export default function AdminDashboard() {
       if (adminTab === 'tasks') {
         const data = await adminService.getTasks();
         setAdminTasks(data.tasks);
+        try {
+          const usersData = await adminService.getUsers();
+          setAdminUsers(usersData.users);
+        } catch (usersErr) {
+          console.warn('Failed to load users for assignment autocomplete:', usersErr);
+        }
       } else if (adminTab === 'users' || adminTab === 'payouts') {
         const data = await adminService.getUsers();
         setAdminUsers(data.users);
@@ -134,9 +141,7 @@ export default function AdminDashboard() {
     setNewTaskTypeId(task.type_id);
     setNewTaskAssignedTo(task.assigned_to_email || '');
     if (task.deadline) {
-      const d = new Date(task.deadline);
-      const localISO = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().substring(0, 16);
-      setNewTaskDeadline(localISO);
+      setNewTaskDeadline(task.deadline.substring(0, 10));
     } else {
       setNewTaskDeadline('');
     }
@@ -229,6 +234,24 @@ export default function AdminDashboard() {
       setIsLoading(false);
     }
   };
+
+  // Get autocomplete user suggestions
+  const getSuggestions = () => {
+    const query = newTaskAssignedTo.trim().toLowerCase();
+    if (query.length < 3) return [];
+
+    const cleanQuery = query.replace(/^\/?u\//i, '');
+
+    return adminUsers
+      .filter((u) => {
+        const emailMatch = u.email.toLowerCase().includes(cleanQuery);
+        const redditMatch = u.reddit.toLowerCase().includes(cleanQuery);
+        return emailMatch || redditMatch;
+      })
+      .slice(0, 3);
+  };
+
+  const suggestions = getSuggestions();
 
   // ─── Render ───────────────────────────────────────────────────────
 
@@ -351,7 +374,7 @@ export default function AdminDashboard() {
                     <option value="edu_app">Edu App</option>
                   </select>
                 </div>
-                <div className="form-group" style={{ flex: '1' }}>
+                <div className="form-group" style={{ flex: '1', position: 'relative' }}>
                   <label htmlFor="taskAssignedTo">Assign User (Email or Reddit Username)</label>
                   <input
                     id="taskAssignedTo"
@@ -359,16 +382,63 @@ export default function AdminDashboard() {
                     className="form-input"
                     placeholder="user@example.com or reddit_user"
                     value={newTaskAssignedTo}
-                    onChange={(e) => setNewTaskAssignedTo(e.target.value)}
+                    onChange={(e) => {
+                      setNewTaskAssignedTo(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    autoComplete="off"
                   />
+                  {showSuggestions && suggestions.length > 0 && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        backgroundColor: '#111827',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        marginTop: '4px',
+                        zIndex: 10,
+                        boxShadow: 'var(--shadow-lg)',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {suggestions.map((u) => (
+                        <div
+                          key={u.id}
+                          onClick={() => {
+                            setNewTaskAssignedTo(u.email);
+                            setShowSuggestions(false);
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)')}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                          style={{
+                            padding: '0.75rem 1rem',
+                            cursor: 'pointer',
+                            borderBottom: '1px solid var(--border-color)',
+                            fontSize: '0.85rem',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            color: 'var(--text-primary)',
+                          }}
+                        >
+                          <span style={{ fontWeight: 500 }}>{u.email}</span>
+                          <span style={{ color: 'var(--text-secondary)' }}>u/{u.reddit}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                <label htmlFor="taskDeadline">Hard Deadline Date/Time (Optional)</label>
+                <label htmlFor="taskDeadline">Hard Deadline Date (Optional)</label>
                 <input
                   id="taskDeadline"
-                  type="datetime-local"
+                  type="date"
                   className="form-input"
                   value={newTaskDeadline}
                   onChange={(e) => setNewTaskDeadline(e.target.value)}
