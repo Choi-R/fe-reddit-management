@@ -822,12 +822,12 @@ export default function AdminDashboard() {
                 />
               </div>
               <div className="form-group" style={{ marginBottom: '1.75rem' }}>
-                <label htmlFor="regReddit">Reddit Username*</label>
+                <label htmlFor="regReddit">Reddit Username or Profile Link*</label>
                 <input
                   id="regReddit"
                   type="text"
                   className="form-input"
-                  placeholder="reddit_username"
+                  placeholder="reddit_username or https://reddit.com/u/..."
                   value={newBasicReddit}
                   onChange={(e) => setNewBasicReddit(e.target.value)}
                   required
