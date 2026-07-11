@@ -433,7 +433,7 @@ export default function AdminDashboard() {
                   </select>
                 </div>
                 <div className="form-group" style={{ flex: '1', position: 'relative' }}>
-                  <label htmlFor="taskAssignedTo">Assign User (Email or Reddit Username)</label>
+                  <label htmlFor="taskAssignedTo">Assign User (Email or Reddit Username) (Optional)</label>
                   <input
                     id="taskAssignedTo"
                     type="text"
