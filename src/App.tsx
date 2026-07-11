@@ -4,6 +4,8 @@ import Header from './components/Header';
 import LoginPage from './pages/LoginPage';
 import BasicDashboard from './pages/BasicDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 export default function App() {
   const { user, login, logout, isAuthenticated, isAdmin, isChoi } = useAuth();
@@ -25,6 +27,14 @@ export default function App() {
 
   // ─── Login Screen ─────────────────────────────────────────────────
 
+  if (currentPath === '/forgot-password') {
+    return <ForgotPasswordPage navigateTo={navigateTo} />;
+  }
+
+  if (currentPath.startsWith('/reset-password')) {
+    return <ResetPasswordPage navigateTo={navigateTo} />;
+  }
+
   if (!isAuthenticated) {
     return (
       <LoginPage
@@ -44,6 +54,7 @@ export default function App() {
           navigateTo(hasAdminRights ? '/admin' : '/');
         }}
         onSwitchRoute={() => navigateTo(isAdminRoute ? '/' : '/admin')}
+        onForgotPassword={() => navigateTo('/forgot-password')}
       />
     );
   }

@@ -5,9 +5,10 @@ interface LoginPageProps {
   isAdminRoute: boolean;
   onLogin: (email: string, password: string) => Promise<void>;
   onSwitchRoute: () => void;
+  onForgotPassword: () => void;
 }
 
-export default function LoginPage({ isAdminRoute, onLogin, onSwitchRoute }: LoginPageProps) {
+export default function LoginPage({ isAdminRoute, onLogin, onSwitchRoute, onForgotPassword }: LoginPageProps) {
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -60,7 +61,19 @@ export default function LoginPage({ isAdminRoute, onLogin, onSwitchRoute }: Logi
             />
           </div>
           <div className="form-group" style={{ marginBottom: '2rem' }}>
-            <label htmlFor="password">Password</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <label htmlFor="password" style={{ margin: 0 }}>Password</label>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onForgotPassword();
+                }}
+                style={{ color: 'var(--color-primary)', fontSize: '0.8rem', textDecoration: 'none' }}
+              >
+                Forgot Password?
+              </a>
+            </div>
             <input
               id="password"
               type="password"
