@@ -5,6 +5,147 @@ import AlertBanner from '../components/AlertBanner';
 import StatusTag from '../components/StatusTag';
 import type { Task, Booking, ActiveBooking } from '../lib/types';
 
+interface ActiveBookingCardProps {
+  booking: ActiveBooking;
+  onSubmit: (bookingId: string, replyUrl: string, note?: string) => Promise<void>;
+  isLoading: boolean;
+  onExpire: () => void;
+}
+
+function ActiveBookingCard({ booking, onSubmit, isLoading, onExpire }: ActiveBookingCardProps) {
+  const [replyUrl, setReplyUrl] = useState('');
+  const [note, setNote] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const timeRemaining = useCountdown(
+    booking.status_id === 'incomplete' && !booking.assigned_to
+      ? booking.booked_at
+      : null
+  );
+
+  useEffect(() => {
+    if (timeRemaining === 'Expired') {
+      onExpire();
+    }
+  }, [timeRemaining, onExpire]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!replyUrl) {
+      setFormError('Please enter your Reddit reply URL.');
+      return;
+    }
+    setFormError(null);
+    try {
+      await onSubmit(booking.id, replyUrl, note || undefined);
+      setReplyUrl('');
+      setNote('');
+    } catch (err: any) {
+      setFormError(err.message || 'Failed to submit task.');
+    }
+  };
+
+  return (
+    <div className="glass-card" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+        <StatusTag status={booking.status_id} />
+        {booking.status_id === 'incomplete' && !booking.assigned_to && (
+          <span style={{ fontSize: '0.9rem', color: 'var(--color-danger)', fontWeight: 'bold' }}>
+            Time Left: {timeRemaining}
+          </span>
+        )}
+      </div>
+
+      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
+          {booking.subreddit ? `r/${booking.subreddit}` : 'Direct Link'}
+        </h3>
+        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+          {booking.client_request}
+        </p>
+
+        {booking.url && (
+          <div style={{ marginBottom: '1rem' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              Reddit URL:
+            </span>
+            <br />
+            <a
+              href={booking.url}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                color: 'var(--color-primary)',
+                textDecoration: 'none',
+                fontSize: '0.875rem',
+                wordBreak: 'break-all',
+              }}
+            >
+              {booking.url}
+            </a>
+          </div>
+        )}
+      </div>
+
+      {formError && (
+        <div style={{ color: 'var(--color-danger)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+          {formError}
+        </div>
+      )}
+
+      {booking.status_id === 'incomplete' ? (
+        <form onSubmit={handleSubmit} style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+          <div className="form-group">
+            <label htmlFor={`replyUrl-${booking.id}`}>Reddit Reply URL</label>
+            <input
+              id={`replyUrl-${booking.id}`}
+              type="url"
+              className="form-input"
+              placeholder="https://reddit.com/r/subreddit/comments/..."
+              value={replyUrl}
+              onChange={(e) => setReplyUrl(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor={`submitNote-${booking.id}`}>Note (Optional)</label>
+            <textarea
+              id={`submitNote-${booking.id}`}
+              className="form-input"
+              style={{ resize: 'vertical', minHeight: '60px' }}
+              placeholder="Add any notes about your post here..."
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+            />
+          </div>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{ width: '100%' }}
+            disabled={isLoading}
+          >
+            Submit Completed Task
+          </button>
+        </form>
+      ) : (
+        <div
+          style={{
+            borderTop: '1px solid var(--border-color)',
+            paddingTop: '1rem',
+            color: 'var(--text-secondary)',
+            fontSize: '0.9rem',
+            textAlign: 'center',
+          }}
+        >
+          <p>
+            Awaiting Admin validation. You cannot take other tasks until this is approved or rejected.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function BasicDashboard() {
   const [basicTab, setBasicTab] = useState<'tasks' | 'earnings'>('tasks');
   const [isLoading, setIsLoading] = useState(false);
@@ -13,21 +154,12 @@ export default function BasicDashboard() {
 
   // Task states
   const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
-  const [activeBooking, setActiveBooking] = useState<ActiveBooking | null>(null);
+  const [activeBookings, setActiveBookings] = useState<ActiveBooking[]>([]);
 
   // Earnings states
   const [earningsHistory, setEarningsHistory] = useState<Booking[]>([]);
   const [paidBalance, setPaidBalance] = useState(0);
   const [pendingBalance, setPendingBalance] = useState(0);
-
-  // Submit form states
-  const [submitReplyUrl, setSubmitReplyUrl] = useState('');
-  const [submitNote, setSubmitNote] = useState('');
-
-  // Countdown timer
-  const timeRemaining = useCountdown(
-    activeBooking?.status_id === 'incomplete' ? activeBooking.booked_at : null
-  );
 
   // Load all dashboard data
   const loadData = useCallback(async () => {
@@ -41,7 +173,7 @@ export default function BasicDashboard() {
       ]);
 
       setAvailableTasks(tasksData.available);
-      setActiveBooking(tasksData.active);
+      setActiveBookings(tasksData.active || []);
       setEarningsHistory(earningsData.history);
       setPaidBalance(earningsData.paidBalance);
       setPendingBalance(earningsData.pendingBalance);
@@ -55,11 +187,6 @@ export default function BasicDashboard() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  // Reload when countdown expires
-  useEffect(() => {
-    if (timeRemaining === 'Expired') loadData();
-  }, [timeRemaining, loadData]);
 
   // Book task
   const handleBookTask = async (taskId: string) => {
@@ -78,24 +205,17 @@ export default function BasicDashboard() {
   };
 
   // Submit task
-  const handleSubmitTask = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!submitReplyUrl) {
-      setErrorMsg('Please enter your Reddit reply URL.');
-      return;
-    }
-
+  const handleFormSubmit = async (taskId: string, replyUrl: string, note?: string) => {
     setIsLoading(true);
     setErrorMsg(null);
     setSuccessMsg(null);
     try {
-      await taskService.submit(activeBooking!.id, submitReplyUrl, submitNote || undefined);
+      await taskService.submit(taskId, replyUrl, note);
       setSuccessMsg('Submission sent successfully! Awaiting Admin approval.');
-      setSubmitReplyUrl('');
-      setSubmitNote('');
       loadData();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to submit task.');
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -159,7 +279,7 @@ export default function BasicDashboard() {
                         onClick={() => handleBookTask(task.id)}
                         className="btn btn-primary"
                         style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }}
-                        disabled={isLoading || activeBooking !== null}
+                        disabled={isLoading || activeBookings.length >= 2}
                       >
                         Book Task
                       </button>
@@ -172,107 +292,23 @@ export default function BasicDashboard() {
 
           {/* Right Column: My Task (Active Booked Task) */}
           <div className="glass-panel" style={{ padding: '1.75rem', height: 'fit-content' }}>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>My Task</h2>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>My Tasks</h2>
 
-            {!activeBooking ? (
+            {activeBookings.length === 0 ? (
               <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>
-                You have no active task. Book one from the available list!
+                You have no active tasks. Book up to 2 from the available list!
               </p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <StatusTag status={activeBooking.status_id} />
-                  {activeBooking.status_id === 'incomplete' && (
-                    <span style={{ fontSize: '0.9rem', color: 'var(--color-danger)', fontWeight: 'bold' }}>
-                      Time Left: {timeRemaining}
-                    </span>
-                  )}
-                </div>
-
-                <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
-                  <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-                    {activeBooking.subreddit ? `r/${activeBooking.subreddit}` : 'Direct Link'}
-                  </h3>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                    {activeBooking.client_request}
-                  </p>
-
-                  {activeBooking.url && (
-                    <div style={{ marginBottom: '1rem' }}>
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                        Reddit URL:
-                      </span>
-                      <br />
-                      <a
-                        href={activeBooking.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{
-                          color: 'var(--color-primary)',
-                          textDecoration: 'none',
-                          fontSize: '0.875rem',
-                          wordBreak: 'break-all',
-                        }}
-                      >
-                        {activeBooking.url}
-                      </a>
-                    </div>
-                  )}
-                </div>
-
-                {activeBooking.status_id === 'incomplete' ? (
-                  <form
-                    onSubmit={handleSubmitTask}
-                    style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}
-                  >
-                    <div className="form-group">
-                      <label htmlFor="replyUrl">Reddit Reply URL</label>
-                      <input
-                        id="replyUrl"
-                        type="url"
-                        className="form-input"
-                        placeholder="https://reddit.com/r/subreddit/comments/..."
-                        value={submitReplyUrl}
-                        onChange={(e) => setSubmitReplyUrl(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="submitNote">Note (Optional)</label>
-                      <textarea
-                        id="submitNote"
-                        className="form-input"
-                        style={{ resize: 'vertical', minHeight: '60px' }}
-                        placeholder="Add any notes about your post here..."
-                        value={submitNote}
-                        onChange={(e) => setSubmitNote(e.target.value)}
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="btn btn-primary"
-                      style={{ width: '100%' }}
-                      disabled={isLoading}
-                    >
-                      Submit Completed Task
-                    </button>
-                  </form>
-                ) : (
-                  <div
-                    style={{
-                      borderTop: '1px solid var(--border-color)',
-                      paddingTop: '1rem',
-                      color: 'var(--text-secondary)',
-                      fontSize: '0.9rem',
-                      textAlign: 'center',
-                    }}
-                  >
-                    <p>
-                      Awaiting Admin validation. You cannot take other tasks until this is approved
-                      or rejected.
-                    </p>
-                  </div>
-                )}
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {activeBookings.map((booking) => (
+                  <ActiveBookingCard
+                    key={booking.booking_id}
+                    booking={booking}
+                    onSubmit={handleFormSubmit}
+                    isLoading={isLoading}
+                    onExpire={loadData}
+                  />
+                ))}
               </div>
             )}
           </div>

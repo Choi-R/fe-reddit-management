@@ -51,6 +51,7 @@ export interface ActiveBooking {
   price: string;
   deadline: string | null;
   type_name: string;
+  assigned_to: string | null;
 }
 
 export interface BasicUserSummary {

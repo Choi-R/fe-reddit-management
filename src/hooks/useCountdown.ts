@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 /**
- * Returns a live HH:MM:SS countdown string from the booking time to the 12-hour expiration.
+ * Returns a live HH:MM:SS countdown string from the booking time to the 60-hour expiration.
  * Returns '' when no booking is active, or 'Expired' when time has elapsed.
  */
 export function useCountdown(bookedAt: string | null | undefined): string {
@@ -15,7 +15,7 @@ export function useCountdown(bookedAt: string | null | undefined): string {
 
     const tick = () => {
       const bookedTime = new Date(bookedAt).getTime();
-      const expirationTime = bookedTime + 12 * 60 * 60 * 1000; // 12 hours
+      const expirationTime = bookedTime + 60 * 60 * 60 * 1000; // 60 hours
       const diff = expirationTime - Date.now();
 
       if (diff <= 0) {

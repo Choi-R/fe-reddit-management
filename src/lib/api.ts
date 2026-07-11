@@ -89,7 +89,7 @@ export const authService = {
 // ─── Basic User Task Service ────────────────────────────────────────
 
 export const taskService = {
-  getAvailable: (): Promise<{ available: Task[]; active: ActiveBooking | null }> =>
+  getAvailable: (): Promise<{ available: Task[]; active: ActiveBooking[] }> =>
     authenticatedRequest('/api/tasks/available'),
 
   book: (taskId: string): Promise<{ success: boolean; booking: unknown }> =>
