@@ -120,6 +120,17 @@ export const adminService = {
       body: JSON.stringify(data),
     }),
 
+  updateUser: (userId: string, data: { email: string; password?: string | null; paypal?: string | null; reddit: string }): Promise<{ success: boolean; user: User }> =>
+    authenticatedRequest(`/api/admin/users/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteUser: (userId: string): Promise<{ success: boolean; message: string }> =>
+    authenticatedRequest(`/api/admin/users/${userId}`, {
+      method: 'DELETE',
+    }),
+
   getTasks: (): Promise<{ tasks: Task[] }> =>
     authenticatedRequest('/api/admin/tasks'),
 

@@ -32,6 +32,7 @@ export default function AdminDashboard() {
   const [newBasicPassword, setNewBasicPassword] = useState('');
   const [newBasicPaypal, setNewBasicPaypal] = useState('');
   const [newBasicReddit, setNewBasicReddit] = useState('');
+  const [editingUser, setEditingUser] = useState<BasicUserSummary | null>(null);
 
   // Review note state
   const [reviewNote, setReviewNote] = useState('');
@@ -176,8 +177,12 @@ export default function AdminDashboard() {
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newBasicEmail || !newBasicPassword || !newBasicReddit) {
-      setErrorMsg('Email, password, and reddit username are required.');
+    if (!newBasicEmail || !newBasicReddit) {
+      setErrorMsg('Email and Reddit username/link are required.');
+      return;
+    }
+    if (!editingUser && !newBasicPassword) {
+      setErrorMsg('Initial password is required.');
       return;
     }
 
@@ -185,20 +190,73 @@ export default function AdminDashboard() {
     setErrorMsg(null);
     setSuccessMsg(null);
     try {
-      await adminService.createUser({
-        email: newBasicEmail,
-        password: newBasicPassword,
-        paypal: newBasicPaypal || null,
-        reddit: newBasicReddit,
-      });
-      setSuccessMsg(`User ${newBasicEmail} registered successfully!`);
+      if (editingUser) {
+        await adminService.updateUser(editingUser.id, {
+          email: newBasicEmail,
+          password: newBasicPassword || null,
+          paypal: newBasicPaypal || null,
+          reddit: newBasicReddit,
+        });
+        setSuccessMsg(`User "${newBasicEmail}" updated successfully!`);
+        setEditingUser(null);
+      } else {
+        await adminService.createUser({
+          email: newBasicEmail,
+          password: newBasicPassword,
+          paypal: newBasicPaypal || null,
+          reddit: newBasicReddit,
+        });
+        setSuccessMsg(`User "${newBasicEmail}" registered successfully!`);
+      }
       setNewBasicEmail('');
       setNewBasicPassword('');
       setNewBasicPaypal('');
       setNewBasicReddit('');
       loadTabData();
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to create user.');
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to save user.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelUserEdit = () => {
+    setEditingUser(null);
+    setNewBasicEmail('');
+    setNewBasicPassword('');
+    setNewBasicPaypal('');
+    setNewBasicReddit('');
+    setErrorMsg(null);
+    setSuccessMsg(null);
+  };
+
+  const handleEditUserClick = (u: BasicUserSummary) => {
+    setEditingUser(u);
+    setNewBasicEmail(u.email);
+    setNewBasicPassword('');
+    setNewBasicPaypal(u.paypal || '');
+    setNewBasicReddit(u.reddit);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+  };
+
+  const handleDeleteUser = async (userId: string, email: string) => {
+    if (!window.confirm(`Are you sure you want to delete user "${email}"? This action cannot be undone and will delete all their task assignments and submissions.`)) {
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    try {
+      await adminService.deleteUser(userId);
+      setSuccessMsg(`User "${email}" deleted successfully!`);
+      if (editingUser?.id === userId) {
+        handleCancelUserEdit();
+      }
+      loadTabData();
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to delete user.');
     } finally {
       setIsLoading(false);
     }
@@ -783,7 +841,9 @@ export default function AdminDashboard() {
         <div className="grid-2">
           {/* Register Form */}
           <div className="glass-panel" style={{ padding: '1.75rem', height: 'fit-content' }}>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1.25rem' }}>Register Basic User</h2>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '1.25rem' }}>
+              {editingUser ? 'Edit User Profile' : 'Register Basic User'}
+            </h2>
             <form onSubmit={handleAddUser}>
               <div className="form-group">
                 <label htmlFor="regEmail">Email Address*</label>
@@ -798,15 +858,17 @@ export default function AdminDashboard() {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="regPass">Initial Password*</label>
+                <label htmlFor="regPass">
+                  {editingUser ? 'Password (Leave blank to keep current)' : 'Initial Password*'}
+                </label>
                 <input
                   id="regPass"
                   type="password"
                   className="form-input"
-                  placeholder="Initial secure password (min 8 characters)"
+                  placeholder={editingUser ? 'Leave blank to keep current password' : 'Initial secure password (min 8 characters)'}
                   value={newBasicPassword}
                   onChange={(e) => setNewBasicPassword(e.target.value)}
-                  required
+                  required={!editingUser}
                   minLength={8}
                 />
               </div>
@@ -833,14 +895,26 @@ export default function AdminDashboard() {
                   required
                 />
               </div>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{ width: '100%' }}
-                disabled={isLoading}
-              >
-                Register User
-              </button>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ flex: 1 }}
+                  disabled={isLoading}
+                >
+                  {editingUser ? 'Update User' : 'Register User'}
+                </button>
+                {editingUser && (
+                  <button
+                    type="button"
+                    onClick={handleCancelUserEdit}
+                    className="btn"
+                    style={{ flex: 1, background: 'rgba(255, 255, 255, 0.1)', color: '#fff' }}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
           </div>
 
@@ -886,6 +960,44 @@ export default function AdminDashboard() {
                     style={{ marginTop: '0.5rem', fontSize: '0.7rem', color: 'var(--text-secondary)' }}
                   >
                     UUID: <code>{u.id}</code>
+                  </div>
+                  <div
+                    style={{
+                      borderTop: '1px solid var(--border-color)',
+                      marginTop: '0.75rem',
+                      paddingTop: '0.75rem',
+                      display: 'flex',
+                      gap: '0.5rem',
+                    }}
+                  >
+                    <button
+                      onClick={() => handleEditUserClick(u)}
+                      className="btn"
+                      style={{
+                        padding: '0.3rem 0.6rem',
+                        fontSize: '0.7rem',
+                        background: 'var(--color-primary)',
+                        color: '#fff',
+                        borderRadius: '4px',
+                      }}
+                      disabled={isLoading}
+                    >
+                      Edit Profile
+                    </button>
+                    <button
+                      onClick={() => handleDeleteUser(u.id, u.email)}
+                      className="btn"
+                      style={{
+                        padding: '0.3rem 0.6rem',
+                        fontSize: '0.7rem',
+                        background: 'var(--color-danger)',
+                        color: '#fff',
+                        borderRadius: '4px',
+                      }}
+                      disabled={isLoading}
+                    >
+                      Delete User
+                    </button>
                   </div>
                 </div>
               ))}
