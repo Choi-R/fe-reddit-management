@@ -615,7 +615,17 @@ export default function AdminDashboard() {
                       <strong style={{ fontSize: '1rem' }}>User: {sub.user_email}</strong>
                       <br />
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                        Reddit profile: <strong>u/{sub.user_reddit}</strong>
+                        Reddit profile:{' '}
+                        <strong>
+                          <a
+                            href={`https://reddit.com/u/${sub.user_reddit}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}
+                          >
+                            u/{sub.user_reddit}
+                          </a>
+                        </strong>
                       </span>
                     </div>
                     <div style={{ textAlign: 'right' }}>
@@ -723,7 +733,16 @@ export default function AdminDashboard() {
                   {adminUsers.map((u) => (
                     <tr key={u.id}>
                       <td>{u.email}</td>
-                      <td>u/{u.reddit}</td>
+                      <td>
+                        <a
+                          href={`https://reddit.com/u/${u.reddit}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}
+                        >
+                          u/{u.reddit}
+                        </a>
+                      </td>
                       <td style={{ fontWeight: 'bold' }}>{u.paypal || 'Not set'}</td>
                       <td
                         style={{
@@ -833,7 +852,18 @@ export default function AdminDashboard() {
                 <div key={u.id} className="glass-card" style={{ padding: '1.25rem' }}>
                   <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{u.email}</div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Reddit: <strong>u/{u.reddit}</strong> | PayPal: <strong>{u.paypal || 'Not set'}</strong>
+                    Reddit:{' '}
+                    <strong>
+                      <a
+                        href={`https://reddit.com/u/${u.reddit}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}
+                      >
+                        u/{u.reddit}
+                      </a>
+                    </strong>{' '}
+                    | PayPal: <strong>{u.paypal || 'Not set'}</strong>
                   </div>
                   <div
                     style={{
