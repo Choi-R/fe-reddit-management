@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { taskService } from '../lib/api';
+import { taskService } from '../services/taskService';
 import { useCountdown } from '../hooks/useCountdown';
 import AlertBanner from '../components/AlertBanner';
 import StatusTag from '../components/StatusTag';
-import type { Task, Booking, ActiveBooking } from '../lib/types';
+import type { Task, Booking, ActiveBooking } from '../types';
 
 interface ActiveBookingCardProps {
   booking: ActiveBooking;

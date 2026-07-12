@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { adminService } from '../lib/api';
+import { adminService } from '../services/adminService';
 import AlertBanner from '../components/AlertBanner';
 import StatusTag from '../components/StatusTag';
-import type { Task, BasicUserSummary, PendingSubmission } from '../lib/types';
+import type { Task, BasicUserSummary, PendingSubmission } from '../types';
 
 export default function AdminDashboard() {
   const [adminTab, setAdminTab] = useState<'tasks' | 'reviews' | 'payouts' | 'users'>('tasks');
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
           paypal: newBasicPaypal || null,
           reddit: newBasicReddit,
         });
-        setSuccessMsg(`User "${newBasicEmail}" registered successfully!`);
+        setSuccessMsg(`User "${newBasicEmail}" registered successfully! A welcome email has been sent to them (remind them to check their spam folder).`);
       }
       setNewBasicEmail('');
       setNewBasicPassword('');

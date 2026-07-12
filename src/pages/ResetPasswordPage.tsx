@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import AlertBanner from '../components/AlertBanner';
-import { authService } from '../lib/api';
+import { authService } from '../services/authService';
 
 interface ResetPasswordPageProps {
   navigateTo: (path: string) => void;

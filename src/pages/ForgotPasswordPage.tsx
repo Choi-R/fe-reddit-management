@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import AlertBanner from '../components/AlertBanner';
-import { authService } from '../lib/api';
+import { authService } from '../services/authService';
 
 interface ForgotPasswordPageProps {
   navigateTo: (path: string) => void;
@@ -25,7 +25,8 @@ export default function ForgotPasswordPage({ navigateTo }: ForgotPasswordPagePro
 
     try {
       const res = await authService.forgotPassword(emailInput);
-      setSuccessMsg(res.message || 'If the email is registered, a password reset link has been sent.');
+      const baseMsg = res.message || 'If the email is registered, a password reset link has been sent.';
+      setSuccessMsg(`${baseMsg} (Note: The email might be in your spam folder.)`);
       setEmailInput('');
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Network error occurred. Please try again.');

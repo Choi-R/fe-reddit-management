@@ -6,8 +6,9 @@ import BasicDashboard from './pages/BasicDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import { AuthProvider } from './contexts/AuthContext';
 
-export default function App() {
+function AppContent() {
   const { user, login, logout, isAuthenticated, isAdmin, isChoi } = useAuth();
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
@@ -66,5 +67,13 @@ export default function App() {
       <Header user={user!} isAdmin={isAdmin} isChoi={isChoi} onLogout={logout} />
       {isAdmin ? <AdminDashboard /> : <BasicDashboard />}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
