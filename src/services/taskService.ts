@@ -17,6 +17,12 @@ export const taskService = {
       body: JSON.stringify({ taskId, replyUrl, note }),
     }),
 
+  cancel: (taskId: string): Promise<{ success: boolean }> =>
+    authenticatedRequest('/api/tasks/cancel', {
+      method: 'POST',
+      body: JSON.stringify({ taskId }),
+    }),
+
   getEarnings: (): Promise<{ history: Booking[]; paidBalance: number; pendingBalance: number }> =>
     authenticatedRequest('/api/tasks/earnings'),
 };

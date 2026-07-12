@@ -8,11 +8,12 @@ import type { Task, Booking, ActiveBooking } from '../types';
 interface ActiveBookingCardProps {
   booking: ActiveBooking;
   onSubmit: (bookingId: string, replyUrl: string, note?: string) => Promise<void>;
+  onCancel: (taskId: string) => Promise<void>;
   isLoading: boolean;
   onExpire: () => void;
 }
 
-function ActiveBookingCard({ booking, onSubmit, isLoading, onExpire }: ActiveBookingCardProps) {
+function ActiveBookingCard({ booking, onSubmit, onCancel, isLoading, onExpire }: ActiveBookingCardProps) {
   const [replyUrl, setReplyUrl] = useState('');
   const [note, setNote] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -42,6 +43,17 @@ function ActiveBookingCard({ booking, onSubmit, isLoading, onExpire }: ActiveBoo
       setNote('');
     } catch (err: any) {
       setFormError(err.message || 'Failed to submit task.');
+    }
+  };
+
+  const handleCancel = async () => {
+    if (window.confirm('Are you sure you want to cancel this booking? This will return the task to the available list and restore the quota.')) {
+      try {
+        setFormError(null);
+        await onCancel(booking.id);
+      } catch (err: any) {
+        setFormError(err.message || 'Failed to cancel booking.');
+      }
     }
   };
 
@@ -118,14 +130,25 @@ function ActiveBookingCard({ booking, onSubmit, isLoading, onExpire }: ActiveBoo
               onChange={(e) => setNote(e.target.value)}
             />
           </div>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            style={{ width: '100%' }}
-            disabled={isLoading}
-          >
-            Submit Completed Task
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              style={{ width: '100%' }}
+              disabled={isLoading}
+            >
+              Submit Completed Task
+            </button>
+            <button
+              type="button"
+              className="btn btn-danger"
+              style={{ width: '100%' }}
+              disabled={isLoading}
+              onClick={handleCancel}
+            >
+              Cancel Booking (Second-Thought)
+            </button>
+          </div>
         </form>
       ) : (
         <div
@@ -221,6 +244,23 @@ export default function BasicDashboard() {
     }
   };
 
+  // Cancel booking
+  const handleCancelBooking = async (taskId: string) => {
+    setIsLoading(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    try {
+      await taskService.cancel(taskId);
+      setSuccessMsg('Booking cancelled successfully! The task is back in the available list.');
+      loadData();
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to cancel booking.');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div>
       {errorMsg && <AlertBanner type="error" message={errorMsg} />}
@@ -305,6 +345,7 @@ export default function BasicDashboard() {
                     key={booking.booking_id}
                     booking={booking}
                     onSubmit={handleFormSubmit}
+                    onCancel={handleCancelBooking}
                     isLoading={isLoading}
                     onExpire={loadData}
                   />
