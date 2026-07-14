@@ -375,6 +375,7 @@ tr:hover td {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -419,4 +420,22 @@ tr:hover td {
 
 .chevron-icon.rotated {
   transform: rotate(180deg);
+}
+
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.35rem;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+  transition: background-color var(--transition-fast);
+}
+
+.task-card-header:hover {
+  background: rgba(255, 255, 255, 0.03);
 }

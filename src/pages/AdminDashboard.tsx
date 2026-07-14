@@ -65,6 +65,20 @@ export default function AdminDashboard() {
     });
   };
 
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
+
+  const toggleTaskExpanded = (taskId: string) => {
+    setExpandedTasks((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
+
   // Reset page numbers when tab changes
   useEffect(() => {
     setTasksPage(1);
@@ -595,12 +609,8 @@ export default function AdminDashboard() {
                     {displayedTasks.map((task) => (
                       <div key={task.id} className="glass-card compact-card">
                         <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '0.35rem',
-                          }}
+                          className="task-card-header"
+                          onClick={() => toggleTaskExpanded(task.id)}
                         >
                           <span style={{ fontWeight: 'bold', fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
                             {task.subreddit ? `r/${task.subreddit}` : 'Direct Link'}
@@ -635,6 +645,16 @@ export default function AdminDashboard() {
                             >
                               {task.quota}
                             </span>
+                            <svg
+                              className={`chevron-icon ${expandedTasks.has(task.id) ? 'rotated' : ''}`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                              style={{ width: '14px', height: '14px', color: 'var(--text-secondary)' }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                            </svg>
                           </span>
                         </div>
                         
@@ -660,43 +680,46 @@ export default function AdminDashboard() {
                             Assigned: <strong style={{ color: task.assigned_to_email ? 'var(--color-primary)' : 'inherit' }}>{task.assigned_to_email || 'None'}</strong>
                           </span>
                         </div>
-                        <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            flexWrap: 'wrap',
-                            gap: '0.5rem',
-                            borderTop: '1px solid var(--border-color)',
-                            paddingTop: '0.5rem',
-                          }}
-                        >
-                          <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
-                            <StatusTag status="incomplete">Inc: {task.count_incomplete}</StatusTag>
-                            <StatusTag status="pending">Pend: {task.count_pending}</StatusTag>
-                            <StatusTag status="success">Succ: {task.count_success}</StatusTag>
-                            <StatusTag status="paid">Paid: {task.count_paid}</StatusTag>
-                            <StatusTag status="failed">Fail: {task.count_failed}</StatusTag>
+                        
+                        {expandedTasks.has(task.id) && (
+                          <div
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              flexWrap: 'wrap',
+                              gap: '0.5rem',
+                              borderTop: '1px solid var(--border-color)',
+                              paddingTop: '0.5rem',
+                            }}
+                          >
+                            <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                              <StatusTag status="incomplete">Inc: {task.count_incomplete}</StatusTag>
+                              <StatusTag status="pending">Pend: {task.count_pending}</StatusTag>
+                              <StatusTag status="success">Succ: {task.count_success}</StatusTag>
+                              <StatusTag status="paid">Paid: {task.count_paid}</StatusTag>
+                              <StatusTag status="failed">Fail: {task.count_failed}</StatusTag>
+                            </div>
+                            <div style={{ display: 'flex', gap: '0.4rem' }}>
+                              <button
+                                onClick={() => handleEditClick(task)}
+                                className="btn btn-secondary"
+                                style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem', borderRadius: '4px' }}
+                                disabled={isLoading}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteTask(task.id)}
+                                className="btn btn-danger"
+                                style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem', borderRadius: '4px' }}
+                                disabled={isLoading}
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </div>
-                          <div style={{ display: 'flex', gap: '0.4rem' }}>
-                            <button
-                              onClick={() => handleEditClick(task)}
-                              className="btn btn-secondary"
-                              style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem', borderRadius: '4px' }}
-                              disabled={isLoading}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteTask(task.id)}
-                              className="btn btn-danger"
-                              style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem', borderRadius: '4px' }}
-                              disabled={isLoading}
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </div>
+                        )}
                       </div>
                     ))}
                     {totalPages > 1 && (

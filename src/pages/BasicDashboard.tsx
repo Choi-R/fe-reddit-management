@@ -181,6 +181,19 @@ export default function BasicDashboard() {
 
   // Pagination states
   const [tasksPage, setTasksPage] = useState(1);
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
+
+  const toggleTaskExpanded = (taskId: string) => {
+    setExpandedTasks((prev) => {
+      const next = new Set(prev);
+      if (next.has(taskId)) {
+        next.delete(taskId);
+      } else {
+        next.add(taskId);
+      }
+      return next;
+    });
+  };
 
   // Reset page when tab changes
   useEffect(() => {
@@ -315,7 +328,10 @@ export default function BasicDashboard() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {displayedTasks.map((task) => (
                       <div key={task.id} className="glass-card compact-card">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                        <div 
+                          className="task-card-header"
+                          onClick={() => toggleTaskExpanded(task.id)}
+                        >
                           <span style={{ fontWeight: 'bold', color: 'var(--color-primary)', fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
                             {task.subreddit ? `r/${task.subreddit}` : 'Direct Link'}
                             <span style={{ 
@@ -349,6 +365,16 @@ export default function BasicDashboard() {
                             >
                               {task.quota}
                             </span>
+                            <svg
+                              className={`chevron-icon ${expandedTasks.has(task.id) ? 'rotated' : ''}`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                              style={{ width: '14px', height: '14px', color: 'var(--text-secondary)' }}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                            </svg>
                           </span>
                         </div>
                         <p
@@ -362,16 +388,18 @@ export default function BasicDashboard() {
                         >
                           {task.client_request}
                         </p>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.5rem' }}>
-                          <button
-                            onClick={() => handleBookTask(task.id)}
-                            className="btn btn-primary"
-                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '4px' }}
-                            disabled={isLoading || incompleteCount >= 2}
-                          >
-                            Book Task
-                          </button>
-                        </div>
+                        {expandedTasks.has(task.id) && (
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.5rem' }}>
+                            <button
+                              onClick={() => handleBookTask(task.id)}
+                              className="btn btn-primary"
+                              style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '4px' }}
+                              disabled={isLoading || incompleteCount >= 2}
+                            >
+                              Book Task
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
