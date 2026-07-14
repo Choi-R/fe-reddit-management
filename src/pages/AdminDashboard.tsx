@@ -17,7 +17,6 @@ export default function AdminDashboard() {
 
   // Task form states
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [newTaskSubreddit, setNewTaskSubreddit] = useState('');
   const [newTaskUrl, setNewTaskUrl] = useState('');
   const [newTaskClientRequest, setNewTaskClientRequest] = useState('');
   const [newTaskQuota, setNewTaskQuota] = useState(1);
@@ -85,7 +84,6 @@ export default function AdminDashboard() {
     setSuccessMsg(null);
     try {
       const taskData = {
-        subreddit: newTaskSubreddit || null,
         url: newTaskUrl,
         clientRequest: newTaskClientRequest,
         quota: parseInt(newTaskQuota.toString()),
@@ -104,7 +102,6 @@ export default function AdminDashboard() {
       }
 
       setEditingTask(null);
-      setNewTaskSubreddit('');
       setNewTaskUrl('');
       setNewTaskClientRequest('');
       setNewTaskQuota(1);
@@ -121,7 +118,6 @@ export default function AdminDashboard() {
 
   const handleCancelEdit = () => {
     setEditingTask(null);
-    setNewTaskSubreddit('');
     setNewTaskUrl('');
     setNewTaskClientRequest('');
     setNewTaskQuota(1);
@@ -134,7 +130,6 @@ export default function AdminDashboard() {
 
   const handleEditClick = (task: Task) => {
     setEditingTask(task);
-    setNewTaskSubreddit(task.subreddit || '');
     setNewTaskUrl(task.url);
     setNewTaskClientRequest(task.client_request);
     setNewTaskQuota(task.quota);
@@ -193,10 +188,12 @@ export default function AdminDashboard() {
       if (editingUser) {
         await adminService.updateUser(editingUser.id, {
           email: newBasicEmail,
-          password: newBasicPassword || null,
           paypal: newBasicPaypal || null,
           reddit: newBasicReddit,
         });
+        if (newBasicPassword) {
+          await adminService.updateUserPassword(editingUser.id, newBasicPassword);
+        }
         setSuccessMsg(`User "${newBasicEmail}" updated successfully!`);
         setEditingUser(null);
       } else {
@@ -354,17 +351,6 @@ export default function AdminDashboard() {
               {editingTask ? 'Edit Task' : 'Create New Task'}
             </h2>
             <form onSubmit={handleSaveTask}>
-              <div className="form-group">
-                <label htmlFor="taskSubreddit">Subreddit Name (Optional)</label>
-                <input
-                  id="taskSubreddit"
-                  type="text"
-                  className="form-input"
-                  placeholder="reactjs (without r/)"
-                  value={newTaskSubreddit}
-                  onChange={(e) => setNewTaskSubreddit(e.target.value)}
-                />
-              </div>
               <div className="form-group">
                 <label htmlFor="taskUrl">Reddit URL (Post or Comment)*</label>
                 <input

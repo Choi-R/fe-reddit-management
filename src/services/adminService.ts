@@ -11,10 +11,16 @@ export const adminService = {
       body: JSON.stringify(data),
     }),
 
-  updateUser: (userId: string, data: { email: string; password?: string | null; paypal?: string | null; reddit: string }): Promise<{ success: boolean; user: User }> =>
+  updateUser: (userId: string, data: { email: string; paypal?: string | null; reddit: string }): Promise<{ success: boolean; user: User }> =>
     authenticatedRequest(`/api/admin/users/${userId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
+    }),
+
+  updateUserPassword: (userId: string, password: string): Promise<{ success: boolean; message: string }> =>
+    authenticatedRequest(`/api/admin/users/${userId}/password`, {
+      method: 'PUT',
+      body: JSON.stringify({ password }),
     }),
 
   deleteUser: (userId: string): Promise<{ success: boolean; message: string }> =>
