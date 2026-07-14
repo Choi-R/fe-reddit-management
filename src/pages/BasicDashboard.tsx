@@ -161,7 +161,7 @@ function ActiveBookingCard({ booking, onSubmit, onCancel, isLoading, onExpire }:
           }}
         >
           <p>
-            Awaiting Admin validation. You cannot take other tasks until this is approved or rejected.
+            Awaiting Admin validation. You can book other available tasks.
           </p>
         </div>
       )}
@@ -261,6 +261,8 @@ export default function BasicDashboard() {
     }
   };
 
+  const incompleteCount = activeBookings.filter(b => b.status_id === 'incomplete').length;
+
   return (
     <div>
       {errorMsg && <AlertBanner type="error" message={errorMsg} />}
@@ -319,7 +321,7 @@ export default function BasicDashboard() {
                         onClick={() => handleBookTask(task.id)}
                         className="btn btn-primary"
                         style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }}
-                        disabled={isLoading || activeBookings.length >= 2}
+                        disabled={isLoading || incompleteCount >= 2}
                       >
                         Book Task
                       </button>
