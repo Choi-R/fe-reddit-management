@@ -3,6 +3,7 @@ import { taskService } from '../services/taskService';
 import { useCountdown } from '../hooks/useCountdown';
 import AlertBanner from '../components/AlertBanner';
 import StatusTag from '../components/StatusTag';
+import Pagination from '../components/Pagination';
 import type { Task, Booking, ActiveBooking } from '../types';
 
 interface ActiveBookingCardProps {
@@ -403,29 +404,11 @@ export default function BasicDashboard() {
                       </div>
                     ))}
                   </div>
-                  {totalPages > 1 && (
-                    <div className="pagination-container">
-                      <button
-                        type="button"
-                        className="pagination-btn"
-                        disabled={currentPage === 1}
-                        onClick={() => setTasksPage(currentPage - 1)}
-                      >
-                        Prev
-                      </button>
-                      <span className="pagination-info">
-                        Page {currentPage} of {totalPages}
-                      </span>
-                      <button
-                        type="button"
-                        className="pagination-btn"
-                        disabled={currentPage === totalPages}
-                        onClick={() => setTasksPage(currentPage + 1)}
-                      >
-                        Next
-                      </button>
-                    </div>
-                  )}
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setTasksPage}
+                  />
                 </>
               );
             })()}

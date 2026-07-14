@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { adminService } from '../services/adminService';
 import AlertBanner from '../components/AlertBanner';
 import StatusTag from '../components/StatusTag';
+import Pagination from '../components/Pagination';
 import type { Task, BasicUserSummary, PendingSubmission } from '../types';
 
 function getRelativeTimeString(dateString: string): string {
@@ -722,29 +723,11 @@ export default function AdminDashboard() {
                         )}
                       </div>
                     ))}
-                    {totalPages > 1 && (
-                      <div className="pagination-container">
-                        <button
-                          type="button"
-                          className="pagination-btn"
-                          disabled={currentPage === 1}
-                          onClick={() => setTasksPage(currentPage - 1)}
-                        >
-                          Prev
-                        </button>
-                        <span className="pagination-info">
-                          Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                          type="button"
-                          className="pagination-btn"
-                          disabled={currentPage === totalPages}
-                          onClick={() => setTasksPage(currentPage + 1)}
-                        >
-                          Next
-                        </button>
-                      </div>
-                    )}
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={setTasksPage}
+                    />
                   </>
                 );
               })()}
@@ -1167,29 +1150,11 @@ export default function AdminDashboard() {
                         )}
                       </div>
                     ))}
-                    {totalPages > 1 && (
-                      <div className="pagination-container">
-                        <button
-                          type="button"
-                          className="pagination-btn"
-                          disabled={currentPage === 1}
-                          onClick={() => setUsersPage(currentPage - 1)}
-                        >
-                          Prev
-                        </button>
-                        <span className="pagination-info">
-                          Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                          type="button"
-                          className="pagination-btn"
-                          disabled={currentPage === totalPages}
-                          onClick={() => setUsersPage(currentPage + 1)}
-                        >
-                          Next
-                        </button>
-                      </div>
-                    )}
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={setUsersPage}
+                    />
                   </>
                 );
               })()}
