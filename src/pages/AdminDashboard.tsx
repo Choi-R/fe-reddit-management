@@ -602,39 +602,61 @@ export default function AdminDashboard() {
                             marginBottom: '0.35rem',
                           }}
                         >
-                          <span style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>
+                          <span style={{ fontWeight: 'bold', fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
                             {task.subreddit ? `r/${task.subreddit}` : 'Direct Link'}
+                            <span style={{ 
+                              fontSize: '0.7rem', 
+                              fontWeight: '500', 
+                              background: 'rgba(255, 255, 255, 0.05)', 
+                              color: 'var(--text-secondary)', 
+                              padding: '0.1rem 0.35rem', 
+                              borderRadius: '4px', 
+                              border: '1px solid var(--border-color)',
+                              textTransform: 'uppercase'
+                            }}>
+                              {task.type_name}
+                            </span>
                           </span>
-                          <span style={{ color: 'var(--color-success)', fontWeight: 'bold', fontSize: '0.95rem' }}>
-                            ${parseFloat(task.price).toFixed(2)}
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ color: 'var(--color-success)', fontWeight: 'bold', fontSize: '0.95rem' }}>
+                              ${parseFloat(task.price).toFixed(2)}
+                            </span>
+                            <span 
+                              title={`Quota: ${task.quota}`}
+                              style={{ 
+                                fontSize: '0.7rem', 
+                                background: 'rgba(99, 102, 241, 0.1)', 
+                                color: 'var(--color-primary)', 
+                                padding: '0.1rem 0.35rem', 
+                                borderRadius: '9999px',
+                                border: '1px solid rgba(99, 102, 241, 0.2)',
+                                fontWeight: '600'
+                              }}
+                            >
+                              {task.quota}
+                            </span>
                           </span>
                         </div>
-                        <p
-                          className="line-clamp-2"
-                          title={task.client_request}
-                          style={{
-                            fontSize: '0.8rem',
+                        
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                          <p
+                            className="line-clamp-2"
+                            title={task.client_request}
+                            style={{
+                              fontSize: '0.8rem',
+                              color: 'var(--text-secondary)',
+                              margin: 0,
+                              flex: 1
+                            }}
+                          >
+                            {task.client_request}
+                          </p>
+                          <span style={{ 
+                            fontSize: '0.75rem', 
                             color: 'var(--text-secondary)',
-                            marginBottom: '0.5rem',
-                          }}
-                        >
-                          {task.client_request}
-                        </p>
-                        <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            flexWrap: 'wrap',
-                            gap: '0.5rem',
-                            fontSize: '0.75rem',
-                            color: 'var(--text-secondary)',
-                            marginBottom: '0.5rem',
-                          }}
-                        >
-                          <span>
-                            Quota: <strong>{task.quota}</strong> | Type: <strong>{task.type_name}</strong>
-                          </span>
-                          <span>
+                            whiteSpace: 'nowrap',
+                            alignSelf: 'center'
+                          }}>
                             Assigned: <strong style={{ color: task.assigned_to_email ? 'var(--color-primary)' : 'inherit' }}>{task.assigned_to_email || 'None'}</strong>
                           </span>
                         </div>
