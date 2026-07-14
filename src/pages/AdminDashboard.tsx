@@ -48,6 +48,29 @@ export default function AdminDashboard() {
   const [adminUsers, setAdminUsers] = useState<BasicUserSummary[]>([]);
   const [pendingSubmissions, setPendingSubmissions] = useState<PendingSubmission[]>([]);
 
+  // Pagination and Expand/Collapse states
+  const [tasksPage, setTasksPage] = useState(1);
+  const [usersPage, setUsersPage] = useState(1);
+  const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
+
+  const toggleUserExpanded = (userId: string) => {
+    setExpandedUsers((prev) => {
+      const next = new Set(prev);
+      if (next.has(userId)) {
+        next.delete(userId);
+      } else {
+        next.add(userId);
+      }
+      return next;
+    });
+  };
+
+  // Reset page numbers when tab changes
+  useEffect(() => {
+    setTasksPage(1);
+    setUsersPage(1);
+  }, [adminTab]);
+
   // Task form states
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [newTaskUrl, setNewTaskUrl] = useState('');
@@ -557,98 +580,129 @@ export default function AdminDashboard() {
 
           {/* Tasks List */}
           <div className="glass-panel" style={{ padding: '1.75rem' }}>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Active Tasks</h2>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Active Tasks ({adminTasks.length})</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto' }}>
               {adminTasks.length === 0 ? (
                 <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>
                   No tasks found. Create one to begin!
                 </p>
-              ) : (
-                adminTasks.map((task) => (
-                  <div key={task.id} className="glass-card" style={{ padding: '1.25rem' }}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '0.5rem',
-                      }}
-                    >
-                      <span style={{ fontWeight: 'bold' }}>
-                        {task.subreddit ? `r/${task.subreddit}` : 'Direct Link'}
-                      </span>
-                      <span style={{ color: 'var(--color-success)', fontWeight: 'bold' }}>
-                        ${parseFloat(task.price).toFixed(2)}
-                      </span>
-                    </div>
-                    <p
-                      style={{
-                        fontSize: '0.85rem',
-                        color: 'var(--text-secondary)',
-                        marginBottom: '0.75rem',
-                      }}
-                    >
-                      {task.client_request}
-                    </p>
-                    <div
-                      style={{
-                        borderTop: '1px solid var(--border-color)',
-                        paddingTop: '0.5rem',
-                        marginTop: '0.5rem',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        flexWrap: 'wrap',
-                        gap: '0.5rem',
-                        fontSize: '0.75rem',
-                        color: 'var(--text-secondary)',
-                      }}
-                    >
-                      <span>
-                        Quota: <strong>{task.quota}</strong> | Type:{' '}
-                        <strong>{task.type_name}</strong>
-                      </span>
-                      <span>
-                        Assigned: <strong>{task.assigned_to_email || 'None'}</strong>
-                      </span>
-                    </div>
-                    <div
-                      style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}
-                    >
-                      <StatusTag status="incomplete">Inc: {task.count_incomplete}</StatusTag>
-                      <StatusTag status="pending">Pend: {task.count_pending}</StatusTag>
-                      <StatusTag status="success">Succ: {task.count_success}</StatusTag>
-                      <StatusTag status="paid">Paid: {task.count_paid}</StatusTag>
-                      <StatusTag status="failed">Fail: {task.count_failed}</StatusTag>
-                    </div>
-                    <div
-                      style={{
-                        display: 'flex',
-                        gap: '0.75rem',
-                        marginTop: '0.75rem',
-                        borderTop: '1px solid var(--border-color)',
-                        paddingTop: '0.75rem',
-                        justifyContent: 'flex-end',
-                      }}
-                    >
-                      <button
-                        onClick={() => handleEditClick(task)}
-                        className="btn btn-secondary"
-                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
-                        disabled={isLoading}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteTask(task.id)}
-                        className="btn btn-danger"
-                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}
-                        disabled={isLoading}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
+              ) : (() => {
+                const totalPages = Math.ceil(adminTasks.length / 5);
+                const currentPage = Math.max(1, Math.min(tasksPage, totalPages || 1));
+                const displayedTasks = adminTasks.slice((currentPage - 1) * 5, currentPage * 5);
+                return (
+                  <>
+                    {displayedTasks.map((task) => (
+                      <div key={task.id} className="glass-card compact-card">
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '0.35rem',
+                          }}
+                        >
+                          <span style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>
+                            {task.subreddit ? `r/${task.subreddit}` : 'Direct Link'}
+                          </span>
+                          <span style={{ color: 'var(--color-success)', fontWeight: 'bold', fontSize: '0.95rem' }}>
+                            ${parseFloat(task.price).toFixed(2)}
+                          </span>
+                        </div>
+                        <p
+                          className="line-clamp-2"
+                          title={task.client_request}
+                          style={{
+                            fontSize: '0.8rem',
+                            color: 'var(--text-secondary)',
+                            marginBottom: '0.5rem',
+                          }}
+                        >
+                          {task.client_request}
+                        </p>
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            gap: '0.5rem',
+                            fontSize: '0.75rem',
+                            color: 'var(--text-secondary)',
+                            marginBottom: '0.5rem',
+                          }}
+                        >
+                          <span>
+                            Quota: <strong>{task.quota}</strong> | Type: <strong>{task.type_name}</strong>
+                          </span>
+                          <span>
+                            Assigned: <strong style={{ color: task.assigned_to_email ? 'var(--color-primary)' : 'inherit' }}>{task.assigned_to_email || 'None'}</strong>
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: '0.5rem',
+                            borderTop: '1px solid var(--border-color)',
+                            paddingTop: '0.5rem',
+                          }}
+                        >
+                          <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                            <StatusTag status="incomplete">Inc: {task.count_incomplete}</StatusTag>
+                            <StatusTag status="pending">Pend: {task.count_pending}</StatusTag>
+                            <StatusTag status="success">Succ: {task.count_success}</StatusTag>
+                            <StatusTag status="paid">Paid: {task.count_paid}</StatusTag>
+                            <StatusTag status="failed">Fail: {task.count_failed}</StatusTag>
+                          </div>
+                          <div style={{ display: 'flex', gap: '0.4rem' }}>
+                            <button
+                              onClick={() => handleEditClick(task)}
+                              className="btn btn-secondary"
+                              style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem', borderRadius: '4px' }}
+                              disabled={isLoading}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTask(task.id)}
+                              className="btn btn-danger"
+                              style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem', borderRadius: '4px' }}
+                              disabled={isLoading}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {totalPages > 1 && (
+                      <div className="pagination-container">
+                        <button
+                          type="button"
+                          className="pagination-btn"
+                          disabled={currentPage === 1}
+                          onClick={() => setTasksPage(currentPage - 1)}
+                        >
+                          Prev
+                        </button>
+                        <span className="pagination-info">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                          type="button"
+                          className="pagination-btn"
+                          disabled={currentPage === totalPages}
+                          onClick={() => setTasksPage(currentPage + 1)}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -952,87 +1006,148 @@ export default function AdminDashboard() {
 
           {/* Users List */}
           <div className="glass-panel" style={{ padding: '1.75rem' }}>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>User Profiles</h2>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>User Profiles ({adminUsers.length})</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto' }}>
-              {adminUsers.map((u) => (
-                <div key={u.id} className="glass-card" style={{ padding: '1.25rem' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{u.email}</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Reddit:{' '}
-                    <strong>
-                      <a
-                        href={`https://reddit.com/u/${u.reddit}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}
-                      >
-                        u/{u.reddit}
-                      </a>
-                    </strong>{' '}
-                    | PayPal: <strong>{u.paypal || 'Not set'}</strong>
-                  </div>
-                  <div
-                    style={{
-                      borderTop: '1px solid var(--border-color)',
-                      marginTop: '0.75rem',
-                      paddingTop: '0.5rem',
-                      display: 'flex',
-                      gap: '1rem',
-                      fontSize: '0.75rem',
-                    }}
-                  >
-                    <span style={{ color: 'var(--color-warning)' }}>
-                      Pending: <strong>${u.pendingBalance.toFixed(2)}</strong>
-                    </span>
-                    <span style={{ color: 'var(--color-success)' }}>
-                      Total Paid: <strong>${u.paidBalance.toFixed(2)}</strong>
-                    </span>
-                  </div>
-                  <div
-                    style={{ marginTop: '0.5rem', fontSize: '0.7rem', color: 'var(--text-secondary)' }}
-                  >
-                    UUID: <code>{u.id}</code>
-                  </div>
-                  <div
-                    style={{
-                      borderTop: '1px solid var(--border-color)',
-                      marginTop: '0.75rem',
-                      paddingTop: '0.75rem',
-                      display: 'flex',
-                      gap: '0.5rem',
-                    }}
-                  >
-                    <button
-                      onClick={() => handleEditUserClick(u)}
-                      className="btn"
-                      style={{
-                        padding: '0.3rem 0.6rem',
-                        fontSize: '0.7rem',
-                        background: 'var(--color-primary)',
-                        color: '#fff',
-                        borderRadius: '4px',
-                      }}
-                      disabled={isLoading}
-                    >
-                      Edit Profile
-                    </button>
-                    <button
-                      onClick={() => handleDeleteUser(u.id, u.email)}
-                      className="btn"
-                      style={{
-                        padding: '0.3rem 0.6rem',
-                        fontSize: '0.7rem',
-                        background: 'var(--color-danger)',
-                        color: '#fff',
-                        borderRadius: '4px',
-                      }}
-                      disabled={isLoading}
-                    >
-                      Delete User
-                    </button>
-                  </div>
-                </div>
-              ))}
+              {adminUsers.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>
+                  No users registered.
+                </p>
+              ) : (() => {
+                const totalPages = Math.ceil(adminUsers.length / 5);
+                const currentPage = Math.max(1, Math.min(usersPage, totalPages || 1));
+                const displayedUsers = adminUsers.slice((currentPage - 1) * 5, currentPage * 5);
+                return (
+                  <>
+                    {displayedUsers.map((u) => (
+                      <div className="expandable-user-card" key={u.id}>
+                        <div className="user-card-header" onClick={() => toggleUserExpanded(u.id)}>
+                          <span style={{ fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.95rem' }}>
+                            <span style={{ color: 'var(--color-primary)' }}>u/</span>
+                            {u.reddit}
+                          </span>
+                          <svg
+                            className={`chevron-icon ${expandedUsers.has(u.id) ? 'rotated' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                            style={{ width: '16px', height: '16px' }}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                        {expandedUsers.has(u.id) && (
+                          <div className="user-card-details">
+                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+                              Email: <strong style={{ color: 'var(--text-primary)' }}>{u.email}</strong>
+                            </div>
+                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+                              Reddit Profile:{' '}
+                              <strong>
+                                <a
+                                  href={`https://reddit.com/u/${u.reddit}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  u/{u.reddit}
+                                </a>
+                              </strong>
+                            </div>
+                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+                              PayPal: <strong style={{ color: 'var(--text-primary)' }}>{u.paypal || 'Not set'}</strong>
+                            </div>
+                            <div
+                              style={{
+                                borderTop: '1px solid var(--border-color)',
+                                marginTop: '0.5rem',
+                                paddingTop: '0.5rem',
+                                display: 'flex',
+                                gap: '1rem',
+                                fontSize: '0.75rem',
+                              }}
+                            >
+                              <span style={{ color: 'var(--color-warning)' }}>
+                                Pending: <strong>${u.pendingBalance.toFixed(2)}</strong>
+                              </span>
+                              <span style={{ color: 'var(--color-success)' }}>
+                                Total Paid: <strong>${u.paidBalance.toFixed(2)}</strong>
+                              </span>
+                            </div>
+                            <div
+                              style={{ marginTop: '0.5rem', fontSize: '0.7rem', color: 'var(--text-secondary)' }}
+                            >
+                              UUID: <code>{u.id}</code>
+                            </div>
+                            <div
+                              style={{
+                                borderTop: '1px solid var(--border-color)',
+                                marginTop: '0.75rem',
+                                paddingTop: '0.75rem',
+                                display: 'flex',
+                                gap: '0.5rem',
+                              }}
+                            >
+                              <button
+                                onClick={() => handleEditUserClick(u)}
+                                className="btn"
+                                style={{
+                                  padding: '0.3rem 0.6rem',
+                                  fontSize: '0.7rem',
+                                  background: 'var(--color-primary)',
+                                  color: '#fff',
+                                  borderRadius: '4px',
+                                }}
+                                disabled={isLoading}
+                              >
+                                Edit Profile
+                              </button>
+                              <button
+                                onClick={() => handleDeleteUser(u.id, u.email)}
+                                className="btn"
+                                style={{
+                                  padding: '0.3rem 0.6rem',
+                                  fontSize: '0.7rem',
+                                  background: 'var(--color-danger)',
+                                  color: '#fff',
+                                  borderRadius: '4px',
+                                }}
+                                disabled={isLoading}
+                              >
+                                Delete User
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {totalPages > 1 && (
+                      <div className="pagination-container">
+                        <button
+                          type="button"
+                          className="pagination-btn"
+                          disabled={currentPage === 1}
+                          onClick={() => setUsersPage(currentPage - 1)}
+                        >
+                          Prev
+                        </button>
+                        <span className="pagination-info">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                          type="button"
+                          className="pagination-btn"
+                          disabled={currentPage === totalPages}
+                          onClick={() => setUsersPage(currentPage + 1)}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>

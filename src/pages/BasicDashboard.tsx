@@ -179,6 +179,14 @@ export default function BasicDashboard() {
   const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
   const [activeBookings, setActiveBookings] = useState<ActiveBooking[]>([]);
 
+  // Pagination states
+  const [tasksPage, setTasksPage] = useState(1);
+
+  // Reset page when tab changes
+  useEffect(() => {
+    setTasksPage(1);
+  }, [basicTab]);
+
   // Earnings states
   const [earningsHistory, setEarningsHistory] = useState<Booking[]>([]);
   const [paidBalance, setPaidBalance] = useState(0);
@@ -287,7 +295,7 @@ export default function BasicDashboard() {
         <div className="grid-2">
           {/* Left Column: Available Tasks */}
           <div className="glass-panel" style={{ padding: '1.75rem' }}>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Available Tasks</h2>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Available Tasks ({availableTasks.length})</h2>
 
             <AlertBanner
               type="warning"
@@ -298,38 +306,76 @@ export default function BasicDashboard() {
               <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>
                 No tasks currently available. Check back later!
               </p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {availableTasks.map((task) => (
-                  <div key={task.id} className="glass-card" style={{ padding: '1.25rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                      <span style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>
-                        {task.subreddit ? `r/${task.subreddit}` : 'Direct Link'}
-                      </span>
-                      <span style={{ fontWeight: '600', color: 'var(--color-success)' }}>
-                        ${parseFloat(task.price).toFixed(2)}
-                      </span>
-                    </div>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                      {task.client_request}
-                    </p>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                        Quota: <strong>{task.quota}</strong> | Type: <strong>{task.type_name}</strong>
+            ) : (() => {
+              const totalPages = Math.ceil(availableTasks.length / 5);
+              const currentPage = Math.max(1, Math.min(tasksPage, totalPages || 1));
+              const displayedTasks = availableTasks.slice((currentPage - 1) * 5, currentPage * 5);
+              return (
+                <>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {displayedTasks.map((task) => (
+                      <div key={task.id} className="glass-card compact-card">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                          <span style={{ fontWeight: 'bold', color: 'var(--color-primary)', fontSize: '0.95rem' }}>
+                            {task.subreddit ? `r/${task.subreddit}` : 'Direct Link'}
+                          </span>
+                          <span style={{ fontWeight: '600', color: 'var(--color-success)', fontSize: '0.95rem' }}>
+                            ${parseFloat(task.price).toFixed(2)}
+                          </span>
+                        </div>
+                        <p
+                          className="line-clamp-2"
+                          title={task.client_request}
+                          style={{
+                            fontSize: '0.8rem',
+                            color: 'var(--text-secondary)',
+                            marginBottom: '0.5rem',
+                          }}
+                        >
+                          {task.client_request}
+                        </p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.5rem' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                            Quota: <strong>{task.quota}</strong> | Type: <strong>{task.type_name}</strong>
+                          </span>
+                          <button
+                            onClick={() => handleBookTask(task.id)}
+                            className="btn btn-primary"
+                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '4px' }}
+                            disabled={isLoading || incompleteCount >= 2}
+                          >
+                            Book Task
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {totalPages > 1 && (
+                    <div className="pagination-container">
+                      <button
+                        type="button"
+                        className="pagination-btn"
+                        disabled={currentPage === 1}
+                        onClick={() => setTasksPage(currentPage - 1)}
+                      >
+                        Prev
+                      </button>
+                      <span className="pagination-info">
+                        Page {currentPage} of {totalPages}
                       </span>
                       <button
-                        onClick={() => handleBookTask(task.id)}
-                        className="btn btn-primary"
-                        style={{ padding: '0.5rem 1rem', fontSize: '0.8rem' }}
-                        disabled={isLoading || incompleteCount >= 2}
+                        type="button"
+                        className="pagination-btn"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setTasksPage(currentPage + 1)}
                       >
-                        Book Task
+                        Next
                       </button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  )}
+                </>
+              );
+            })()}
           </div>
 
           {/* Right Column: My Task (Active Booked Task) */}
