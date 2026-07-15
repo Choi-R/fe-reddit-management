@@ -37,6 +37,38 @@ function ActiveBookingCard({ booking, onSubmit, onCancel, isLoading, onExpire }:
       setFormError('Please enter your Reddit reply URL.');
       return;
     }
+
+    // 1. Client-side URL format validation
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(replyUrl);
+    } catch {
+      setFormError('Please enter a valid absolute URL (starting with http:// or https://).');
+      return;
+    }
+
+    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+      setFormError('The URL must use http:// or https:// protocol.');
+      return;
+    }
+
+    const host = parsedUrl.hostname.toLowerCase();
+    const isRedditHost = host === 'reddit.com' || host.endsWith('.reddit.com') || host === 'redd.it';
+    if (!isRedditHost) {
+      setFormError('The URL must be a valid Reddit domain (e.g. reddit.com, old.reddit.com).');
+      return;
+    }
+
+    // 2. Client-side Subreddit match validation
+    if (booking.subreddit) {
+      const pathParts = parsedUrl.pathname.split('/');
+      const rIdx = pathParts.findIndex(part => part.toLowerCase() === 'r');
+      if (rIdx === -1 || !pathParts[rIdx + 1] || pathParts[rIdx + 1].toLowerCase() !== booking.subreddit.toLowerCase()) {
+        setFormError(`This task requires a post/comment from the r/${booking.subreddit} subreddit. Please check your link.`);
+        return;
+      }
+    }
+
     setFormError(null);
     try {
       await onSubmit(booking.id, replyUrl, note || undefined);
@@ -118,6 +150,7 @@ function ActiveBookingCard({ booking, onSubmit, onCancel, isLoading, onExpire }:
               value={replyUrl}
               onChange={(e) => setReplyUrl(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
           <div className="form-group">
@@ -129,6 +162,7 @@ function ActiveBookingCard({ booking, onSubmit, onCancel, isLoading, onExpire }:
               placeholder="Add any notes about your post here..."
               value={note}
               onChange={(e) => setNote(e.target.value)}
+              disabled={isLoading}
             />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
