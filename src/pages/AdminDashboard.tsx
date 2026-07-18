@@ -331,6 +331,17 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDownloadSample = () => {
+    const csvContent = 'data:text/csv;charset=utf-8,' + encodeURIComponent(
+      "Reddit URL,Client Request,Deadline,Price\n" +
+      "https://www.reddit.com/r/pics/comments/example_post,Please upvote this post and write a positive comment,2026-08-01,5.00"
+    );
+    const link = document.createElement("a");
+    link.href = csvContent;
+    link.download = "bulk_tasks_template.csv";
+    link.click();
+  };
+
   const handleBulkUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (bulkTasks.length === 0) {
@@ -799,6 +810,69 @@ export default function AdminDashboard() {
               </form>
             ) : (
               <form onSubmit={handleBulkUploadSubmit}>
+                <div style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px dashed rgba(255, 255, 255, 0.1)',
+                  borderRadius: '10px',
+                  padding: '1rem',
+                  marginBottom: '1rem',
+                  fontSize: '0.825rem'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="16" x2="12" y2="12"/>
+                      <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    File Column Formatting Guide
+                  </div>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '0.75rem', lineHeight: '1.4' }}>
+                    Please format your spreadsheet (Excel or CSV) with these columns in order (from left to right):
+                  </p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.5rem 1rem', paddingLeft: '0.25rem', marginBottom: '0.75rem' }}>
+                    <span style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>Col A:</span>
+                    <span><strong>Reddit URL</strong> (Required, e.g. <code>https://reddit.com/...</code>)</span>
+
+                    <span style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>Col B:</span>
+                    <span><strong>Client Request</strong> (Required, text instructions)</span>
+
+                    <span style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>Col C:</span>
+                    <span><strong>Deadline</strong> (Optional, date format e.g. <code>YYYY-MM-DD</code>)</span>
+
+                    <span style={{ fontWeight: 'bold', color: 'var(--color-primary)' }}>Col D:</span>
+                    <span><strong>Price</strong> (Required, positive number e.g. <code>5.00</code>)</span>
+                  </div>
+                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                      Note: Check "First row contains column headers" if using a header row.
+                    </span>
+                    <button 
+                      type="button" 
+                      onClick={handleDownloadSample}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'var(--color-primary)',
+                        cursor: 'pointer',
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        textDecoration: 'underline',
+                        padding: 0,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.25rem'
+                      }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
+                      Download CSV Template
+                    </button>
+                  </div>
+                </div>
+
                 <div 
                   style={{
                     border: '2px dashed var(--border-color)',
