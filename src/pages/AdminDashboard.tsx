@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { adminService } from '../services/adminService';
+import * as XLSX from 'xlsx';
 import AlertBanner from '../components/AlertBanner';
 import StatusTag from '../components/StatusTag';
 import Pagination from '../components/Pagination';
@@ -97,6 +98,26 @@ export default function AdminDashboard() {
   const [newTaskDeadline, setNewTaskDeadline] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  // Task bulk add states
+  const [taskAddMode, setTaskAddMode] = useState<'single' | 'bulk'>('single');
+  const [bulkFile, setBulkFile] = useState<File | null>(null);
+  const [bulkTasks, setBulkTasks] = useState<Array<{
+    url: string;
+    clientRequest: string;
+    deadline: string | null;
+    price: number;
+    isValid: boolean;
+    error?: string;
+  }>>([]);
+  const [hasHeader, setHasHeader] = useState(true);
+
+  // Auto reset to single task add mode when editing starts
+  useEffect(() => {
+    if (editingTask) {
+      setTaskAddMode('single');
+    }
+  }, [editingTask]);
+
   // User form states
   const [newBasicEmail, setNewBasicEmail] = useState('');
   const [newBasicPassword, setNewBasicPassword] = useState('');
@@ -182,6 +203,167 @@ export default function AdminDashboard() {
       loadTabData();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to save task.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const parseSpreadsheetFile = useCallback((file: File, skipHeader: boolean) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        
+        // Use header: 1 to get a 2D array
+        const rawRows = XLSX.utils.sheet_to_json<any[]>(worksheet, { header: 1 });
+        
+        const startingIndex = skipHeader ? 1 : 0;
+        const parsed: Array<{
+          url: string;
+          clientRequest: string;
+          deadline: string | null;
+          price: number;
+          isValid: boolean;
+          error?: string;
+        }> = [];
+
+        for (let i = startingIndex; i < rawRows.length; i++) {
+          const row = rawRows[i];
+          if (!row || row.length === 0) continue;
+
+          // Check if the row is entirely empty
+          const hasAnyValue = row.some(cell => cell !== null && cell !== undefined && String(cell).trim() !== '');
+          if (!hasAnyValue) continue;
+
+          const rawUrl = row[0];
+          const rawRequest = row[1];
+          const rawDeadline = row[2];
+          const rawPrice = row[3];
+
+          const errors: string[] = [];
+
+          // Validate URL
+          const urlStr = rawUrl ? String(rawUrl).trim() : '';
+          if (!urlStr) {
+            errors.push('Reddit URL is required');
+          } else {
+            try {
+              new URL(urlStr);
+            } catch {
+              errors.push('Invalid URL format');
+            }
+          }
+
+          // Validate Client Request
+          const requestStr = rawRequest ? String(rawRequest).trim() : '';
+          if (!requestStr) {
+            errors.push('Client request is required');
+          }
+
+          // Validate Price
+          const priceNum = rawPrice !== undefined && rawPrice !== null ? parseFloat(rawPrice) : NaN;
+          if (isNaN(priceNum) || priceNum <= 0) {
+            errors.push('Price must be a positive number');
+          }
+
+          // Validate Deadline
+          let formattedDeadline: string | null = null;
+          if (rawDeadline) {
+            if (rawDeadline instanceof Date) {
+              if (isNaN(rawDeadline.getTime())) {
+                errors.push('Invalid date format');
+              } else {
+                formattedDeadline = rawDeadline.toISOString().split('T')[0];
+              }
+            } else {
+              const deadlineStr = String(rawDeadline).trim();
+              if (deadlineStr) {
+                const d = new Date(deadlineStr);
+                if (isNaN(d.getTime())) {
+                  errors.push('Invalid date format');
+                } else {
+                  formattedDeadline = d.toISOString().split('T')[0];
+                }
+              }
+            }
+          }
+
+          parsed.push({
+            url: urlStr,
+            clientRequest: requestStr,
+            deadline: formattedDeadline,
+            price: isNaN(priceNum) ? 0 : priceNum,
+            isValid: errors.length === 0,
+            error: errors.join(', ')
+          });
+        }
+
+        setBulkTasks(parsed);
+      } catch (err: any) {
+        setErrorMsg(err instanceof Error ? err.message : 'Error reading spreadsheet file.');
+        setBulkTasks([]);
+      }
+    };
+    reader.onerror = () => {
+      setErrorMsg('File loading error.');
+      setBulkTasks([]);
+    };
+    reader.readAsArrayBuffer(file);
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setBulkFile(file);
+    if (file) {
+      parseSpreadsheetFile(file, hasHeader);
+    } else {
+      setBulkTasks([]);
+    }
+  };
+
+  const handleHeaderToggle = (checked: boolean) => {
+    setHasHeader(checked);
+    if (bulkFile) {
+      parseSpreadsheetFile(bulkFile, checked);
+    }
+  };
+
+  const handleBulkUploadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (bulkTasks.length === 0) {
+      setErrorMsg('No tasks found in the uploaded file.');
+      return;
+    }
+
+    const invalidTasks = bulkTasks.filter(t => !t.isValid);
+    if (invalidTasks.length > 0) {
+      setErrorMsg(`Cannot upload. There are ${invalidTasks.length} invalid tasks. Please correct errors and re-upload.`);
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      const tasksData = bulkTasks.map(t => ({
+        url: t.url,
+        clientRequest: t.clientRequest,
+        price: t.price,
+        deadline: t.deadline ? new Date(t.deadline).toISOString() : null
+      }));
+
+      const res = await adminService.bulkCreateTasks(tasksData);
+      setSuccessMsg(`Successfully imported ${res.count} tasks from file!`);
+      
+      setBulkFile(null);
+      setBulkTasks([]);
+      loadTabData();
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to import bulk tasks.');
     } finally {
       setIsLoading(false);
     }
@@ -417,180 +599,384 @@ export default function AdminDashboard() {
       {adminTab === 'tasks' && (
         <div className="grid-2">
           {/* Add/Edit Task Form */}
+          {/* Add/Edit Task Form */}
           <div className="glass-panel" style={{ padding: '1.75rem', height: 'fit-content' }}>
             <h2 id="taskFormTitle" style={{ fontSize: '1.25rem', marginBottom: '1.25rem' }}>
-              {editingTask ? 'Edit Task' : 'Create New Task'}
+              {editingTask ? 'Edit Task' : taskAddMode === 'bulk' ? 'Bulk Add Tasks' : 'Create New Task'}
             </h2>
-            <form onSubmit={handleSaveTask}>
-              <div className="form-group">
-                <label htmlFor="taskUrl">Reddit URL (Post or Comment)*</label>
-                <input
-                  id="taskUrl"
-                  type="url"
-                  className="form-input"
-                  placeholder="https://reddit.com/r/..."
-                  value={newTaskUrl}
-                  onChange={(e) => setNewTaskUrl(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="taskClientRequest">Client Request Instructions*</label>
-                <textarea
-                  id="taskClientRequest"
-                  className="form-input"
-                  style={{ resize: 'vertical', minHeight: '80px' }}
-                  placeholder="Detailed tasks client instructions..."
-                  value={newTaskClientRequest}
-                  onChange={(e) => setNewTaskClientRequest(e.target.value)}
-                  required
-                />
-              </div>
 
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                <div className="form-group" style={{ flex: '1' }}>
-                  <label htmlFor="taskQuota">Quota Slots*</label>
+            {!editingTask && (
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setTaskAddMode('single')}
+                  className={`btn ${taskAddMode === 'single' ? 'btn-primary' : 'btn-secondary'}`}
+                  style={{ flex: 1, padding: '0.4rem 1rem', fontSize: '0.85rem' }}
+                >
+                  Single Task
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTaskAddMode('bulk')}
+                  className={`btn ${taskAddMode === 'bulk' ? 'btn-primary' : 'btn-secondary'}`}
+                  style={{ flex: 1, padding: '0.4rem 1rem', fontSize: '0.85rem' }}
+                >
+                  Bulk Add
+                </button>
+              </div>
+            )}
+
+            {taskAddMode === 'single' ? (
+              <form onSubmit={handleSaveTask}>
+                <div className="form-group">
+                  <label htmlFor="taskUrl">Reddit URL (Post or Comment)*</label>
                   <input
-                    id="taskQuota"
-                    type="number"
-                    min="1"
+                    id="taskUrl"
+                    type="url"
                     className="form-input"
-                    value={newTaskQuota}
-                    onChange={(e) => setNewTaskQuota(parseInt(e.target.value) || 1)}
+                    placeholder="https://reddit.com/r/..."
+                    value={newTaskUrl}
+                    onChange={(e) => setNewTaskUrl(e.target.value)}
                     required
                   />
                 </div>
-                <div className="form-group" style={{ flex: '1' }}>
-                  <label htmlFor="taskPrice">Price ($)*</label>
-                  <input
-                    id="taskPrice"
-                    type="number"
-                    step="0.01"
-                    min="0.01"
+                <div className="form-group">
+                  <label htmlFor="taskClientRequest">Client Request Instructions*</label>
+                  <textarea
+                    id="taskClientRequest"
                     className="form-input"
-                    placeholder="5.00"
-                    value={newTaskPrice}
-                    onChange={(e) => setNewTaskPrice(e.target.value)}
+                    style={{ resize: 'vertical', minHeight: '80px' }}
+                    placeholder="Detailed tasks client instructions..."
+                    value={newTaskClientRequest}
+                    onChange={(e) => setNewTaskClientRequest(e.target.value)}
                     required
                   />
                 </div>
-              </div>
 
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                <div className="form-group" style={{ flex: '1' }}>
-                  <label htmlFor="taskTypeId">Task Category*</label>
-                  <select
-                    id="taskTypeId"
-                    className="form-input"
-                    value={newTaskTypeId}
-                    onChange={(e) => setNewTaskTypeId(e.target.value)}
-                  >
-                    <option value="normal">Normal</option>
-                    <option value="edu_app">Edu App</option>
-                  </select>
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  <div className="form-group" style={{ flex: '1' }}>
+                    <label htmlFor="taskQuota">Quota Slots*</label>
+                    <input
+                      id="taskQuota"
+                      type="number"
+                      min="1"
+                      className="form-input"
+                      value={newTaskQuota}
+                      onChange={(e) => setNewTaskQuota(parseInt(e.target.value) || 1)}
+                      required
+                    />
+                  </div>
+                  <div className="form-group" style={{ flex: '1' }}>
+                    <label htmlFor="taskPrice">Price ($)*</label>
+                    <input
+                      id="taskPrice"
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      className="form-input"
+                      placeholder="5.00"
+                      value={newTaskPrice}
+                      onChange={(e) => setNewTaskPrice(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
-                <div className="form-group" style={{ flex: '1', position: 'relative' }}>
-                  <label htmlFor="taskAssignedTo">Assign User (Email or Reddit Username) (Optional)</label>
-                  <input
-                    id="taskAssignedTo"
-                    type="text"
-                    className="form-input"
-                    placeholder="user@example.com or reddit_user"
-                    value={newTaskAssignedTo}
-                    onChange={(e) => {
-                      setNewTaskAssignedTo(e.target.value);
-                      setShowSuggestions(true);
-                    }}
-                    onFocus={() => setShowSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                    autoComplete="nope"
-                  />
-                  {showSuggestions && suggestions.length > 0 && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '100%',
-                        left: 0,
-                        right: 0,
-                        backgroundColor: '#111827',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '8px',
-                        marginTop: '4px',
-                        zIndex: 10,
-                        boxShadow: 'var(--shadow-lg)',
-                        overflow: 'hidden',
-                      }}
+
+                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                  <div className="form-group" style={{ flex: '1' }}>
+                    <label htmlFor="taskTypeId">Task Category*</label>
+                    <select
+                      id="taskTypeId"
+                      className="form-input"
+                      value={newTaskTypeId}
+                      onChange={(e) => setNewTaskTypeId(e.target.value)}
                     >
-                      {suggestions.map((u) => (
-                        <div
-                          key={u.id}
-                          onClick={() => {
-                            setNewTaskAssignedTo(u.email);
-                            setShowSuggestions(false);
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)')}
-                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                          style={{
-                            padding: '0.75rem 1rem',
-                            cursor: 'pointer',
-                            borderBottom: '1px solid var(--border-color)',
-                            fontSize: '0.85rem',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            color: 'var(--text-primary)',
-                          }}
-                        >
-                          <span style={{ fontWeight: 500 }}>{u.email}</span>
-                          <span style={{ color: 'var(--text-secondary)' }}>u/{u.reddit}</span>
-                        </div>
-                      ))}
+                      <option value="normal">Normal</option>
+                      <option value="edu_app">Edu App</option>
+                    </select>
+                  </div>
+                  <div className="form-group" style={{ flex: '1', position: 'relative' }}>
+                    <label htmlFor="taskAssignedTo">Assign User (Email or Reddit Username) (Optional)</label>
+                    <input
+                      id="taskAssignedTo"
+                      type="text"
+                      className="form-input"
+                      placeholder="user@example.com or reddit_user"
+                      value={newTaskAssignedTo}
+                      onChange={(e) => {
+                        setNewTaskAssignedTo(e.target.value);
+                        setShowSuggestions(true);
+                      }}
+                      onFocus={() => setShowSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                      autoComplete="nope"
+                    />
+                    {showSuggestions && suggestions.length > 0 && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '100%',
+                          left: 0,
+                          right: 0,
+                          backgroundColor: '#111827',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '8px',
+                          marginTop: '4px',
+                          zIndex: 10,
+                          boxShadow: 'var(--shadow-lg)',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {suggestions.map((u) => (
+                          <div
+                            key={u.id}
+                            onClick={() => {
+                              setNewTaskAssignedTo(u.email);
+                              setShowSuggestions(false);
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)')}
+                            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                            style={{
+                              padding: '0.75rem 1rem',
+                              cursor: 'pointer',
+                              borderBottom: '1px solid var(--border-color)',
+                              fontSize: '0.85rem',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              color: 'var(--text-primary)',
+                            }}
+                          >
+                            <span style={{ fontWeight: 500 }}>{u.email}</span>
+                            <span style={{ color: 'var(--text-secondary)' }}>u/{u.reddit}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                  <label htmlFor="taskDeadline">Hard Deadline Date (Optional)</label>
+                  <input
+                    id="taskDeadline"
+                    type="date"
+                    className="form-input"
+                    value={newTaskDeadline}
+                    onChange={(e) => setNewTaskDeadline(e.target.value)}
+                  />
+                </div>
+
+                {editingTask ? (
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="btn btn-secondary"
+                      style={{ flex: 1 }}
+                      disabled={isLoading}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary"
+                      style={{ flex: 1 }}
+                      disabled={isLoading}
+                    >
+                      Update Task
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    style={{ width: '100%' }}
+                    disabled={isLoading}
+                  >
+                    Publish Task
+                  </button>
+                )}
+              </form>
+            ) : (
+              <form onSubmit={handleBulkUploadSubmit}>
+                <div 
+                  style={{
+                    border: '2px dashed var(--border-color)',
+                    borderRadius: '12px',
+                    padding: '2rem 1.5rem',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    marginBottom: '1rem',
+                    transition: 'all 0.2s ease',
+                    backgroundColor: bulkFile ? 'rgba(99, 102, 241, 0.03)' : 'transparent',
+                    borderColor: bulkFile ? 'var(--color-primary)' : 'var(--border-color)',
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.style.borderColor = 'var(--color-primary)';
+                    e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.05)';
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    e.currentTarget.style.borderColor = bulkFile ? 'var(--color-primary)' : 'var(--border-color)';
+                    e.currentTarget.style.backgroundColor = bulkFile ? 'rgba(99, 102, 241, 0.03)' : 'transparent';
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const file = e.dataTransfer.files?.[0];
+                    if (file) {
+                      setBulkFile(file);
+                      parseSpreadsheetFile(file, hasHeader);
+                    }
+                  }}
+                  onClick={() => document.getElementById('bulkFileInput')?.click()}
+                >
+                  <input
+                    id="bulkFileInput"
+                    type="file"
+                    accept=".csv, .xlsx, .xls, .ods"
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
+                  />
+                  <svg
+                    style={{ width: '40px', height: '40px', color: bulkFile ? 'var(--color-primary)' : 'var(--text-secondary)', marginBottom: '0.75rem' }}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    />
+                  </svg>
+                  <p style={{ fontSize: '0.9rem', fontWeight: 500, marginBottom: '0.25rem' }}>
+                    {bulkFile ? bulkFile.name : 'Click to upload or drag & drop'}
+                  </p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    Supports Excel (.xlsx, .xls), CSV (.csv), ODS
+                  </p>
+                  {bulkFile && (
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: 500, marginTop: '0.5rem' }}>
+                      {(bulkFile.size / 1024).toFixed(1)} KB
                     </div>
                   )}
                 </div>
-              </div>
 
-              <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                <label htmlFor="taskDeadline">Hard Deadline Date (Optional)</label>
-                <input
-                  id="taskDeadline"
-                  type="date"
-                  className="form-input"
-                  value={newTaskDeadline}
-                  onChange={(e) => setNewTaskDeadline(e.target.value)}
-                />
-              </div>
+                <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                  <input
+                    id="bulkHeaderToggle"
+                    type="checkbox"
+                    checked={hasHeader}
+                    onChange={(e) => handleHeaderToggle(e.target.checked)}
+                    style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                  />
+                  <label htmlFor="bulkHeaderToggle" style={{ cursor: 'pointer', fontSize: '0.85rem', margin: 0, userSelect: 'none' }}>
+                    First row contains column headers
+                  </label>
+                </div>
 
-              {editingTask ? (
+                {bulkFile && bulkTasks.length > 0 && (
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>
+                        Preview ({bulkTasks.length} tasks found)
+                      </span>
+                      {bulkTasks.some(t => !t.isValid) && (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-danger)', fontWeight: 500 }}>
+                          Fix errors to import
+                        </span>
+                      )}
+                    </div>
+                    
+                    <div 
+                      style={{
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        maxHeight: '220px',
+                        overflowY: 'auto',
+                        backgroundColor: 'rgba(0, 0, 0, 0.2)'
+                      }}
+                    >
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', textAlign: 'left' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'rgba(255, 255, 255, 0.02)' }}>
+                            <th style={{ padding: '0.5rem 0.75rem', color: 'var(--text-secondary)', width: '40px' }}>Row</th>
+                            <th style={{ padding: '0.5rem 0.75rem', color: 'var(--text-secondary)' }}>Reddit URL</th>
+                            <th style={{ padding: '0.5rem 0.75rem', color: 'var(--text-secondary)', width: '60px' }}>Price</th>
+                            <th style={{ padding: '0.5rem 0.75rem', color: 'var(--text-secondary)' }}>Status / Error</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {bulkTasks.map((t, idx) => (
+                            <tr 
+                              key={idx} 
+                              style={{ 
+                                borderBottom: idx < bulkTasks.length - 1 ? '1px solid var(--border-color)' : 'none',
+                                backgroundColor: t.isValid ? 'transparent' : 'rgba(239, 68, 68, 0.05)'
+                              }}
+                            >
+                              <td style={{ padding: '0.5rem 0.75rem', color: 'var(--text-secondary)' }}>{idx + 1}</td>
+                              <td 
+                                style={{ 
+                                  padding: '0.5rem 0.75rem', 
+                                  maxWidth: '120px', 
+                                  overflow: 'hidden', 
+                                  textOverflow: 'ellipsis', 
+                                  whiteSpace: 'nowrap',
+                                  color: t.url ? 'var(--text-primary)' : 'var(--text-secondary)'
+                                }}
+                                title={t.url}
+                              >
+                                {t.url || '(empty)'}
+                              </td>
+                              <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>
+                                ${t.price.toFixed(2)}
+                              </td>
+                              <td style={{ padding: '0.5rem 0.75rem' }}>
+                                {t.isValid ? (
+                                  <span style={{ color: 'var(--color-success)', fontWeight: 500 }}>✓ Valid</span>
+                                ) : (
+                                  <span style={{ color: 'var(--color-danger)', fontWeight: 500 }} title={t.error}>
+                                    ⚠ {t.error}
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
                 <div style={{ display: 'flex', gap: '1rem' }}>
                   <button
                     type="button"
-                    onClick={handleCancelEdit}
+                    onClick={() => {
+                      setBulkFile(null);
+                      setBulkTasks([]);
+                    }}
                     className="btn btn-secondary"
                     style={{ flex: 1 }}
-                    disabled={isLoading}
+                    disabled={isLoading || !bulkFile}
                   >
-                    Cancel
+                    Clear
                   </button>
                   <button
                     type="submit"
                     className="btn btn-primary"
-                    style={{ flex: 1 }}
-                    disabled={isLoading}
+                    style={{ flex: 2 }}
+                    disabled={isLoading || bulkTasks.length === 0 || bulkTasks.some(t => !t.isValid)}
                   >
-                    Update Task
+                    {isLoading ? 'Uploading...' : `Upload ${bulkTasks.length} Tasks`}
                   </button>
                 </div>
-              ) : (
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ width: '100%' }}
-                  disabled={isLoading}
-                >
-                  Publish Task
-                </button>
-              )}
-            </form>
+              </form>
+            )}
           </div>
 
           {/* Tasks List */}

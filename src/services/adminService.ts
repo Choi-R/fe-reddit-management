@@ -46,6 +46,17 @@ export const adminService = {
       body: JSON.stringify(data),
     }),
 
+  bulkCreateTasks: (tasks: Array<{
+    url: string;
+    clientRequest: string;
+    price: number;
+    deadline: string | null;
+  }>): Promise<{ success: boolean; count: number; tasks: Task[] }> =>
+    authenticatedRequest('/api/admin/tasks/bulk', {
+      method: 'POST',
+      body: JSON.stringify({ tasks }),
+    }),
+
   updateTask: (taskId: string, data: {
     subreddit?: string | null;
     url: string;
