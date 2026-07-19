@@ -3,18 +3,6 @@ export default function Guidelines() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
-      {/* Introduction Card */}
-      <div className="glass-card" style={{ padding: '1.5rem', background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%)', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-        <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-          </svg>
-          Reddit Promotion Handbook
-        </h3>
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
-          Welcome to the Reddit Account Management portal. Please study these guidelines carefully. Adhering to these rules is vital to protect our accounts from bans and ensure eligibility for task payouts.
-        </p>
-      </div>
 
       {/* Critical Safety Warning Banner */}
       <div className="glass-card" style={{
@@ -119,8 +107,8 @@ export default function Guidelines() {
             <li>
               <strong style={{ color: 'var(--text-primary)' }}>Reporting Issues:</strong> If a target post is deleted or archived, report it to the admin.
             </li>
-            <li style={{ backgroundColor: 'rgba(99, 102, 241, 0.05)', padding: '0.5rem 0.75rem', borderRadius: '6px', borderLeft: '3px solid var(--color-primary)' }}>
-              <strong style={{ color: 'var(--text-primary)' }}>Declining Tasks (Flexible Job):</strong> This is a completely flexible task-based job. You are never forced to complete any task. If a specific task feels too risky, has rules that are too strict, or you simply do not want to do it for any reason, you can freely decline it. Please report/flag it in the task's detail (if a task is assigned to you) so it can be updated.
+            <li>
+              <strong style={{ color: 'var(--text-primary)' }}>This is a completely flexible task-based job. You are never forced to complete any task. If a specific task feels too risky, has rules that are too strict, or you simply do not want to do it for any reason, you can freely decline it. Please report/flag it in the task's detail (if a task is assigned to you) so it can be updated.</strong> 
             </li>
           </ul>
         </div>
