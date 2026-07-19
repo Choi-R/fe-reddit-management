@@ -16,6 +16,27 @@ export default function Guidelines() {
         </p>
       </div>
 
+      {/* Critical Safety Warning Banner */}
+      <div className="glass-card" style={{
+        padding: '1.25rem 1.5rem',
+        backgroundColor: 'var(--color-danger-bg)',
+        border: '1px solid rgba(239, 68, 68, 0.25)',
+        borderLeft: '5px solid var(--color-danger)',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '1rem'
+      }}>
+        <div style={{ color: 'var(--color-danger)', fontSize: '1.5rem', lineHeight: '1', marginTop: '0.1rem' }}>⚠️</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <h4 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
+            CRITICAL WARNING: Account Ban Risk
+          </h4>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
+            Doing this task can put your Reddit accounts at a risk of being permanently banned. Account bans harm both your earning potential and our campaign operations, and it is a setback that none of us want. <strong>These guidelines exist specifically to keep your accounts safe and active while ensuring task eligibility.</strong>
+          </p>
+        </div>
+      </div>
+
       <div className="grid-2" style={{ gap: '1.5rem' }}>
         
         {/* Section 1: Task Eligibility Requirements */}
@@ -96,10 +117,10 @@ export default function Guidelines() {
               <strong style={{ color: 'var(--text-primary)' }}>Subreddit Rules:</strong> You must read each subreddit's rules before participating. Make promotions extremely natural in link-restricted communities.
             </li>
             <li>
-              <strong style={{ color: 'var(--text-primary)' }}>Reporting Issues:</strong> If a target post is deleted or archived, report it in the task's spreadsheet row instead of submitting.
+              <strong style={{ color: 'var(--text-primary)' }}>Reporting Issues:</strong> If a target post is deleted or archived, report it to the admin.
             </li>
-            <li>
-              <strong style={{ color: 'var(--text-primary)' }}>Declining Tasks:</strong> If a task feels too risky, has strict subreddit rules, or you wish to skip it, flag/report it in the task's row.
+            <li style={{ backgroundColor: 'rgba(99, 102, 241, 0.05)', padding: '0.5rem 0.75rem', borderRadius: '6px', borderLeft: '3px solid var(--color-primary)' }}>
+              <strong style={{ color: 'var(--text-primary)' }}>Declining Tasks (Flexible Job):</strong> This is a completely flexible task-based job. You are never forced to complete any task. If a specific task feels too risky, has rules that are too strict, or you simply do not want to do it for any reason, you can freely decline it. Please report/flag it in the task's detail (if a task is assigned to you) so it can be updated.
             </li>
           </ul>
         </div>
