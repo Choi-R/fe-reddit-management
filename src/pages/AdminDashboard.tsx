@@ -528,8 +528,12 @@ export default function AdminDashboard() {
     setErrorMsg(null);
     setSuccessMsg(null);
     try {
-      await adminService.reviewSubmission(bookingId, statusId, reviewNote || null);
-      setSuccessMsg(`Task marked as ${statusId === 'success' ? 'Approved' : 'Failed'}.`);
+      const data = await adminService.reviewSubmission(bookingId, statusId, reviewNote || null);
+      if (statusId === 'failed' && data.quotaReturned) {
+        setSuccessMsg('Task marked as Failed. Task quota has been returned by 1.');
+      } else {
+        setSuccessMsg(`Task marked as ${statusId === 'success' ? 'Approved' : 'Failed'}.`);
+      }
       setReviewNote('');
       loadTabData();
     } catch (err: unknown) {

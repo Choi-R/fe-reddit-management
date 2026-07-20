@@ -77,7 +77,7 @@ export const adminService = {
       method: 'DELETE',
     }),
 
-  reviewSubmission: (bookingId: string, statusId: 'success' | 'failed', note?: string | null): Promise<{ success: boolean; booking: unknown }> =>
+  reviewSubmission: (bookingId: string, statusId: 'success' | 'failed', note?: string | null): Promise<{ success: boolean; booking: unknown; quotaReturned?: boolean }> =>
     authenticatedRequest('/api/admin/tasks/review', {
       method: 'POST',
       body: JSON.stringify({ bookingId, statusId, note }),
