@@ -214,6 +214,10 @@ export default function BasicDashboard() {
 
   // Onboarding guidelines states
   const { user } = useAuth();
+  const isSilver = user?.roles.includes('silver') || false;
+  const isGold = user?.roles.includes('gold') || false;
+  const bookingLimit = isGold ? 3 : isSilver ? 2 : 1;
+
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [hasScrolledOnboarding, setHasScrolledOnboarding] = useState(false);
   const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
@@ -466,7 +470,7 @@ export default function BasicDashboard() {
                               onClick={() => handleBookTask(task.id)}
                               className="btn btn-primary"
                               style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '4px' }}
-                              disabled={isLoading || incompleteCount >= 2}
+                              disabled={isLoading || incompleteCount >= bookingLimit}
                             >
                               Book Task
                             </button>
@@ -491,7 +495,7 @@ export default function BasicDashboard() {
 
             {activeBookings.length === 0 ? (
               <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>
-                You have no active tasks. Book up to 2 from the available list!
+                You have no active tasks. Book up to {bookingLimit} from the available list!
               </p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column' }}>

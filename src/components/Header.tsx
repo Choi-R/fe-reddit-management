@@ -8,8 +8,28 @@ interface HeaderProps {
 }
 
 export default function Header({ user, isAdmin, isChoi, onLogout }: HeaderProps) {
-  const roleName = isChoi ? 'Choi' : isAdmin ? 'Admin' : 'Basic';
-  const roleClass = isChoi ? 'role-choi' : isAdmin ? 'role-admin' : 'role-basic';
+  const isSilver = user.roles.includes('silver');
+  const isGold = user.roles.includes('gold');
+
+  const roleName = isChoi 
+    ? 'Choi' 
+    : isAdmin 
+    ? 'Admin' 
+    : isGold 
+    ? 'Gold' 
+    : isSilver 
+    ? 'Silver' 
+    : 'Bronze';
+
+  const roleClass = isChoi 
+    ? 'role-choi' 
+    : isAdmin 
+    ? 'role-admin' 
+    : isGold 
+    ? 'role-gold' 
+    : isSilver 
+    ? 'role-silver' 
+    : 'role-bronze';
 
   return (
     <header className="header">

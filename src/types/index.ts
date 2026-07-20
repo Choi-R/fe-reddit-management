@@ -62,6 +62,8 @@ export interface BasicUserSummary {
   createdAt: string;
   pendingBalance: number;
   paidBalance: number;
+  completedCount?: number;
+  tier?: string;
 }
 
 export interface PendingSubmission {

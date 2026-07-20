@@ -1546,6 +1546,12 @@ export default function AdminDashboard() {
                             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
                               PayPal: <strong style={{ color: 'var(--text-primary)' }}>{u.paypal || 'Not set'}</strong>
                             </div>
+                            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+                              Account Tier: <span className={`badge-role role-${u.tier?.toLowerCase() || 'bronze'}`} style={{ textTransform: 'capitalize', fontSize: '0.7rem', padding: '0.15rem 0.4rem', borderRadius: '4px', display: 'inline-block', fontWeight: 'bold' }}>{u.tier || 'Bronze'}</span>
+                              <span style={{ marginLeft: '0.75rem', fontSize: '0.8rem' }}>
+                                (Completed: <strong style={{ color: 'var(--text-primary)' }}>{u.completedCount || 0}</strong> tasks)
+                              </span>
+                            </div>
                             <div
                               style={{
                                 borderTop: '1px solid var(--border-color)',

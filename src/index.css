@@ -127,6 +127,9 @@ h1, h2, h3, h4 {
 
 .role-admin { background-color: var(--color-danger-bg); color: var(--color-danger); }
 .role-basic { background-color: var(--color-success-bg); color: var(--color-success); }
+.role-bronze { background-color: rgba(205, 127, 50, 0.12); color: #d09c6a; border: 1px solid rgba(205, 127, 50, 0.25); }
+.role-silver { background-color: rgba(192, 192, 192, 0.12); color: #cbd5e1; border: 1px solid rgba(192, 192, 192, 0.25); }
+.role-gold { background-color: rgba(255, 215, 0, 0.12); color: #facc15; border: 1px solid rgba(255, 215, 0, 0.25); }
 .role-choi { background-color: var(--color-warning-bg); color: var(--color-warning); border: 1px solid var(--color-warning); }
 
 /* Buttons */
