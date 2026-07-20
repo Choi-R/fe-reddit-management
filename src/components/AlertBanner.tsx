@@ -1,6 +1,7 @@
 interface AlertBannerProps {
   type: 'error' | 'success' | 'warning';
-  message: string;
+  message: string | null;
+  onClose?: () => void;
 }
 
 const STYLES: Record<AlertBannerProps['type'], React.CSSProperties> = {
@@ -27,12 +28,40 @@ const ICONS: Record<AlertBannerProps['type'], string> = {
   warning: '⚠️',
 };
 
-export default function AlertBanner({ type, message }: AlertBannerProps) {
+export default function AlertBanner({ type, message, onClose }: AlertBannerProps) {
+  if (!message) return null;
+
   return (
-    <div className="alert" style={STYLES[type]}>
+    <div
+      className="alert"
+      style={{
+        ...STYLES[type],
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '1rem',
+      }}
+    >
       <span>
         {ICONS[type]} {message}
       </span>
+      {onClose && (
+        <button
+          onClick={onClose}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'inherit',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            padding: '0 0.25rem',
+            marginLeft: '0.5rem',
+          }}
+          aria-label="Dismiss message"
+        >
+          ✕
+        </button>
+      )}
     </div>
   );
 }

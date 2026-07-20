@@ -1,9 +1,12 @@
-import type { User, Task, BasicUserSummary, PendingSubmission } from '../types';
+import type { User, Task, BasicUserSummary, UserDetailStats, PendingSubmission } from '../types';
 import { authenticatedRequest } from './apiClient';
 
 export const adminService = {
   getUsers: (): Promise<{ users: BasicUserSummary[] }> =>
     authenticatedRequest('/api/admin/users'),
+
+  getUserDetail: (userId: string): Promise<{ success: boolean; data: UserDetailStats }> =>
+    authenticatedRequest(`/api/admin/users/${userId}/detail`),
 
   createUser: (data: { email: string; password: string; paypal?: string | null; reddit: string }): Promise<{ success: boolean; user: User }> =>
     authenticatedRequest('/api/admin/users', {

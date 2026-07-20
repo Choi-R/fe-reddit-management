@@ -1,210 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { taskService } from '../services/taskService';
-import { useCountdown } from '../hooks/useCountdown';
 import AlertBanner from '../components/AlertBanner';
-import StatusTag from '../components/StatusTag';
-import Pagination from '../components/Pagination';
 import type { Task, Booking, ActiveBooking } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import Guidelines from '../components/Guidelines';
-
-interface ActiveBookingCardProps {
-  booking: ActiveBooking;
-  onSubmit: (bookingId: string, replyUrl: string, note?: string) => Promise<void>;
-  onCancel: (taskId: string) => Promise<void>;
-  isLoading: boolean;
-  onExpire: () => void;
-}
-
-function ActiveBookingCard({ booking, onSubmit, onCancel, isLoading, onExpire }: ActiveBookingCardProps) {
-  const [replyUrl, setReplyUrl] = useState('');
-  const [note, setNote] = useState('');
-  const [formError, setFormError] = useState<string | null>(null);
-
-  const timeRemaining = useCountdown(
-    booking.status_id === 'incomplete' && !booking.assigned_to
-      ? booking.booked_at
-      : null
-  );
-
-  useEffect(() => {
-    if (timeRemaining === 'Expired') {
-      onExpire();
-    }
-  }, [timeRemaining, onExpire]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!replyUrl) {
-      setFormError('Please enter your Reddit reply URL.');
-      return;
-    }
-
-    // 1. Client-side URL format validation
-    let parsedUrl: URL;
-    try {
-      parsedUrl = new URL(replyUrl);
-    } catch {
-      setFormError('Please enter a valid absolute URL (starting with http:// or https://).');
-      return;
-    }
-
-    if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-      setFormError('The URL must use http:// or https:// protocol.');
-      return;
-    }
-
-    const host = parsedUrl.hostname.toLowerCase();
-    const isRedditHost = host === 'reddit.com' || host.endsWith('.reddit.com') || host === 'redd.it';
-    if (!isRedditHost) {
-      setFormError('The URL must be a valid Reddit domain (e.g. reddit.com, old.reddit.com).');
-      return;
-    }
-
-    // 2. Client-side Subreddit match validation
-    if (booking.subreddit) {
-      const pathParts = parsedUrl.pathname.split('/');
-      const rIdx = pathParts.findIndex(part => part.toLowerCase() === 'r');
-      if (rIdx === -1 || !pathParts[rIdx + 1] || pathParts[rIdx + 1].toLowerCase() !== booking.subreddit.toLowerCase()) {
-        setFormError(`This task requires a post/comment from the r/${booking.subreddit} subreddit. Please check your link.`);
-        return;
-      }
-    }
-
-    setFormError(null);
-    try {
-      await onSubmit(booking.id, replyUrl, note || undefined);
-      setReplyUrl('');
-      setNote('');
-    } catch (err: any) {
-      setFormError(err.message || 'Failed to submit task.');
-    }
-  };
-
-  const handleCancel = async () => {
-    if (window.confirm('Are you sure you want to cancel this booking? This will return the task to the available list and restore the quota.')) {
-      try {
-        setFormError(null);
-        await onCancel(booking.id);
-      } catch (err: any) {
-        setFormError(err.message || 'Failed to cancel booking.');
-      }
-    }
-  };
-
-  return (
-    <div className="glass-card" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-        <StatusTag status={booking.status_id} />
-        {booking.status_id === 'incomplete' && !booking.assigned_to && (
-          <span style={{ fontSize: '0.9rem', color: 'var(--color-danger)', fontWeight: 'bold' }}>
-            Time Left: {timeRemaining}
-          </span>
-        )}
-      </div>
-
-      <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
-        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-          {booking.subreddit ? `r/${booking.subreddit}` : 'Direct Link'}
-        </h3>
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          {booking.client_request}
-        </p>
-
-        {booking.url && (
-          <div style={{ marginBottom: '1rem' }}>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              Reddit URL:
-            </span>
-            <br />
-            <a
-              href={booking.url}
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                color: 'var(--color-primary)',
-                textDecoration: 'none',
-                fontSize: '0.875rem',
-                wordBreak: 'break-all',
-              }}
-            >
-              {booking.url}
-            </a>
-          </div>
-        )}
-      </div>
-
-      {formError && (
-        <div style={{ color: 'var(--color-danger)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
-          {formError}
-        </div>
-      )}
-
-      {booking.status_id === 'incomplete' ? (
-        <form onSubmit={handleSubmit} style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
-          <div className="form-group">
-            <label htmlFor={`replyUrl-${booking.id}`}>Reddit Reply URL</label>
-            <input
-              id={`replyUrl-${booking.id}`}
-              type="url"
-              className="form-input"
-              placeholder="https://reddit.com/r/subreddit/comments/..."
-              value={replyUrl}
-              onChange={(e) => setReplyUrl(e.target.value)}
-              required
-              disabled={isLoading}
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor={`submitNote-${booking.id}`}>Note (Optional)</label>
-            <textarea
-              id={`submitNote-${booking.id}`}
-              className="form-input"
-              style={{ resize: 'vertical', minHeight: '60px' }}
-              placeholder="Add any notes about your post here..."
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              disabled={isLoading}
-            />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <button
-              type="submit"
-              className="btn btn-primary"
-              style={{ width: '100%' }}
-              disabled={isLoading}
-            >
-              Submit Completed Task
-            </button>
-            <button
-              type="button"
-              className="btn btn-danger"
-              style={{ width: '100%' }}
-              disabled={isLoading}
-              onClick={handleCancel}
-            >
-              Cancel Booking (Second-Thought)
-            </button>
-          </div>
-        </form>
-      ) : (
-        <div
-          style={{
-            borderTop: '1px solid var(--border-color)',
-            paddingTop: '1rem',
-            color: 'var(--text-secondary)',
-            fontSize: '0.9rem',
-            textAlign: 'center',
-          }}
-        >
-          <p>
-            Awaiting Admin validation. You can book other available tasks.
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
+import OnboardingModal from '../components/OnboardingModal';
+import UserTasksTab from '../components/UserTasksTab';
+import UserEarningsTab from '../components/UserEarningsTab';
 
 export default function BasicDashboard() {
   const [basicTab, setBasicTab] = useState<'tasks' | 'earnings' | 'guidelines'>('tasks');
@@ -219,8 +21,6 @@ export default function BasicDashboard() {
   const bookingLimit = isGold ? 3 : isSilver ? 2 : 1;
 
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [hasScrolledOnboarding, setHasScrolledOnboarding] = useState(false);
-  const [hasCheckedOnboarding, setHasCheckedOnboarding] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -238,44 +38,18 @@ export default function BasicDashboard() {
     }
   };
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const target = e.currentTarget;
-    if (target.scrollHeight - target.scrollTop <= target.clientHeight + 30) {
-      setHasScrolledOnboarding(true);
-    }
-  };
-
-  // Task states
+  // Task & Earnings states
   const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
   const [activeBookings, setActiveBookings] = useState<ActiveBooking[]>([]);
-
-  // Pagination states
   const [tasksPage, setTasksPage] = useState(1);
-  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
-
-  const toggleTaskExpanded = (taskId: string) => {
-    setExpandedTasks((prev) => {
-      const next = new Set(prev);
-      if (next.has(taskId)) {
-        next.delete(taskId);
-      } else {
-        next.add(taskId);
-      }
-      return next;
-    });
-  };
-
-  // Reset page when tab changes
-  useEffect(() => {
-    setTasksPage(1);
-  }, [basicTab]);
-
-  // Earnings states
   const [earningsHistory, setEarningsHistory] = useState<Booking[]>([]);
   const [paidBalance, setPaidBalance] = useState(0);
   const [pendingBalance, setPendingBalance] = useState(0);
 
-  // Load all dashboard data
+  useEffect(() => {
+    setTasksPage(1);
+  }, [basicTab]);
+
   const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -302,14 +76,13 @@ export default function BasicDashboard() {
     loadData();
   }, [loadData]);
 
-  // Book task
   const handleBookTask = async (taskId: string) => {
     setIsLoading(true);
     setErrorMsg(null);
     setSuccessMsg(null);
     try {
       await taskService.book(taskId);
-      setSuccessMsg('Task booked successfully! Go to My Task to perform it.');
+      setSuccessMsg('Task booked successfully! Go to My Tasks to perform it.');
       loadData();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to book task.');
@@ -318,7 +91,6 @@ export default function BasicDashboard() {
     }
   };
 
-  // Submit task
   const handleFormSubmit = async (taskId: string, replyUrl: string, note?: string) => {
     setIsLoading(true);
     setErrorMsg(null);
@@ -335,7 +107,6 @@ export default function BasicDashboard() {
     }
   };
 
-  // Cancel booking
   const handleCancelBooking = async (taskId: string) => {
     setIsLoading(true);
     setErrorMsg(null);
@@ -352,245 +123,82 @@ export default function BasicDashboard() {
     }
   };
 
-  const incompleteCount = activeBookings.filter(b => b.status_id === 'incomplete').length;
-
   return (
-    <div>
-      {errorMsg && <AlertBanner type="error" message={errorMsg} />}
-      {successMsg && <AlertBanner type="success" message={successMsg} />}
+    <div className="container dashboard-container">
+      {/* Header Bar */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}
+      >
+        <div>
+          <h1 style={{ fontSize: '1.75rem', margin: 0 }}>Task Management Console</h1>
+          <p style={{ color: 'var(--text-secondary)', margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
+            Book tasks, submit proof, and track your accumulated balance.
+          </p>
+        </div>
 
-      <div className="tab-container">
-        <button
-          onClick={() => setBasicTab('tasks')}
-          className={`tab-btn ${basicTab === 'tasks' ? 'active' : ''}`}
-        >
-          Tasks Dashboard
-        </button>
-        <button
-          onClick={() => setBasicTab('earnings')}
-          className={`tab-btn ${basicTab === 'earnings' ? 'active' : ''}`}
-        >
-          My Earnings
-        </button>
-        <button
-          onClick={() => setBasicTab('guidelines')}
-          className={`tab-btn ${basicTab === 'guidelines' ? 'active' : ''}`}
-        >
-          Rules & Guidelines
-        </button>
+        {/* Tab Switcher */}
+        <div className="tab-navigation">
+          <button
+            onClick={() => setBasicTab('tasks')}
+            className={`tab-button ${basicTab === 'tasks' ? 'active' : ''}`}
+          >
+            Tasks ({availableTasks.length})
+          </button>
+          <button
+            onClick={() => setBasicTab('earnings')}
+            className={`tab-button ${basicTab === 'earnings' ? 'active' : ''}`}
+          >
+            Earnings (${(paidBalance + pendingBalance).toFixed(2)})
+          </button>
+          <button
+            onClick={() => setBasicTab('guidelines')}
+            className={`tab-button ${basicTab === 'guidelines' ? 'active' : ''}`}
+          >
+            Guidelines
+          </button>
+        </div>
       </div>
 
+      <AlertBanner type="error" message={errorMsg} onClose={() => setErrorMsg(null)} />
+      <AlertBanner type="success" message={successMsg} onClose={() => setSuccessMsg(null)} />
+
+      {/* Tab Content */}
       {basicTab === 'tasks' ? (
-        <div className="grid-2">
-          {/* Left Column: Available Tasks */}
-          <div className="glass-panel" style={{ padding: '1.75rem' }}>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Available Tasks ({availableTasks.length})</h2>
-
-            <AlertBanner
-              type="warning"
-              message="Safety Warning: Do not perform these tasks too frequently, as it may put your account at risk of being banned. Increase your organic activity on Reddit (commenting, voting) to mitigate this risk."
-            />
-
-            {availableTasks.length === 0 ? (
-              <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>
-                No tasks currently available. Check back later!
-              </p>
-            ) : (() => {
-              const totalPages = Math.ceil(availableTasks.length / 5);
-              const currentPage = Math.max(1, Math.min(tasksPage, totalPages || 1));
-              const displayedTasks = availableTasks.slice((currentPage - 1) * 5, currentPage * 5);
-              return (
-                <>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {displayedTasks.map((task) => (
-                      <div key={task.id} className="glass-card compact-card">
-                        <div 
-                          className="task-card-header"
-                          onClick={() => toggleTaskExpanded(task.id)}
-                        >
-                          <span style={{ fontWeight: 'bold', color: 'var(--color-primary)', fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                            {task.subreddit ? `r/${task.subreddit}` : 'Direct Link'}
-                            <span style={{ 
-                              fontSize: '0.7rem', 
-                              fontWeight: '500', 
-                              background: 'rgba(255, 255, 255, 0.05)', 
-                              color: 'var(--text-secondary)', 
-                              padding: '0.1rem 0.35rem', 
-                              borderRadius: '4px', 
-                              border: '1px solid var(--border-color)',
-                              textTransform: 'uppercase'
-                            }}>
-                              {task.type_name}
-                            </span>
-                          </span>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span style={{ fontWeight: '600', color: 'var(--color-success)', fontSize: '0.95rem' }}>
-                              ${parseFloat(task.price).toFixed(2)}
-                            </span>
-                            <span 
-                              title={`Quota: ${task.quota}`}
-                              style={{ 
-                                fontSize: '0.7rem', 
-                                background: 'rgba(99, 102, 241, 0.1)', 
-                                color: 'var(--color-primary)', 
-                                padding: '0.1rem 0.35rem', 
-                                borderRadius: '9999px',
-                                border: '1px solid rgba(99, 102, 241, 0.2)',
-                                fontWeight: '600'
-                              }}
-                            >
-                              {task.quota}
-                            </span>
-                            <svg
-                              className={`chevron-icon ${expandedTasks.has(task.id) ? 'rotated' : ''}`}
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                              style={{ width: '14px', height: '14px', color: 'var(--text-secondary)' }}
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                          </span>
-                        </div>
-                        <p
-                          className="line-clamp-2"
-                          title={task.client_request}
-                          style={{
-                            fontSize: '0.8rem',
-                            color: 'var(--text-secondary)',
-                            marginBottom: '0.5rem',
-                          }}
-                        >
-                          {task.client_request}
-                        </p>
-                        {expandedTasks.has(task.id) && (
-                          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '0.5rem' }}>
-                            <button
-                              onClick={() => handleBookTask(task.id)}
-                              className="btn btn-primary"
-                              style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '4px' }}
-                              disabled={isLoading || incompleteCount >= bookingLimit}
-                            >
-                              Book Task
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setTasksPage}
-                  />
-                </>
-              );
-            })()}
-          </div>
-
-          {/* Right Column: My Task (Active Booked Task) */}
-          <div className="glass-panel" style={{ padding: '1.75rem', height: 'fit-content' }}>
-            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>My Tasks</h2>
-
-            {activeBookings.length === 0 ? (
-              <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>
-                You have no active tasks. Book up to {bookingLimit} from the available list!
-              </p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {activeBookings.map((booking) => (
-                  <ActiveBookingCard
-                    key={booking.booking_id}
-                    booking={booking}
-                    onSubmit={handleFormSubmit}
-                    onCancel={handleCancelBooking}
-                    isLoading={isLoading}
-                    onExpire={loadData}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        <UserTasksTab
+          availableTasks={availableTasks}
+          activeBookings={activeBookings}
+          bookingLimit={bookingLimit}
+          tasksPage={tasksPage}
+          setTasksPage={setTasksPage}
+          isLoading={isLoading}
+          onBookTask={handleBookTask}
+          onFormSubmit={handleFormSubmit}
+          onCancelBooking={handleCancelBooking}
+          onRefreshData={loadData}
+        />
       ) : basicTab === 'earnings' ? (
-        /* Earnings Tab */
-        <div className="glass-panel" style={{ padding: '2rem' }}>
-          <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-            <div
-              className="glass-card"
-              style={{
-                padding: '1.5rem',
-                flex: '1',
-                minWidth: '180px',
-                borderLeft: '4px solid var(--color-success)',
-              }}
-            >
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                Paid Earned Balance
-              </span>
-              <h2 style={{ fontSize: '2rem', color: 'var(--color-success)', marginTop: '0.5rem' }}>
-                ${paidBalance.toFixed(2)}
-              </h2>
-            </div>
-            <div
-              className="glass-card"
-              style={{
-                padding: '1.5rem',
-                flex: '1',
-                minWidth: '180px',
-                borderLeft: '4px solid var(--color-warning)',
-              }}
-            >
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                Pending Earned Balance
-              </span>
-              <h2 style={{ fontSize: '2rem', color: 'var(--color-warning)', marginTop: '0.5rem' }}>
-                ${pendingBalance.toFixed(2)}
-              </h2>
-            </div>
-          </div>
-
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Task Completion History</h3>
-          <div className="table-container">
-            {earningsHistory.length === 0 ? (
-              <p style={{ color: 'var(--text-secondary)', padding: '2rem', textAlign: 'center' }}>
-                No completed tasks yet.
-              </p>
-            ) : (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Subreddit</th>
-                    <th>Type</th>
-                    <th>Price</th>
-                    <th>Date Completed</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {earningsHistory.map((row) => (
-                    <tr key={row.booking_id}>
-                      <td style={{ fontWeight: 'bold' }}>{row.subreddit ? `r/${row.subreddit}` : 'Direct Link'}</td>
-                      <td>{row.type_name}</td>
-                      <td style={{ color: 'var(--color-success)', fontWeight: '600' }}>
-                        ${parseFloat(row.price).toFixed(2)}
-                      </td>
-                      <td>{new Date(row.updated_at).toLocaleDateString()}</td>
-                      <td>
-                        <StatusTag status={row.status_id} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
+        <UserEarningsTab
+          paidBalance={paidBalance}
+          pendingBalance={pendingBalance}
+          earningsHistory={earningsHistory}
+        />
       ) : (
-        /* Guidelines Tab */
         <div className="glass-panel" style={{ padding: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+          <h2
+            style={{
+              fontSize: '1.5rem',
+              marginBottom: '1.5rem',
+              borderBottom: '1px solid var(--border-color)',
+              paddingBottom: '0.75rem',
+            }}
+          >
             Reddit Promotion Guidelines
           </h2>
           <Guidelines />
@@ -598,119 +206,7 @@ export default function BasicDashboard() {
       )}
 
       {/* Onboarding Overlay Modal */}
-      {showOnboarding && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(5, 7, 12, 0.95)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          zIndex: 9999,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '2rem'
-        }}>
-          <div className="glass-panel" style={{
-            maxWidth: '800px',
-            width: '100%',
-            maxHeight: '90vh',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            padding: '2rem',
-            border: '1px solid rgba(99, 102, 241, 0.25)',
-            boxShadow: '0 0 30px rgba(99, 102, 241, 0.15)'
-          }}>
-            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '60px',
-                height: '60px',
-                borderRadius: '9999px',
-                background: 'rgba(99, 102, 241, 0.1)',
-                border: '1px solid rgba(99, 102, 241, 0.2)',
-                color: 'var(--color-primary)',
-                marginBottom: '1rem'
-              }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-              </div>
-              <h2 style={{ fontSize: '1.75rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-                Onboarding: Read Promotion Guidelines
-              </h2>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                Before taking any tasks, please review and accept our posting guidelines below.
-              </p>
-            </div>
-
-            <div 
-              onScroll={handleScroll}
-              style={{
-                flex: 1,
-                overflowY: 'auto',
-                paddingRight: '0.5rem',
-                marginBottom: '1.5rem',
-                border: '1px solid var(--border-color)',
-                borderRadius: '8px',
-                padding: '1.5rem',
-                backgroundColor: 'rgba(0, 0, 0, 0.2)'
-              }}
-            >
-              <Guidelines />
-            </div>
-
-            <div style={{
-              borderTop: '1px solid var(--border-color)',
-              paddingTop: '1.5rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}>
-              <label style={{ 
-                display: 'flex', 
-                alignItems: 'flex-start', 
-                gap: '0.75rem', 
-                cursor: hasScrolledOnboarding ? 'pointer' : 'not-allowed', 
-                fontSize: '0.9rem',
-                color: hasScrolledOnboarding ? 'var(--text-primary)' : 'var(--text-secondary)',
-                opacity: hasScrolledOnboarding ? 1 : 0.6
-              }}>
-                <input 
-                  type="checkbox" 
-                  checked={hasCheckedOnboarding}
-                  onChange={(e) => hasScrolledOnboarding && setHasCheckedOnboarding(e.target.checked)}
-                  disabled={!hasScrolledOnboarding}
-                  style={{ marginTop: '0.2rem', cursor: hasScrolledOnboarding ? 'pointer' : 'not-allowed' }}
-                />
-                <span>
-                  {hasScrolledOnboarding 
-                    ? "I have fully read, understood, and agree to adhere to the Reddit promotion eligibility requirements, payment cycle, and safety rules."
-                    : "Please scroll to the bottom of the guidelines document to enable verification."
-                  }
-                </span>
-              </label>
-
-              <button
-                type="button"
-                onClick={handleAcknowledge}
-                className="btn btn-primary"
-                style={{ width: '100%', padding: '0.75rem' }}
-                disabled={!hasScrolledOnboarding || !hasCheckedOnboarding}
-              >
-                Accept and Continue to Dashboard
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <OnboardingModal isOpen={showOnboarding} onAcknowledge={handleAcknowledge} />
     </div>
   );
 }
-
