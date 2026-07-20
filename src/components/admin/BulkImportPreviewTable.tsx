@@ -1,4 +1,4 @@
-import type { ParsedTaskRow } from '../utils/excelParser';
+import type { ParsedTaskRow } from '../../utils/excelParser';
 
 interface BulkImportPreviewTableProps {
   bulkTasks: ParsedTaskRow[];

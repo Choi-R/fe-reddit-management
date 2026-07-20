@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
-import Header from './components/Header';
+import Header from './components/common/Header';
 import LoginPage from './pages/LoginPage';
 import BasicDashboard from './pages/BasicDashboard';
 import AdminDashboard from './pages/AdminDashboard';

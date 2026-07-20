@@ -1,4 +1,4 @@
-import type { UserTaskDetailItem } from '../types';
+import type { UserTaskDetailItem } from '../../types';
 
 interface UserStatsPendingTabProps {
   pendingSubmissions: UserTaskDetailItem[];

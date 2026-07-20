@@ -1,4 +1,4 @@
-import type { BasicUserSummary } from '../types';
+import type { BasicUserSummary } from '../../types';
 
 interface UserCardProps {
   user: BasicUserSummary;

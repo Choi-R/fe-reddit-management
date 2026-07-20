@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import AlertBanner from '../components/AlertBanner';
+import AlertBanner from '../components/common/AlertBanner';
 import { authService } from '../services/authService';
 
 interface ResetPasswordPageProps {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import type { Task, ActiveBooking } from '../types';
-import AlertBanner from './AlertBanner';
-import Pagination from './Pagination';
+import type { Task, ActiveBooking } from '../../types';
+import AlertBanner from '../common/AlertBanner';
+import Pagination from '../common/Pagination';
 import AvailableTaskCard from './AvailableTaskCard';
 import ActiveBookingCard from './ActiveBookingCard';
 

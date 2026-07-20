@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import type { Task, BasicUserSummary } from '../types';
-import Pagination from './Pagination';
-import { adminService } from '../services/adminService';
+import type { Task, BasicUserSummary } from '../../types';
+import Pagination from '../common/Pagination';
+import { adminService } from '../../services/adminService';
 import TaskSingleForm from './TaskSingleForm';
 import TaskBulkImportForm from './TaskBulkImportForm';
 import AdminTaskCard from './AdminTaskCard';

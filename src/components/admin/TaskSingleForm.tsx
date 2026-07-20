@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { Task, BasicUserSummary } from '../types';
-import { adminService } from '../services/adminService';
+import type { Task, BasicUserSummary } from '../../types';
+import { adminService } from '../../services/adminService';
 
 interface TaskSingleFormProps {
   editingTask: Task | null;

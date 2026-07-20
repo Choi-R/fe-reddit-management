@@ -1,4 +1,4 @@
-import type { UserDetailMetrics } from '../types';
+import type { UserDetailMetrics } from '../../types';
 
 interface UserStatsOverviewCardsProps {
   metrics: UserDetailMetrics;

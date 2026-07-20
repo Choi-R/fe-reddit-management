@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import type { BasicUserSummary } from '../types';
-import Pagination from './Pagination';
-import { adminService } from '../services/adminService';
+import type { BasicUserSummary } from '../../types';
+import Pagination from '../common/Pagination';
+import { adminService } from '../../services/adminService';
 import UserForm from './UserForm';
 import UserCard from './UserCard';
 

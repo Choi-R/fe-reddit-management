@@ -1,5 +1,5 @@
-import type { Task } from '../types';
-import StatusTag from './StatusTag';
+import type { Task } from '../../types';
+import StatusTag from '../common/StatusTag';
 
 interface AdminTaskCardProps {
   task: Task;

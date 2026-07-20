@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import type { PendingSubmission } from '../types';
-import { adminService } from '../services/adminService';
-import { getRelativeTimeString } from '../utils/date';
+import type { PendingSubmission } from '../../types';
+import { adminService } from '../../services/adminService';
+import { getRelativeTimeString } from '../../utils/date';
 
 interface PendingReviewsTabProps {
   pendingSubmissions: PendingSubmission[];

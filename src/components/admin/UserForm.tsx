@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { BasicUserSummary } from '../types';
-import { adminService } from '../services/adminService';
+import type { BasicUserSummary } from '../../types';
+import { adminService } from '../../services/adminService';
 
 interface UserFormProps {
   editingUser: BasicUserSummary | null;

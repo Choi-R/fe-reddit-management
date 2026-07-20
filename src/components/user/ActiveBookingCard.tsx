@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import type { ActiveBooking } from '../types';
-import StatusTag from './StatusTag';
-import { useCountdown } from '../hooks/useCountdown';
+import type { ActiveBooking } from '../../types';
+import StatusTag from '../common/StatusTag';
+import { useCountdown } from '../../hooks/useCountdown';
 
 interface ActiveBookingCardProps {
   booking: ActiveBooking;

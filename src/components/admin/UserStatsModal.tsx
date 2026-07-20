@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import type { UserDetailStats } from '../types';
+import type { UserDetailStats } from '../../types';
 import UserStatsOverviewCards from './UserStatsOverviewCards';
 import UserStatsBookingsTab from './UserStatsBookingsTab';
 import UserStatsPendingTab from './UserStatsPendingTab';
 import UserStatsProfileTab from './UserStatsProfileTab';
-import StatusTag from './StatusTag';
+import StatusTag from '../common/StatusTag';
 
 interface UserStatsModalProps {
   isOpen: boolean;

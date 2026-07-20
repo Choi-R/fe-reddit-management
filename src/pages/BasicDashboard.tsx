@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { taskService } from '../services/taskService';
-import AlertBanner from '../components/AlertBanner';
+import AlertBanner from '../components/common/AlertBanner';
 import type { Task, Booking, ActiveBooking } from '../types';
 import { useAuth } from '../hooks/useAuth';
-import Guidelines from '../components/Guidelines';
-import OnboardingModal from '../components/OnboardingModal';
-import UserTasksTab from '../components/UserTasksTab';
-import UserEarningsTab from '../components/UserEarningsTab';
+import Guidelines from '../components/user/Guidelines';
+import OnboardingModal from '../components/user/OnboardingModal';
+import UserTasksTab from '../components/user/UserTasksTab';
+import UserEarningsTab from '../components/user/UserEarningsTab';
 
 export default function BasicDashboard() {
   const [basicTab, setBasicTab] = useState<'tasks' | 'earnings' | 'guidelines'>('tasks');

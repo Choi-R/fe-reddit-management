@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { adminService } from '../services/adminService';
-import AlertBanner from '../components/AlertBanner';
+import AlertBanner from '../components/common/AlertBanner';
 import type { Task, BasicUserSummary, UserDetailStats, PendingSubmission } from '../types';
-import TasksTab from '../components/TasksTab';
-import PendingReviewsTab from '../components/PendingReviewsTab';
-import PayoutsTab from '../components/PayoutsTab';
-import UserManagementTab from '../components/UserManagementTab';
-import UserStatsModal from '../components/UserStatsModal';
+import TasksTab from '../components/admin/TasksTab';
+import PendingReviewsTab from '../components/admin/PendingReviewsTab';
+import PayoutsTab from '../components/admin/PayoutsTab';
+import UserManagementTab from '../components/admin/UserManagementTab';
+import UserStatsModal from '../components/admin/UserStatsModal';
 
 export default function AdminDashboard() {
   const [adminTab, setAdminTab] = useState<'tasks' | 'reviews' | 'payouts' | 'users'>('tasks');

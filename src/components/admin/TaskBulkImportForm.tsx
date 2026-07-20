@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { adminService } from '../services/adminService';
-import { parseSpreadsheetFile, type ParsedTaskRow } from '../utils/excelParser';
+import { adminService } from '../../services/adminService';
+import { parseSpreadsheetFile, type ParsedTaskRow } from '../../utils/excelParser';
 import BulkImportPreviewTable from './BulkImportPreviewTable';
 
 interface TaskBulkImportFormProps {

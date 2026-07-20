@@ -1,5 +1,5 @@
-import type { BasicUserSummary } from '../types';
-import { adminService } from '../services/adminService';
+import type { BasicUserSummary } from '../../types';
+import { adminService } from '../../services/adminService';
 
 interface PayoutsTabProps {
   users: BasicUserSummary[];

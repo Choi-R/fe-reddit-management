@@ -1,5 +1,5 @@
-import type { Booking } from '../types';
-import StatusTag from './StatusTag';
+import type { Booking } from '../../types';
+import StatusTag from '../common/StatusTag';
 
 interface TaskHistoryTableProps {
   history: Booking[];

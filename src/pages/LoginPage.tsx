@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import AlertBanner from '../components/AlertBanner';
+import AlertBanner from '../components/common/AlertBanner';
 
 interface LoginPageProps {
   isAdminRoute: boolean;
