@@ -56,7 +56,7 @@ export default function UserStatsModal({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <div>
             <h2 style={{ fontSize: '1.25rem', margin: 0 }}>
-              {isLoading ? 'Loading User Details...' : stats ? `User Details: ${stats.user.email}` : 'User Statistics'}
+              {isLoading ? 'Loading User Details...' : stats ? `User Details: ${stats.user.email}${stats.user.nickname ? ` (${stats.user.nickname})` : ''}` : 'User Statistics'}
             </h2>
             {stats && (
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>

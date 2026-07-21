@@ -8,13 +8,13 @@ export const adminService = {
   getUserDetail: (userId: string): Promise<{ success: boolean; data: UserDetailStats }> =>
     authenticatedRequest(`/api/admin/users/${userId}/detail`),
 
-  createUser: (data: { email: string; password: string; paypal?: string | null; reddit: string }): Promise<{ success: boolean; user: User }> =>
+  createUser: (data: { email: string; password: string; paypal?: string | null; reddit: string; nickname?: string | null }): Promise<{ success: boolean; user: User }> =>
     authenticatedRequest('/api/admin/users', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  updateUser: (userId: string, data: { email: string; paypal?: string | null; reddit: string }): Promise<{ success: boolean; user: User }> =>
+  updateUser: (userId: string, data: { email: string; paypal?: string | null; reddit: string; nickname?: string | null }): Promise<{ success: boolean; user: User }> =>
     authenticatedRequest(`/api/admin/users/${userId}`, {
       method: 'PUT',
       body: JSON.stringify(data),

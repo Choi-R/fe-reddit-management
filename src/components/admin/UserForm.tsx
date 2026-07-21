@@ -24,6 +24,7 @@ export default function UserForm({
   const [newEmail, setNewEmail] = useState(editingUser?.email || '');
   const [newPaypal, setNewPaypal] = useState(editingUser?.paypal || '');
   const [newReddit, setNewReddit] = useState(editingUser?.reddit || '');
+  const [newNickname, setNewNickname] = useState(editingUser?.nickname || '');
   const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
@@ -31,11 +32,13 @@ export default function UserForm({
       setNewEmail(editingUser.email);
       setNewPaypal(editingUser.paypal || '');
       setNewReddit(editingUser.reddit || '');
+      setNewNickname(editingUser.nickname || '');
       setNewPassword('');
     } else {
       setNewEmail('');
       setNewPaypal('');
       setNewReddit('');
+      setNewNickname('');
       setNewPassword('');
     }
   }, [editingUser]);
@@ -57,6 +60,7 @@ export default function UserForm({
           email: newEmail,
           paypal: newPaypal || null,
           reddit: newReddit,
+          nickname: newNickname || null,
         });
 
         if (newPassword) {
@@ -87,11 +91,13 @@ export default function UserForm({
           password: newPassword,
           paypal: newPaypal || null,
           reddit: newReddit,
+          nickname: newNickname || null,
         });
         setSuccessMsg('User created successfully!');
         setNewEmail('');
         setNewPaypal('');
         setNewReddit('');
+        setNewNickname('');
         setNewPassword('');
       }
       onRefreshData();
@@ -126,6 +132,17 @@ export default function UserForm({
           value={newReddit}
           onChange={(e) => setNewReddit(e.target.value)}
           required
+        />
+      </div>
+      <div className="form-group">
+        <label htmlFor="userNickname">Nickname (Admin-only, Optional)</label>
+        <input
+          id="userNickname"
+          type="text"
+          className="form-input"
+          placeholder="e.g. John's Secondary"
+          value={newNickname}
+          onChange={(e) => setNewNickname(e.target.value)}
         />
       </div>
       <div className="form-group">

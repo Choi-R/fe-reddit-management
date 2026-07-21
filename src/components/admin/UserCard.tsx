@@ -24,7 +24,14 @@ export default function UserCard({
       {/* Header */}
       <div className="task-card-header" onClick={onToggleExpand}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <span style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{user.email}</span>
+          <span style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>
+            {user.email}
+            {user.nickname && (
+              <span style={{ fontWeight: 'normal', color: 'var(--text-secondary)', fontSize: '0.8rem', marginLeft: '0.35rem' }}>
+                ({user.nickname})
+              </span>
+            )}
+          </span>
           <span
             className={`badge-role role-${(user.tier || 'Bronze').toLowerCase()}`}
             style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', textTransform: 'capitalize' }}
@@ -52,6 +59,11 @@ export default function UserCard({
 
       {/* Main Info */}
       <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+        {user.nickname && (
+          <>
+            Nickname: <strong style={{ color: 'var(--text-primary)' }}>{user.nickname}</strong> |{' '}
+          </>
+        )}
         Reddit:{' '}
         <a
           href={`https://reddit.com/u/${user.reddit}`}

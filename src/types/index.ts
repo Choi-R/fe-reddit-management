@@ -5,6 +5,7 @@ export interface User {
   email: string;
   paypal: string | null;
   reddit: string;
+  nickname?: string | null;
   roles: string[];
 }
 
@@ -59,6 +60,7 @@ export interface BasicUserSummary {
   email: string;
   paypal: string | null;
   reddit: string;
+  nickname?: string | null;
   createdAt: string;
   pendingBalance: number;
   paidBalance: number;
@@ -104,6 +106,7 @@ export interface UserDetailStats {
     email: string;
     paypal: string | null;
     reddit: string;
+    nickname?: string | null;
     createdAt: string;
     tier: string;
     bookingLimit: number;

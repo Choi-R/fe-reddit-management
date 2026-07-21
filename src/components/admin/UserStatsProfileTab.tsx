@@ -34,6 +34,11 @@ export default function UserStatsProfileTab({ stats }: UserStatsProfileTabProps)
           </strong>
         </div>
         <div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Nickname (Admin-only):</span>
+          <br />
+          <strong style={{ color: 'var(--text-primary)' }}>{stats.user.nickname || 'None'}</strong>
+        </div>
+        <div>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>PayPal Email:</span>
           <br />
           <strong style={{ color: 'var(--text-primary)' }}>{stats.user.paypal || 'Not configured'}</strong>
