@@ -83,32 +83,28 @@ export default function UserStatsModal({
             <UserStatsOverviewCards metrics={stats.metrics} />
 
             {/* Sub-tabs */}
-            <div className="tab-navigation" style={{ marginBottom: '1rem' }}>
+            <div className="tab-navigation" style={{ marginBottom: '1.25rem' }}>
               <button
                 onClick={() => setActiveTab('bookings')}
                 className={`tab-button ${activeTab === 'bookings' ? 'active' : ''}`}
-                style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
               >
                 Current Active Bookings ({stats.metrics.activeBookingCount})
               </button>
               <button
                 onClick={() => setActiveTab('pending')}
                 className={`tab-button ${activeTab === 'pending' ? 'active' : ''}`}
-                style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
               >
                 Under Review ({stats.metrics.pendingReviewCount})
               </button>
               <button
                 onClick={() => setActiveTab('history')}
                 className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
-                style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
               >
                 Task Log History ({stats.taskHistory.length})
               </button>
               <button
                 onClick={() => setActiveTab('profile')}
                 className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
-                style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }}
               >
                 Account Profile Info
               </button>

@@ -191,24 +191,30 @@ export default function TaskSingleForm({
         />
         {showSuggestions && newTaskAssignedTo && filteredUsers.length > 0 && (
           <div
+            className="glass-panel"
             style={{
               position: 'absolute',
-              top: '100%',
+              top: 'calc(100% + 4px)',
               left: 0,
               right: 0,
-              background: 'var(--bg-glass)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '8px',
-              zIndex: 10,
-              maxHeight: '150px',
+              zIndex: 50,
+              maxHeight: '180px',
               overflowY: 'auto',
+              padding: '0.25rem 0',
               boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
             }}
           >
             {filteredUsers.map((u) => (
               <div
                 key={u.id}
-                style={{ padding: '0.5rem 0.75rem', cursor: 'pointer', fontSize: '0.85rem' }}
+                style={{
+                  padding: '0.5rem 0.85rem',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  transition: 'background-color 0.15s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.15)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                 onMouseDown={() => {
                   setNewTaskAssignedTo(u.email);
                   setShowSuggestions(false);

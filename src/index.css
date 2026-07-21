@@ -209,6 +209,24 @@ h1, h2, h3, h4 {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
+select.form-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239CA3AF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 0.65rem auto;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+select.form-input option {
+  background-color: #111827;
+  color: #f3f4f6;
+  padding: 0.5rem;
+}
+
 /* Warnings and Alerts */
 .alert {
   display: flex;
@@ -268,33 +286,55 @@ tr:hover td {
   background: rgba(255, 255, 255, 0.01);
 }
 
-/* Tab Switchers */
+/* Tab Switchers & Navigation Menus */
+.tab-navigation,
 .tab-container {
-  display: flex;
-  gap: 0.5rem;
-  background: rgba(0, 0, 0, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: var(--backdrop-blur);
+  -webkit-backdrop-filter: var(--backdrop-blur);
   padding: 0.35rem;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--border-color);
-  width: fit-content;
-  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+  flex-wrap: wrap;
 }
+
+.tab-button,
 .tab-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 8px;
+  font-family: var(--font-sans);
   font-size: 0.875rem;
+  font-weight: 500;
   color: var(--text-secondary);
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  user-select: none;
+  white-space: nowrap;
+  transition: all var(--transition-normal);
 }
+
+.tab-button:hover,
 .tab-btn:hover {
   color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.05);
 }
+
+.tab-button.active,
 .tab-btn.active {
-  background: var(--color-primary);
-  color: #fff;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #4f46e5 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
 }
 
 /* Responsive Grid layouts */

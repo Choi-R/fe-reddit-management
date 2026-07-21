@@ -95,44 +95,20 @@ export default function TasksTab({
           </h2>
 
           {!editingTask && (
-            <div
-              style={{
-                display: 'inline-flex',
-                background: 'rgba(0,0,0,0.2)',
-                padding: '0.2rem',
-                borderRadius: '8px',
-                border: '1px solid var(--border-color)',
-              }}
-            >
+            <div className="tab-navigation">
               <button
                 type="button"
                 onClick={() => setTaskTabMode('single')}
-                style={{
-                  padding: '0.25rem 0.6rem',
-                  fontSize: '0.75rem',
-                  borderRadius: '6px',
-                  border: 'none',
-                  background: taskTabMode === 'single' ? 'var(--color-primary)' : 'transparent',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  fontWeight: taskTabMode === 'single' ? 600 : 400,
-                }}
+                className={`tab-button ${taskTabMode === 'single' ? 'active' : ''}`}
+                style={{ padding: '0.3rem 0.75rem', fontSize: '0.8rem' }}
               >
                 Single
               </button>
               <button
                 type="button"
                 onClick={() => setTaskTabMode('bulk')}
-                style={{
-                  padding: '0.25rem 0.6rem',
-                  fontSize: '0.75rem',
-                  borderRadius: '6px',
-                  border: 'none',
-                  background: taskTabMode === 'bulk' ? 'var(--color-primary)' : 'transparent',
-                  color: '#fff',
-                  cursor: 'pointer',
-                  fontWeight: taskTabMode === 'bulk' ? 600 : 400,
-                }}
+                className={`tab-button ${taskTabMode === 'bulk' ? 'active' : ''}`}
+                style={{ padding: '0.3rem 0.75rem', fontSize: '0.8rem' }}
               >
                 Bulk Import
               </button>
