@@ -220,7 +220,22 @@ export default function TaskSingleForm({
                   setShowSuggestions(false);
                 }}
               >
-                <strong>{u.email}</strong> <span style={{ color: 'var(--text-secondary)' }}>(u/{u.reddit})</span>
+                <strong>{u.email}</strong>{' '}
+                <span style={{ color: 'var(--text-secondary)' }}>
+                  (
+                  <a
+                    href={`https://reddit.com/u/${u.reddit}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    u/{u.reddit}
+                  </a>
+                  )
+                </span>
               </div>
             ))}
           </div>

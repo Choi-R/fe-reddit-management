@@ -52,7 +52,16 @@ export default function UserCard({
 
       {/* Main Info */}
       <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
-        Reddit: <strong style={{ color: 'var(--text-primary)' }}>u/{user.reddit}</strong> | PayPal:{' '}
+        Reddit:{' '}
+        <a
+          href={`https://reddit.com/u/${user.reddit}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'var(--color-primary)', textDecoration: 'underline', fontWeight: 'bold' }}
+        >
+          u/{user.reddit}
+        </a>{' '}
+        | PayPal:{' '}
         <strong style={{ color: 'var(--text-primary)' }}>{user.paypal || 'None'}</strong>
       </div>
 

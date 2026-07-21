@@ -22,7 +22,16 @@ export default function UserStatsProfileTab({ stats }: UserStatsProfileTabProps)
         <div>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Reddit Username:</span>
           <br />
-          <strong style={{ color: 'var(--color-primary)' }}>u/{stats.user.reddit}</strong>
+          <strong>
+            <a
+              href={`https://reddit.com/u/${stats.user.reddit}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}
+            >
+              u/{stats.user.reddit}
+            </a>
+          </strong>
         </div>
         <div>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>PayPal Email:</span>

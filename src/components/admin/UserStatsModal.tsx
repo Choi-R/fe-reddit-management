@@ -60,7 +60,16 @@ export default function UserStatsModal({
             </h2>
             {stats && (
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                Reddit: <strong style={{ color: 'var(--color-primary)' }}>u/{stats.user.reddit}</strong> | Tier:{' '}
+                Reddit:{' '}
+                <a
+                  href={`https://reddit.com/u/${stats.user.reddit}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--color-primary)', textDecoration: 'underline', fontWeight: 'bold' }}
+                >
+                  u/{stats.user.reddit}
+                </a>{' '}
+                | Tier:{' '}
                 <strong style={{ textTransform: 'capitalize' }}>{stats.user.tier}</strong>
               </span>
             )}
