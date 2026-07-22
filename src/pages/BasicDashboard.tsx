@@ -124,7 +124,7 @@ export default function BasicDashboard() {
   };
 
   return (
-    <div className="container dashboard-container">
+    <div className="dashboard-container">
       {/* Header Bar */}
       <div
         style={{

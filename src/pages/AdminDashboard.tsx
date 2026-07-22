@@ -82,7 +82,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="container dashboard-container" style={{ paddingBottom: '4rem' }}>
+    <div className="dashboard-container" style={{ paddingBottom: '2rem' }}>
       {/* Page Title & Tab Navigation */}
       <div
         style={{

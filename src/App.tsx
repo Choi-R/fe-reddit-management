@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
 import Header from './components/common/Header';
+import Footer from './components/common/Footer';
 import LoginPage from './pages/LoginPage';
 import BasicDashboard from './pages/BasicDashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -26,46 +27,68 @@ function AppContent() {
 
   const isAdminRoute = currentPath.startsWith('/admin');
 
-  // ─── Login Screen ─────────────────────────────────────────────────
+  // ─── Login & Auth Screens ─────────────────────────────────────────
 
   if (currentPath === '/forgot-password') {
-    return <ForgotPasswordPage navigateTo={navigateTo} />;
+    return (
+      <div className="app-layout container">
+        <main className="app-main">
+          <ForgotPasswordPage navigateTo={navigateTo} />
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   if (currentPath.startsWith('/reset-password')) {
-    return <ResetPasswordPage navigateTo={navigateTo} />;
+    return (
+      <div className="app-layout container">
+        <main className="app-main">
+          <ResetPasswordPage navigateTo={navigateTo} />
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
     return (
-      <LoginPage
-        isAdminRoute={isAdminRoute}
-        onLogin={async (email, password) => {
-          const loggedInUser = await login(email, password);
-          const hasAdminRights =
-            loggedInUser.roles.includes('admin') || loggedInUser.roles.includes('choi');
+      <div className="app-layout container">
+        <main className="app-main">
+          <LoginPage
+            isAdminRoute={isAdminRoute}
+            onLogin={async (email, password) => {
+              const loggedInUser = await login(email, password);
+              const hasAdminRights =
+                loggedInUser.roles.includes('admin') || loggedInUser.roles.includes('choi');
 
-          if (isAdminRoute && !hasAdminRights) {
-            throw new Error('Access denied: Admin credentials required.');
-          }
-          if (!isAdminRoute && hasAdminRights) {
-            throw new Error('Access denied: Please log in at the admin portal (/admin).');
-          }
+              if (isAdminRoute && !hasAdminRights) {
+                throw new Error('Access denied: Admin credentials required.');
+              }
+              if (!isAdminRoute && hasAdminRights) {
+                throw new Error('Access denied: Please log in at the admin portal (/admin).');
+              }
 
-          navigateTo(hasAdminRights ? '/admin' : '/');
-        }}
-        onSwitchRoute={() => navigateTo(isAdminRoute ? '/' : '/admin')}
-        onForgotPassword={() => navigateTo('/forgot-password')}
-      />
+              navigateTo(hasAdminRights ? '/admin' : '/');
+            }}
+            onSwitchRoute={() => navigateTo(isAdminRoute ? '/' : '/admin')}
+            onForgotPassword={() => navigateTo('/forgot-password')}
+          />
+        </main>
+        <Footer />
+      </div>
     );
   }
 
   // ─── Authenticated Layout ─────────────────────────────────────────
 
   return (
-    <div className="container">
+    <div className="app-layout container">
       <Header user={user!} isAdmin={isAdmin} isChoi={isChoi} onLogout={logout} />
-      {isAdmin ? <AdminDashboard /> : <BasicDashboard />}
+      <main className="app-main">
+        {isAdmin ? <AdminDashboard /> : <BasicDashboard />}
+      </main>
+      <Footer />
     </div>
   );
 }
