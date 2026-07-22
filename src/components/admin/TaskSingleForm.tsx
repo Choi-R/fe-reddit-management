@@ -101,11 +101,38 @@ export default function TaskSingleForm({
     }
   };
 
-  const filteredUsers = users.filter((u) => {
-    if (!newTaskAssignedTo) return true;
-    const query = newTaskAssignedTo.toLowerCase();
-    return u.email.toLowerCase().includes(query) || u.reddit.toLowerCase().includes(query);
-  });
+  const query = newTaskAssignedTo.trim();
+  const shouldSearch = query.length >= 3;
+
+  let regex: RegExp | null = null;
+  if (shouldSearch) {
+    try {
+      regex = new RegExp(query, 'i');
+    } catch {
+      regex = null;
+    }
+  }
+
+  const filteredUsers = shouldSearch
+    ? users
+        .filter((u) => {
+          const email = u.email || '';
+          const reddit = u.reddit || '';
+          const nickname = u.nickname || '';
+
+          if (regex) {
+            return regex.test(email) || regex.test(reddit) || regex.test(nickname);
+          } else {
+            const qLower = query.toLowerCase();
+            return (
+              email.toLowerCase().includes(qLower) ||
+              reddit.toLowerCase().includes(qLower) ||
+              nickname.toLowerCase().includes(qLower)
+            );
+          }
+        })
+        .slice(0, 5)
+    : [];
 
   return (
     <form onSubmit={handleSubmit}>
@@ -180,7 +207,7 @@ export default function TaskSingleForm({
           id="taskAssignedTo"
           type="text"
           className="form-input"
-          placeholder="Enter user email or reddit name..."
+          placeholder="Enter user email, reddit username, or nickname (min 3 chars)..."
           value={newTaskAssignedTo}
           onChange={(e) => {
             setNewTaskAssignedTo(e.target.value);
@@ -189,7 +216,7 @@ export default function TaskSingleForm({
           onFocus={() => setShowSuggestions(true)}
           onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
         />
-        {showSuggestions && newTaskAssignedTo && filteredUsers.length > 0 && (
+        {showSuggestions && shouldSearch && filteredUsers.length > 0 && (
           <div
             className="glass-panel"
             style={{
@@ -198,7 +225,7 @@ export default function TaskSingleForm({
               left: 0,
               right: 0,
               zIndex: 50,
-              maxHeight: '180px',
+              maxHeight: '200px',
               overflowY: 'auto',
               padding: '0.25rem 0',
               boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
@@ -212,6 +239,9 @@ export default function TaskSingleForm({
                   cursor: 'pointer',
                   fontSize: '0.85rem',
                   transition: 'background-color 0.15s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.15rem',
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.15)')}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
@@ -220,9 +250,16 @@ export default function TaskSingleForm({
                   setShowSuggestions(false);
                 }}
               >
-                <strong>{u.email}</strong>{' '}
-                <span style={{ color: 'var(--text-secondary)' }}>
-                  (
+                <div>
+                  <strong>{u.email}</strong>
+                  {u.nickname && (
+                    <span style={{ color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>
+                      ({u.nickname})
+                    </span>
+                  )}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                  Reddit:{' '}
                   <a
                     href={`https://reddit.com/u/${u.reddit}`}
                     target="_blank"
@@ -234,8 +271,7 @@ export default function TaskSingleForm({
                   >
                     u/{u.reddit}
                   </a>
-                  )
-                </span>
+                </div>
               </div>
             ))}
           </div>

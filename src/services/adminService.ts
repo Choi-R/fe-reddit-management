@@ -5,6 +5,9 @@ export const adminService = {
   getUsers: (): Promise<{ users: BasicUserSummary[] }> =>
     authenticatedRequest('/api/admin/users'),
 
+  searchUsers: (q: string): Promise<{ users: BasicUserSummary[] }> =>
+    authenticatedRequest(`/api/admin/users/search?q=${encodeURIComponent(q)}`),
+
   getUserDetail: (userId: string): Promise<{ success: boolean; data: UserDetailStats }> =>
     authenticatedRequest(`/api/admin/users/${userId}/detail`),
 
