@@ -142,6 +142,19 @@ export default function UserStatsModal({
                           <td>{item.subreddit ? `r/${item.subreddit}` : 'Direct Task'}</td>
                           <td>
                             <StatusTag status={item.status_id} />
+                            {item.admin_note && (
+                              <div
+                                style={{
+                                  fontSize: '0.7rem',
+                                  color: item.status_id === 'failed' ? 'var(--color-danger)' : 'var(--text-secondary)',
+                                  marginTop: '0.2rem',
+                                  maxWidth: '180px',
+                                  wordBreak: 'break-word',
+                                }}
+                              >
+                                Note: {item.admin_note}
+                              </div>
+                            )}
                           </td>
                           <td style={{ color: 'var(--color-success)', fontWeight: 'bold' }}>
                             ${parseFloat(item.price).toFixed(2)}

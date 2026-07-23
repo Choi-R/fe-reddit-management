@@ -83,10 +83,10 @@ export const adminService = {
       method: 'DELETE',
     }),
 
-  reviewSubmission: (bookingId: string, statusId: 'success' | 'failed', note?: string | null): Promise<{ success: boolean; booking: unknown; quotaReturned?: boolean }> =>
+  reviewSubmission: (bookingId: string, statusId: 'success' | 'failed', adminNote?: string | null): Promise<{ success: boolean; booking: unknown; quotaReturned?: boolean }> =>
     authenticatedRequest('/api/admin/tasks/review', {
       method: 'POST',
-      body: JSON.stringify({ bookingId, statusId, note }),
+      body: JSON.stringify({ bookingId, statusId, note: adminNote, adminNote }),
     }),
 
   getPendingReviews: (): Promise<{ success: boolean; bookings: PendingSubmission[] }> =>

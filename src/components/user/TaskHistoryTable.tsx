@@ -39,6 +39,19 @@ export default function TaskHistoryTable({ history }: TaskHistoryTableProps) {
               <td>{new Date(row.updated_at).toLocaleDateString()}</td>
               <td>
                 <StatusTag status={row.status_id} />
+                {row.admin_note && (
+                  <div
+                    style={{
+                      fontSize: '0.75rem',
+                      color: row.status_id === 'failed' ? 'var(--color-danger)' : 'var(--text-secondary)',
+                      marginTop: '0.25rem',
+                      maxWidth: '220px',
+                      wordBreak: 'break-word',
+                    }}
+                  >
+                    <strong>Feedback:</strong> {row.admin_note}
+                  </div>
+                )}
               </td>
             </tr>
           ))}

@@ -32,6 +32,7 @@ export interface Booking {
   status_id: string;
   reply_url: string | null;
   note: string | null;
+  admin_note?: string | null;
   created_at: string;
   updated_at: string;
   task_id: string;
@@ -83,6 +84,7 @@ export interface UserTaskDetailItem {
   type_name?: string;
   reply_url?: string | null;
   note?: string | null;
+  admin_note?: string | null;
   created_at: string;
   updated_at: string;
 }
