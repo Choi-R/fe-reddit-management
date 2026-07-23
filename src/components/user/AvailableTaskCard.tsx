@@ -85,6 +85,7 @@ export default function AvailableTaskCard({
           marginBottom: '0.5rem',
         }}
       >
+        <strong style={{ color: 'var(--text-primary)' }}>Client Request: </strong>
         {task.client_request}
       </p>
       {isExpanded && (

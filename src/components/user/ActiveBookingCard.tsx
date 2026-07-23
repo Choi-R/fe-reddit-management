@@ -117,6 +117,7 @@ export default function ActiveBookingCard({
           {booking.subreddit ? `r/${booking.subreddit}` : 'Direct Link'}
         </h3>
         <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+          <strong style={{ color: 'var(--text-primary)' }}>Client Request: </strong>
           {booking.client_request}
         </p>
 
@@ -185,7 +186,7 @@ export default function ActiveBookingCard({
               disabled={isLoading}
               onClick={handleCancel}
             >
-              Cancel Booking (Second-Thought)
+              Cancel Booking
             </button>
           </div>
         </form>
