@@ -40,7 +40,7 @@ export default function Guidelines() {
           </p>
           <ul style={{ fontSize: '0.98rem', color: 'var(--text-secondary)', paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem', lineHeight: '1.5' }}>
             <li>
-              <strong style={{ color: 'var(--text-primary)' }}>High Visibility:</strong> Your reply must appear without scrolling down too much. You can start a new comment (if the post has no comment) or reply directly to the top comment to achieve this.
+              <strong style={{ color: 'var(--text-primary)' }}>High Visibility:</strong> Your reply must appear without scrolling down too much. Reply to the top comment (most upvoted) to achieve this.
             </li>
             <li>
               <strong style={{ color: 'var(--text-primary)' }}>Longevity:</strong> Your reply must stay alive at least until the payment date (typically safe if it lasts at least 7 days). Folded, deleted, or shadowbanned replies are not eligible.
@@ -49,10 +49,10 @@ export default function Guidelines() {
               <strong style={{ color: 'var(--text-primary)' }}>Vote Ratio:</strong> While a negative vote is okay, excessive downvotes will result in the comment being folded, which voids eligibility.
             </li>
             <li>
-              <strong style={{ color: 'var(--text-primary)' }}>Fulfill Client Request:</strong> Ensure you insert the client's URL under the specified brand recommendation column or context.
+              <strong style={{ color: 'var(--text-primary)' }}>Fulfill Client Request:</strong> Ensure you insert the client's URL or brand name.
             </li>
             <li>
-              <strong style={{ color: 'var(--text-primary)' }}>Thread Status:</strong> The target Reddit post must remain active and must not be deleted.
+              <strong style={{ color: 'var(--text-primary)' }}>Thread Status:</strong> The target Reddit post must not be deleted nor archived.
             </li>
           </ul>
         </div>
@@ -121,7 +121,7 @@ export default function Guidelines() {
               <line x1="12" y1="16" x2="12" y2="12"></line>
               <line x1="12" y1="8" x2="12.01" y2="8"></line>
             </svg>
-            4. Guide & Tips To Increase Success Chance
+            4. Guide & Tips
           </h4>
           
           <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.5' }}>
