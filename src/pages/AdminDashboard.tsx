@@ -3,24 +3,27 @@ import { adminService } from '../services/adminService';
 import AlertBanner from '../components/common/AlertBanner';
 import type { Task, BasicUserSummary, UserDetailStats, PendingSubmission } from '../types';
 import TasksTab from '../components/admin/TasksTab';
+import ArchivedTasksTab from '../components/admin/ArchivedTasksTab';
 import PendingReviewsTab from '../components/admin/PendingReviewsTab';
 import PayoutsTab from '../components/admin/PayoutsTab';
 import UserManagementTab from '../components/admin/UserManagementTab';
 import UserStatsModal from '../components/admin/UserStatsModal';
 
 export default function AdminDashboard() {
-  const [adminTab, setAdminTab] = useState<'tasks' | 'reviews' | 'payouts' | 'users'>('tasks');
+  const [adminTab, setAdminTab] = useState<'tasks' | 'archived' | 'reviews' | 'payouts' | 'users'>('tasks');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   // Data states
   const [adminTasks, setAdminTasks] = useState<Task[]>([]);
+  const [archivedTasks, setArchivedTasks] = useState<Task[]>([]);
   const [adminUsers, setAdminUsers] = useState<BasicUserSummary[]>([]);
   const [pendingSubmissions, setPendingSubmissions] = useState<PendingSubmission[]>([]);
 
   // Pagination states
   const [tasksPage, setTasksPage] = useState(1);
+  const [archivedPage, setArchivedPage] = useState(1);
   const [usersPage, setUsersPage] = useState(1);
 
   // User Details & Stats modal states
@@ -31,18 +34,20 @@ export default function AdminDashboard() {
   // Reset page numbers when tab changes
   useEffect(() => {
     setTasksPage(1);
+    setArchivedPage(1);
     setUsersPage(1);
   }, [adminTab]);
 
   const loadTabData = useCallback(async () => {
     setIsLoading(true);
     try {
-      if (adminTab === 'tasks') {
+      if (adminTab === 'tasks' || adminTab === 'archived') {
         const [tasksData, usersData] = await Promise.all([
           adminService.getTasks(),
           adminService.getUsers(),
         ]);
         setAdminTasks(tasksData.tasks);
+        setArchivedTasks(tasksData.archivedTasks || []);
         setAdminUsers(usersData.users);
       } else if (adminTab === 'users' || adminTab === 'payouts') {
         const data = await adminService.getUsers();
@@ -57,6 +62,14 @@ export default function AdminDashboard() {
       setIsLoading(false);
     }
   }, [adminTab]);
+
+  // Initial load of counts on mount
+  useEffect(() => {
+    adminService.getTasks().then((res) => {
+      setAdminTasks(res.tasks || []);
+      setArchivedTasks(res.archivedTasks || []);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     loadTabData();
@@ -106,7 +119,13 @@ export default function AdminDashboard() {
             onClick={() => setAdminTab('tasks')}
             className={`tab-button ${adminTab === 'tasks' ? 'active' : ''}`}
           >
-            Tasks ({adminTasks.length})
+            Active Tasks ({adminTasks.length})
+          </button>
+          <button
+            onClick={() => setAdminTab('archived')}
+            className={`tab-button ${adminTab === 'archived' ? 'active' : ''}`}
+          >
+            Archived ({archivedTasks.length})
           </button>
           <button
             onClick={() => setAdminTab('reviews')}
@@ -132,7 +151,7 @@ export default function AdminDashboard() {
       <AlertBanner message={errorMsg} type="error" onClose={() => setErrorMsg(null)} />
       <AlertBanner message={successMsg} type="success" onClose={() => setSuccessMsg(null)} />
 
-      {/* Tab 1: Tasks */}
+      {/* Tab 1: Active Tasks */}
       {adminTab === 'tasks' && (
         <TasksTab
           tasks={adminTasks}
@@ -147,7 +166,21 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* Tab 2: Reviews */}
+      {/* Tab 2: Archived Tasks */}
+      {adminTab === 'archived' && (
+        <ArchivedTasksTab
+          archivedTasks={archivedTasks}
+          archivedPage={archivedPage}
+          setArchivedPage={setArchivedPage}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          setErrorMsg={setErrorMsg}
+          setSuccessMsg={setSuccessMsg}
+          onRefreshData={loadTabData}
+        />
+      )}
+
+      {/* Tab 3: Reviews */}
       {adminTab === 'reviews' && (
         <PendingReviewsTab
           pendingSubmissions={pendingSubmissions}
@@ -159,7 +192,7 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* Tab 3: Payouts */}
+      {/* Tab 4: Payouts */}
       {adminTab === 'payouts' && (
         <PayoutsTab
           users={adminUsers}
@@ -171,7 +204,7 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* Tab 4: User Profiles */}
+      {/* Tab 5: User Profiles */}
       {adminTab === 'users' && (
         <UserManagementTab
           users={adminUsers}

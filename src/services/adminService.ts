@@ -34,7 +34,7 @@ export const adminService = {
       method: 'DELETE',
     }),
 
-  getTasks: (): Promise<{ tasks: Task[] }> =>
+  getTasks: (): Promise<{ tasks: Task[]; archivedTasks: Task[] }> =>
     authenticatedRequest('/api/admin/tasks'),
 
   createTask: (data: {
@@ -72,14 +72,20 @@ export const adminService = {
     typeId: string;
     assignedTo?: string | null;
     deadline?: string | null;
+    restore?: boolean;
   }): Promise<{ success: boolean; task: Task }> =>
     authenticatedRequest(`/api/admin/tasks/${taskId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
 
-  deleteTask: (taskId: string): Promise<{ success: boolean; message: string }> =>
-    authenticatedRequest(`/api/admin/tasks/${taskId}`, {
+  restoreTask: (taskId: string): Promise<{ success: boolean; message: string; task: Task }> =>
+    authenticatedRequest(`/api/admin/tasks/${taskId}/restore`, {
+      method: 'POST',
+    }),
+
+  deleteTask: (taskId: string, permanent?: boolean): Promise<{ success: boolean; message: string }> =>
+    authenticatedRequest(`/api/admin/tasks/${taskId}${permanent ? '?permanent=true' : ''}`, {
       method: 'DELETE',
     }),
 

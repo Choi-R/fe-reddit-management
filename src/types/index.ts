@@ -15,11 +15,15 @@ export interface Task {
   url: string;
   client_request: string;
   quota: number;
+  original_quota?: number;
   price: string;
   deadline: string | null;
   type_id: string;
   type_name: string;
   assigned_to_email?: string | null;
+  deleted_at?: string | null;
+  is_archived?: boolean;
+  archive_reason?: string;
   count_incomplete?: number;
   count_pending?: number;
   count_success?: number;
