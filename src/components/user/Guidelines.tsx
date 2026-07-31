@@ -25,7 +25,7 @@ export default function Guidelines() {
         </div>
       </div>
 
-      <div className="grid-2" style={{ gap: '1.5rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         
         {/* Section 1: Task Eligibility Requirements */}
         <div className="glass-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', borderLeft: '4px solid var(--color-primary)' }}>
