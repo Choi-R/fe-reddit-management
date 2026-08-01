@@ -36,7 +36,9 @@ export default function ArchivedTaskCard({
   };
 
   const badgeStyle = getReasonBadgeStyle(task.archive_reason);
-  const origQuota = task.original_quota ?? task.quota ?? 1;
+  const origQuota = (typeof task.original_quota === 'number' && task.original_quota > 0)
+    ? task.original_quota
+    : ((typeof task.quota === 'number' && task.quota > 0) ? task.quota : 1);
 
   return (
     <div
