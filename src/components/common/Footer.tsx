@@ -1,6 +1,7 @@
 // ─── EDIT YOUR CONTACT INFORMATION HERE ──────────────────────────────
 const TELEGRAM_HANDLE = 'Choi';
 const TELEGRAM_URL = 'https://t.me/Choirul_R';
+const TELEGRAM_GROUP_URL = 'https://t.me/+cvtVOk8THhk3YThl';
 const CONTACT_EMAIL = 'rahmadityac@gmail.com';
 // ─────────────────────────────────────────────────────────────────────
 
@@ -40,6 +41,34 @@ export default function Footer() {
                 <polygon points="22 2 15 22 11 13 2 9 22 2" />
               </svg>
               <span>Telegram: {TELEGRAM_HANDLE}</span>
+            </a>
+          )}
+
+          {TELEGRAM_GROUP_URL && (
+            <a
+              href={TELEGRAM_GROUP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-contact-item"
+              title="Join Telegram Group"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="footer-icon"
+              >
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              <span>Telegram Group</span>
             </a>
           )}
 
