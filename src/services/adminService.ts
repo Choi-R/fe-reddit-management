@@ -79,7 +79,9 @@ export const adminService = {
       body: JSON.stringify(data),
     }),
 
-  restoreTask: (taskId: string): Promise<{ success: boolean; message: string; task: Task }> =>
+  restoreTask: (
+    taskId: string
+  ): Promise<{ success: boolean; message: string; task: Task; telegramNotified?: boolean; telegramReason?: string }> =>
     authenticatedRequest(`/api/admin/tasks/${taskId}/restore`, {
       method: 'POST',
     }),

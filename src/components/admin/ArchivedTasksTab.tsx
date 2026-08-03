@@ -53,8 +53,12 @@ export default function ArchivedTasksTab({
     setSuccessMsg(null);
 
     try {
-      await adminService.restoreTask(taskId);
-      setSuccessMsg('Task restored to Active status successfully.');
+      const res = await adminService.restoreTask(taskId);
+      let successMessage = 'Task restored to Active status successfully.';
+      if (res.telegramNotified) {
+        successMessage += ' Telegram group notified.';
+      }
+      setSuccessMsg(successMessage);
       onRefreshData();
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to restore task.');
