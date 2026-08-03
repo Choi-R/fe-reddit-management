@@ -62,7 +62,7 @@ export default function TasksTab({
   const handleDeleteTask = async (taskId: string) => {
     if (
       !window.confirm(
-        'Are you sure you want to delete this task? This will also remove any bookings associated with it.'
+        'Are you sure you want to remove this task from the available list? Users who have already booked or submitted will not be affected and can still complete their work.'
       )
     ) {
       return;
