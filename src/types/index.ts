@@ -6,6 +6,7 @@ export interface User {
   paypal: string | null;
   reddit: string;
   nickname?: string | null;
+  role_id?: string;
   roles: string[];
 }
 
