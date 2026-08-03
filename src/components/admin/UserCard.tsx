@@ -19,6 +19,10 @@ export default function UserCard({
   onDelete,
   isLoading,
 }: UserCardProps) {
+  const rankId = user.rankId || 'D';
+  const rankName = user.rankName || `Rank ${rankId}`;
+  const cqmLevel = user.cqmLevel || 'Lowest';
+
   return (
     <div className="glass-card compact-card">
       {/* Header */}
@@ -33,10 +37,17 @@ export default function UserCard({
             )}
           </span>
           <span
-            className={`badge-role role-${(user.tier || 'Bronze').toLowerCase()}`}
-            style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', textTransform: 'capitalize' }}
+            style={{
+              fontSize: '0.68rem',
+              fontWeight: 700,
+              padding: '0.1rem 0.5rem',
+              borderRadius: '12px',
+              backgroundColor: 'rgba(33, 150, 243, 0.1)',
+              color: '#2196f3',
+              border: '1px solid rgba(33, 150, 243, 0.3)',
+            }}
           >
-            {user.tier || 'Bronze'} Tier
+            {rankName} ({cqmLevel})
           </span>
         </div>
 

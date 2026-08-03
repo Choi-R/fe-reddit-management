@@ -69,8 +69,8 @@ export default function UserStatsModal({
                 >
                   u/{stats.user.reddit}
                 </a>{' '}
-                | Tier:{' '}
-                <strong style={{ textTransform: 'capitalize' }}>{stats.user.tier}</strong>
+                | Rank:{' '}
+                <strong>{stats.user.rankName || `Rank ${stats.user.rankId}`}</strong>
               </span>
             )}
           </div>

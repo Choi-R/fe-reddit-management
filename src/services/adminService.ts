@@ -11,13 +11,13 @@ export const adminService = {
   getUserDetail: (userId: string): Promise<{ success: boolean; data: UserDetailStats }> =>
     authenticatedRequest(`/api/admin/users/${userId}/detail`),
 
-  createUser: (data: { email: string; password: string; paypal?: string | null; reddit: string; nickname?: string | null }): Promise<{ success: boolean; user: User }> =>
+  createUser: (data: { email: string; password: string; paypal?: string | null; reddit: string; nickname?: string | null; rankId?: string | null }): Promise<{ success: boolean; user: User }> =>
     authenticatedRequest('/api/admin/users', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  updateUser: (userId: string, data: { email: string; paypal?: string | null; reddit: string; nickname?: string | null }): Promise<{ success: boolean; user: User }> =>
+  updateUser: (userId: string, data: { email: string; paypal?: string | null; reddit: string; nickname?: string | null; rankId?: string | null }): Promise<{ success: boolean; user: User }> =>
     authenticatedRequest(`/api/admin/users/${userId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -43,7 +43,7 @@ export const adminService = {
     clientRequest: string;
     quota: number;
     price: number;
-    typeId: string;
+    minRankId?: string | null;
     assignedTo?: string | null;
     deadline?: string | null;
   }): Promise<{ success: boolean; task: Task }> =>
@@ -57,6 +57,7 @@ export const adminService = {
     clientRequest: string;
     price: number;
     deadline: string | null;
+    minRankId?: string | null;
   }>): Promise<{ success: boolean; count: number; tasks: Task[] }> =>
     authenticatedRequest('/api/admin/tasks/bulk', {
       method: 'POST',
@@ -69,7 +70,7 @@ export const adminService = {
     clientRequest: string;
     quota: number;
     price: number;
-    typeId: string;
+    minRankId?: string | null;
     assignedTo?: string | null;
     deadline?: string | null;
     restore?: boolean;

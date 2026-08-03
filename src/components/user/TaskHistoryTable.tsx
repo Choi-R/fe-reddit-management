@@ -20,7 +20,7 @@ export default function TaskHistoryTable({ history }: TaskHistoryTableProps) {
         <thead>
           <tr>
             <th>Subreddit</th>
-            <th>Type</th>
+            <th>Min Rank</th>
             <th>Price</th>
             <th>Date Completed</th>
             <th>Status</th>
@@ -32,7 +32,7 @@ export default function TaskHistoryTable({ history }: TaskHistoryTableProps) {
               <td style={{ fontWeight: 'bold' }}>
                 {row.subreddit ? `r/${row.subreddit}` : 'Direct Link'}
               </td>
-              <td>{row.type_name}</td>
+              <td>{row.min_rank_name || 'All'}</td>
               <td style={{ color: 'var(--color-success)', fontWeight: '600' }}>
                 ${parseFloat(row.price).toFixed(2)}
               </td>

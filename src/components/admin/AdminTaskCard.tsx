@@ -34,16 +34,15 @@ export default function AdminTaskCard({
           <span
             style={{
               fontSize: '0.7rem',
-              fontWeight: '500',
-              background: 'rgba(255, 255, 255, 0.05)',
-              color: 'var(--text-secondary)',
-              padding: '0.1rem 0.35rem',
+              fontWeight: '600',
+              background: task.min_rank_id ? 'rgba(33, 150, 243, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+              color: task.min_rank_id ? '#2196f3' : 'var(--text-secondary)',
+              padding: '0.1rem 0.4rem',
               borderRadius: '4px',
-              border: '1px solid var(--border-color)',
-              textTransform: 'uppercase',
+              border: task.min_rank_id ? '1px solid rgba(33, 150, 243, 0.3)' : '1px solid var(--border-color)',
             }}
           >
-            {task.type_name}
+            {task.min_rank_name ? `Min: ${task.min_rank_name}` : 'All Ranks'}
           </span>
         </span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>

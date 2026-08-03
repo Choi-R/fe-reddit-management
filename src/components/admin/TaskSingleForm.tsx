@@ -27,7 +27,7 @@ export default function TaskSingleForm({
   const [newTaskClientRequest, setNewTaskClientRequest] = useState(editingTask?.client_request || '');
   const [newTaskQuota, setNewTaskQuota] = useState(editingTask?.quota || 1);
   const [newTaskPrice, setNewTaskPrice] = useState(editingTask?.price || '');
-  const [newTaskTypeId, setNewTaskTypeId] = useState(editingTask?.type_id || 'normal');
+  const [newTaskMinRankId, setNewTaskMinRankId] = useState(editingTask?.min_rank_id || '');
   const [newTaskAssignedTo, setNewTaskAssignedTo] = useState(editingTask?.assigned_to_email || '');
   const [newTaskDeadline, setNewTaskDeadline] = useState(
     editingTask?.deadline ? editingTask.deadline.substring(0, 10) : ''
@@ -36,8 +36,8 @@ export default function TaskSingleForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTaskUrl || !newTaskClientRequest || !newTaskPrice || !newTaskTypeId) {
-      setErrorMsg('URL, client request, price, and task type are required.');
+    if (!newTaskUrl || !newTaskClientRequest || !newTaskPrice) {
+      setErrorMsg('URL, client request, and price are required.');
       return;
     }
 
@@ -69,7 +69,7 @@ export default function TaskSingleForm({
           clientRequest: newTaskClientRequest,
           quota: newTaskQuota,
           price: priceNum,
-          typeId: newTaskTypeId,
+          minRankId: newTaskMinRankId || null,
           assignedTo: newTaskAssignedTo || null,
           deadline: newTaskDeadline ? new Date(newTaskDeadline).toISOString() : null,
         });
@@ -81,7 +81,7 @@ export default function TaskSingleForm({
           clientRequest: newTaskClientRequest,
           quota: newTaskQuota,
           price: priceNum,
-          typeId: newTaskTypeId,
+          minRankId: newTaskMinRankId || null,
           assignedTo: newTaskAssignedTo || null,
           deadline: newTaskDeadline ? new Date(newTaskDeadline).toISOString() : null,
         });
@@ -90,6 +90,7 @@ export default function TaskSingleForm({
         setNewTaskClientRequest('');
         setNewTaskQuota(1);
         setNewTaskPrice('');
+        setNewTaskMinRankId('');
         setNewTaskAssignedTo('');
         setNewTaskDeadline('');
       }
@@ -189,16 +190,19 @@ export default function TaskSingleForm({
         </div>
       </div>
       <div className="form-group">
-        <label htmlFor="taskType">Task Type*</label>
+        <label htmlFor="taskMinRank">Minimum Rank Required (Optional)</label>
         <select
-          id="taskType"
+          id="taskMinRank"
           className="form-input"
-          value={newTaskTypeId}
-          onChange={(e) => setNewTaskTypeId(e.target.value)}
+          value={newTaskMinRankId}
+          onChange={(e) => setNewTaskMinRankId(e.target.value)}
         >
-          <option value="normal">Normal</option>
-          <option value="silver">Silver Only</option>
-          <option value="gold">Gold Only</option>
+          <option value="">None (Available to All Ranks)</option>
+          <option value="D">Rank D (CQM: Lowest)</option>
+          <option value="C">Rank C (CQM: Low)</option>
+          <option value="B">Rank B (CQM: Moderate)</option>
+          <option value="A">Rank A (CQM: High)</option>
+          <option value="S">Rank S (CQM: Highest)</option>
         </select>
       </div>
       <div className="form-group" style={{ position: 'relative' }}>

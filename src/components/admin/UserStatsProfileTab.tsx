@@ -44,13 +44,20 @@ export default function UserStatsProfileTab({ stats }: UserStatsProfileTabProps)
           <strong style={{ color: 'var(--text-primary)' }}>{stats.user.paypal || 'Not configured'}</strong>
         </div>
         <div>
-          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Account Tier:</span>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Account Rank:</span>
           <br />
           <span
-            className={`badge-role role-${stats.user.tier.toLowerCase()}`}
-            style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px', textTransform: 'capitalize', fontWeight: 'bold' }}
+            style={{
+              fontSize: '0.75rem',
+              padding: '0.2rem 0.6rem',
+              borderRadius: '12px',
+              fontWeight: 'bold',
+              backgroundColor: 'rgba(33, 150, 243, 0.1)',
+              color: '#2196f3',
+              border: '1px solid rgba(33, 150, 243, 0.3)',
+            }}
           >
-            {stats.user.tier} Tier (Max {stats.user.bookingLimit} booking{stats.user.bookingLimit === 1 ? '' : 's'})
+            {stats.user.rankName || `Rank ${stats.user.rankId}`} ({stats.user.cqmLevel || 'Lowest'})
           </span>
         </div>
         <div>

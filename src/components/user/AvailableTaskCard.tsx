@@ -2,6 +2,9 @@ import type { Task } from '../../types';
 
 interface AvailableTaskCardProps {
   task: Task;
+  userRankLevel?: number;
+  userRankName?: string;
+  isAdmin?: boolean;
   isExpanded: boolean;
   onToggleExpand: () => void;
   onBookTask: (taskId: string) => void;
@@ -11,14 +14,26 @@ interface AvailableTaskCardProps {
 
 export default function AvailableTaskCard({
   task,
+  userRankLevel = 1,
+  userRankName = 'Rank D',
+  isAdmin = false,
   isExpanded,
   onToggleExpand,
   onBookTask,
   isLoading,
   isBookingDisabled,
 }: AvailableTaskCardProps) {
+  const taskMinLevel = task.min_rank_level || 0;
+  const isRankInsufficient = Boolean(!isAdmin && task.min_rank_id && taskMinLevel > userRankLevel);
+
   return (
-    <div className="glass-card compact-card">
+    <div
+      className="glass-card compact-card"
+      style={{
+        borderLeft: isRankInsufficient ? '4px solid #f59e0b' : 'none',
+        opacity: isRankInsufficient ? 0.88 : 1,
+      }}
+    >
       <div className="task-card-header" onClick={onToggleExpand}>
         <span
           style={{
@@ -28,22 +43,30 @@ export default function AvailableTaskCard({
             display: 'inline-flex',
             alignItems: 'center',
             gap: '0.5rem',
+            flexWrap: 'wrap',
           }}
         >
           {task.subreddit ? `r/${task.subreddit}` : 'Direct Link'}
+
+          {/* Rank Requirement Badge */}
           <span
             style={{
               fontSize: '0.7rem',
-              fontWeight: '500',
-              background: 'rgba(255, 255, 255, 0.05)',
-              color: 'var(--text-secondary)',
-              padding: '0.1rem 0.35rem',
+              fontWeight: '600',
+              background: task.min_rank_id
+                ? (isRankInsufficient ? 'rgba(245, 158, 11, 0.15)' : 'rgba(33, 150, 243, 0.15)')
+                : 'rgba(255, 255, 255, 0.05)',
+              color: task.min_rank_id
+                ? (isRankInsufficient ? '#d97706' : '#2196f3')
+                : 'var(--text-secondary)',
+              padding: '0.1rem 0.45rem',
               borderRadius: '4px',
-              border: '1px solid var(--border-color)',
-              textTransform: 'uppercase',
+              border: task.min_rank_id
+                ? (isRankInsufficient ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid rgba(33, 150, 243, 0.4)')
+                : '1px solid var(--border-color)',
             }}
           >
-            {task.type_name}
+            {task.min_rank_name ? (isRankInsufficient ? `🔒 Requires ${task.min_rank_name}` : `Min: ${task.min_rank_name}`) : 'All Ranks'}
           </span>
         </span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -76,6 +99,7 @@ export default function AvailableTaskCard({
           </svg>
         </span>
       </div>
+
       <p
         className="line-clamp-2"
         title={task.client_request}
@@ -88,23 +112,50 @@ export default function AvailableTaskCard({
         <strong style={{ color: 'var(--text-primary)' }}>Client Request: </strong>
         {task.client_request}
       </p>
+
+      {isRankInsufficient && (
+        <div style={{
+          fontSize: '0.75rem',
+          color: '#d97706',
+          backgroundColor: 'rgba(245, 158, 11, 0.08)',
+          padding: '0.35rem 0.6rem',
+          borderRadius: '4px',
+          marginBottom: '0.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35rem'
+        }}>
+          ⚠️ <span>Your rank (<strong>{userRankName}</strong>) is insufficient for this task. Minimum required: <strong>{task.min_rank_name || 'Rank ' + task.min_rank_id}</strong>.</span>
+        </div>
+      )}
+
       {isExpanded && (
         <div
           style={{
             display: 'flex',
-            justifyContent: 'flex-end',
+            justifyContent: 'space-between',
             alignItems: 'center',
             borderTop: '1px solid var(--border-color)',
             paddingTop: '0.5rem',
           }}
         >
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+            {task.deadline ? `Deadline: ${new Date(task.deadline).toLocaleDateString()}` : 'No deadline'}
+          </span>
           <button
             onClick={() => onBookTask(task.id)}
             className="btn btn-primary"
-            style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem', borderRadius: '4px' }}
-            disabled={isLoading || isBookingDisabled}
+            style={{
+              padding: '0.3rem 0.65rem',
+              fontSize: '0.75rem',
+              borderRadius: '4px',
+              opacity: isRankInsufficient ? 0.6 : 1,
+              cursor: isRankInsufficient ? 'not-allowed' : 'pointer',
+            }}
+            disabled={isLoading || isBookingDisabled || isRankInsufficient}
+            title={isRankInsufficient ? `Requires ${task.min_rank_name || 'higher rank'}` : undefined}
           >
-            Book Task
+            {isRankInsufficient ? `Requires ${task.min_rank_name || 'Higher Rank'}` : 'Book Task'}
           </button>
         </div>
       )}

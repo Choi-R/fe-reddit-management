@@ -25,6 +25,7 @@ export default function UserForm({
   const [newPaypal, setNewPaypal] = useState(editingUser?.paypal || '');
   const [newReddit, setNewReddit] = useState(editingUser?.reddit || '');
   const [newNickname, setNewNickname] = useState(editingUser?.nickname || '');
+  const [newRankId, setNewRankId] = useState(editingUser?.rankId || 'D');
   const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
@@ -33,12 +34,14 @@ export default function UserForm({
       setNewPaypal(editingUser.paypal || '');
       setNewReddit(editingUser.reddit || '');
       setNewNickname(editingUser.nickname || '');
+      setNewRankId(editingUser.rankId || 'D');
       setNewPassword('');
     } else {
       setNewEmail('');
       setNewPaypal('');
       setNewReddit('');
       setNewNickname('');
+      setNewRankId('D');
       setNewPassword('');
     }
   }, [editingUser]);
@@ -61,6 +64,7 @@ export default function UserForm({
           paypal: newPaypal || null,
           reddit: newReddit,
           nickname: newNickname || null,
+          rankId: newRankId,
         });
 
         if (newPassword) {
@@ -92,12 +96,14 @@ export default function UserForm({
           paypal: newPaypal || null,
           reddit: newReddit,
           nickname: newNickname || null,
+          rankId: newRankId,
         });
         setSuccessMsg('User created successfully!');
         setNewEmail('');
         setNewPaypal('');
         setNewReddit('');
         setNewNickname('');
+        setNewRankId('D');
         setNewPassword('');
       }
       onRefreshData();
@@ -144,6 +150,21 @@ export default function UserForm({
           value={newNickname}
           onChange={(e) => setNewNickname(e.target.value)}
         />
+      </div>
+      <div className="form-group">
+        <label htmlFor="userRank">Account Rank (Reddit CQM)*</label>
+        <select
+          id="userRank"
+          className="form-input"
+          value={newRankId}
+          onChange={(e) => setNewRankId(e.target.value)}
+        >
+          <option value="D">Rank D (CQM: Lowest)</option>
+          <option value="C">Rank C (CQM: Low)</option>
+          <option value="B">Rank B (CQM: Moderate)</option>
+          <option value="A">Rank A (CQM: High)</option>
+          <option value="S">Rank S (CQM: Highest)</option>
+        </select>
       </div>
       <div className="form-group">
         <label htmlFor="userPaypal">PayPal Email (Optional)</label>

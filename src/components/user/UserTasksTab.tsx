@@ -9,6 +9,9 @@ interface UserTasksTabProps {
   availableTasks: Task[];
   activeBookings: ActiveBooking[];
   bookingLimit: number;
+  userRankLevel?: number;
+  userRankName?: string;
+  isAdmin?: boolean;
   tasksPage: number;
   setTasksPage: (page: number) => void;
   isLoading: boolean;
@@ -22,6 +25,9 @@ export default function UserTasksTab({
   availableTasks,
   activeBookings,
   bookingLimit,
+  userRankLevel = 1,
+  userRankName = 'Rank D',
+  isAdmin = false,
   tasksPage,
   setTasksPage,
   isLoading,
@@ -73,6 +79,9 @@ export default function UserTasksTab({
                     <AvailableTaskCard
                       key={task.id}
                       task={task}
+                      userRankLevel={userRankLevel}
+                      userRankName={userRankName}
+                      isAdmin={isAdmin}
                       isExpanded={expandedTasks.has(task.id)}
                       onToggleExpand={() => toggleTaskExpanded(task.id)}
                       onBookTask={onBookTask}

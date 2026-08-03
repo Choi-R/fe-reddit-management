@@ -1,5 +1,12 @@
 // Shared TypeScript interfaces for the Reddit CRM frontend
 
+export interface AccountRank {
+  id: string; // 'D', 'C', 'B', 'A', 'S'
+  rank_name: string; // 'Rank D', 'Rank C', etc.
+  cqm_level: string; // 'Lowest', 'Low', 'Moderate', 'High', 'Highest'
+  rank_level: number; // 1, 2, 3, 4, 5
+}
+
 export interface User {
   id: string;
   email: string;
@@ -8,6 +15,8 @@ export interface User {
   nickname?: string | null;
   role_id?: string;
   roles: string[];
+  rank_id?: string;
+  account_rank?: AccountRank;
 }
 
 export interface Task {
@@ -19,8 +28,10 @@ export interface Task {
   original_quota?: number;
   price: string;
   deadline: string | null;
-  type_id: string;
-  type_name: string;
+  min_rank_id?: string | null;
+  min_rank_name?: string | null;
+  min_rank_cqm?: string | null;
+  min_rank_level?: number | null;
   assigned_to_email?: string | null;
   deleted_at?: string | null;
   is_archived?: boolean;
@@ -43,7 +54,8 @@ export interface Booking {
   task_id: string;
   subreddit: string;
   price: string;
-  type_name: string;
+  min_rank_id?: string | null;
+  min_rank_name?: string | null;
 }
 
 export interface ActiveBooking {
@@ -57,7 +69,8 @@ export interface ActiveBooking {
   quota: number;
   price: string;
   deadline: string | null;
-  type_name: string;
+  min_rank_id?: string | null;
+  min_rank_name?: string | null;
   assigned_to: string | null;
 }
 
@@ -67,6 +80,11 @@ export interface BasicUserSummary {
   paypal: string | null;
   reddit: string;
   nickname?: string | null;
+  roleId?: string;
+  rankId: string;
+  rankName: string;
+  cqmLevel: string;
+  rankLevel: number;
   createdAt: string;
   pendingBalance: number;
   paidBalance: number;
@@ -74,7 +92,6 @@ export interface BasicUserSummary {
   activeBookingCount?: number;
   pendingReviewCount?: number;
   failedCount?: number;
-  tier?: string;
 }
 
 export interface UserTaskDetailItem {
@@ -86,7 +103,8 @@ export interface UserTaskDetailItem {
   client_request: string;
   price: string;
   deadline?: string | null;
-  type_name?: string;
+  min_rank_id?: string | null;
+  min_rank_name?: string | null;
   reply_url?: string | null;
   note?: string | null;
   admin_note?: string | null;
@@ -114,8 +132,12 @@ export interface UserDetailStats {
     paypal: string | null;
     reddit: string;
     nickname?: string | null;
+    roleId?: string;
     createdAt: string;
-    tier: string;
+    rankId: string;
+    rankName: string;
+    cqmLevel: string;
+    rankLevel: number;
     bookingLimit: number;
   };
   metrics: UserDetailMetrics;

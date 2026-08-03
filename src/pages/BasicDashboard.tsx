@@ -16,9 +16,8 @@ export default function BasicDashboard() {
 
   // Onboarding guidelines states
   const { user } = useAuth();
-  const isSilver = user?.roles.includes('silver') || false;
-  const isGold = user?.roles.includes('gold') || false;
-  const bookingLimit = isGold ? 3 : isSilver ? 2 : 1;
+  const isAdmin = user?.roles.includes('admin') || user?.roles.includes('choi') || false;
+  const bookingLimit = isAdmin ? 99 : 1;
 
   const [showOnboarding, setShowOnboarding] = useState(false);
 
@@ -175,6 +174,9 @@ export default function BasicDashboard() {
           availableTasks={availableTasks}
           activeBookings={activeBookings}
           bookingLimit={bookingLimit}
+          userRankLevel={user?.account_rank?.rank_level || 1}
+          userRankName={user?.account_rank?.rank_name || 'Rank D'}
+          isAdmin={user?.roles.includes('admin') || user?.roles.includes('choi') || false}
           tasksPage={tasksPage}
           setTasksPage={setTasksPage}
           isLoading={isLoading}
