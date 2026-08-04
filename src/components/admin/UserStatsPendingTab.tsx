@@ -27,7 +27,7 @@ export default function UserStatsPendingTab({ pendingSubmissions }: UserStatsPen
           </div>
           {item.reply_url && (
             <div style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>
-              Proof URL:{' '}
+              Submitted URL:{' '}
               <a href={item.reply_url} target="_blank" rel="noreferrer" style={{ color: 'var(--color-primary)' }}>
                 {item.reply_url}
               </a>

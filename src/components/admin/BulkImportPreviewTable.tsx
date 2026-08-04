@@ -33,7 +33,7 @@ export default function BulkImportPreviewTable({ bulkTasks }: BulkImportPreviewT
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'rgba(255, 255, 255, 0.02)' }}>
               <th style={{ padding: '0.5rem 0.75rem', color: 'var(--text-secondary)', width: '40px' }}>Row</th>
-              <th style={{ padding: '0.5rem 0.75rem', color: 'var(--text-secondary)' }}>Reddit URL</th>
+              <th style={{ padding: '0.5rem 0.75rem', color: 'var(--text-secondary)' }}>Target Reddit URL / Subreddit</th>
               <th style={{ padding: '0.5rem 0.75rem', color: 'var(--text-secondary)', width: '60px' }}>Price</th>
               <th style={{ padding: '0.5rem 0.75rem', color: 'var(--text-secondary)' }}>Status / Error</th>
             </tr>

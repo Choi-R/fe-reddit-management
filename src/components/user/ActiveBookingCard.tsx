@@ -37,7 +37,7 @@ export default function ActiveBookingCard({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyUrl) {
-      setFormError('Please enter your Reddit reply URL.');
+      setFormError('Please enter your submitted Reddit URL (post or reply).');
       return;
     }
 
@@ -71,7 +71,7 @@ export default function ActiveBookingCard({
         !pathParts[rIdx + 1] ||
         pathParts[rIdx + 1].toLowerCase() !== booking.subreddit.toLowerCase()
       ) {
-        setFormError(`This task requires a post/comment from the r/${booking.subreddit} subreddit. Please check your link.`);
+        setFormError(`This task requires a post or comment link from the r/${booking.subreddit} subreddit. Please check your link.`);
         return;
       }
     }
@@ -123,7 +123,7 @@ export default function ActiveBookingCard({
 
         {booking.url && (
           <div style={{ marginBottom: '1rem' }}>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Reddit URL:</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Target Reddit URL:</span>
             <br />
             <a
               href={booking.url}
@@ -151,12 +151,12 @@ export default function ActiveBookingCard({
       {booking.status_id === 'incomplete' ? (
         <form onSubmit={handleSubmit} style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
           <div className="form-group">
-            <label htmlFor={`replyUrl-${booking.id}`}>Reddit Reply URL</label>
+            <label htmlFor={`replyUrl-${booking.id}`}>Submitted Reddit URL (Post / Reply)</label>
             <input
               id={`replyUrl-${booking.id}`}
               type="url"
               className="form-input"
-              placeholder="https://reddit.com/r/subreddit/comments/..."
+              placeholder="https://reddit.com/r/... (post or reply link)"
               value={replyUrl}
               onChange={(e) => setReplyUrl(e.target.value)}
               required

@@ -53,7 +53,7 @@ export default function TaskBulkImportForm({
     const csvContent =
       'data:text/csv;charset=utf-8,' +
       encodeURIComponent(
-        'Reddit URL,Client Request,Deadline,Price\n' +
+        'Target Reddit URL / Subreddit Link,Client Request,Deadline,Price\n' +
           'https://www.reddit.com/r/pics/comments/example_post,Please upvote this post and write a positive comment,2026-08-01,5.00'
       );
     const link = document.createElement('a');
@@ -117,7 +117,7 @@ export default function TaskBulkImportForm({
           File Column Formatting Guide
         </div>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '0.75rem', lineHeight: '1.4' }}>
-          Format your spreadsheet with: <strong>Col A: URL</strong>, <strong>Col B: Client Request</strong>,{' '}
+          Format your spreadsheet with: <strong>Col A: Target Reddit URL / Subreddit Link</strong>, <strong>Col B: Client Request</strong>,{' '}
           <strong>Col C: Deadline</strong>, <strong>Col D: Price</strong>.
         </p>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -40,10 +40,10 @@ export default function Guidelines() {
           </p>
           <ul style={{ fontSize: '0.98rem', color: 'var(--text-secondary)', paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem', lineHeight: '1.5' }}>
             <li>
-              <strong style={{ color: 'var(--text-primary)' }}>High Visibility:</strong> Your reply must appear without scrolling down too much. Reply to the top comment (most upvoted) to achieve this.
+              <strong style={{ color: 'var(--text-primary)' }}>High Visibility:</strong> Your post or reply must appear cleanly and be easy to find. For reply tasks, reply to the top comment (most upvoted) to achieve high visibility.
             </li>
             <li>
-              <strong style={{ color: 'var(--text-primary)' }}>Longevity:</strong> Your reply must stay alive at least until the payment date (typically safe if it lasts at least 7 days). Folded, deleted, or shadowbanned replies are not eligible.
+              <strong style={{ color: 'var(--text-primary)' }}>Longevity:</strong> Your post or reply must stay alive at least until the payment date (typically safe if it lasts at least 7 days). Folded, deleted, or shadowbanned posts and replies are not eligible.
             </li>
             <li>
               <strong style={{ color: 'var(--text-primary)' }}>Vote Ratio:</strong> While a negative vote is okay, excessive downvotes will result in the comment being folded, which voids eligibility.

@@ -132,7 +132,7 @@ export default function PendingReviewsTab({
                     marginBottom: '1rem',
                   }}
                 >
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Submitted Link:</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Submitted Reddit URL:</span>
                   <br />
                   <a
                     href={sub.reply_url ?? '#'}

@@ -55,7 +55,7 @@ export default function TaskSingleForm({
     try {
       new URL(newTaskUrl);
     } catch {
-      setErrorMsg('Please enter a valid Reddit URL.');
+      setErrorMsg('Please enter a valid target Reddit URL or subreddit link.');
       return;
     }
 
@@ -138,12 +138,12 @@ export default function TaskSingleForm({
   return (
     <form onSubmit={handleSubmit}>
       <div className="form-group">
-        <label htmlFor="taskUrl">Reddit Post/Comment URL*</label>
+        <label htmlFor="taskUrl">Target Reddit URL / Subreddit Link*</label>
         <input
           id="taskUrl"
           type="url"
           className="form-input"
-          placeholder="https://www.reddit.com/r/..."
+          placeholder="https://www.reddit.com/r/... (post, comment, or subreddit link)"
           value={newTaskUrl}
           onChange={(e) => setNewTaskUrl(e.target.value)}
           required
