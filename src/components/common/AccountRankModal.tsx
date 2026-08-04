@@ -55,9 +55,6 @@ export default function AccountRankModal({ user, isOpen, onClose }: AccountRankM
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <div>
             <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 700, color: '#f3f4f6' }}>Account Rank Information</h2>
-            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#9ca3af' }}>
-              Ranks are based on Reddit Contributor Quality Score (CQS).
-            </p>
           </div>
           <button
             onClick={onClose}
