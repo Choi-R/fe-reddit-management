@@ -198,11 +198,11 @@ export default function TaskSingleForm({
           onChange={(e) => setNewTaskMinRankId(e.target.value)}
         >
           <option value="">None (Available to All Ranks)</option>
-          <option value="D">Rank D (CQM: Lowest)</option>
-          <option value="C">Rank C (CQM: Low)</option>
-          <option value="B">Rank B (CQM: Moderate)</option>
-          <option value="A">Rank A (CQM: High)</option>
-          <option value="S">Rank S (CQM: Highest)</option>
+          <option value="D">Rank D (CQS: Lowest)</option>
+          <option value="C">Rank C (CQS: Low)</option>
+          <option value="B">Rank B (CQS: Moderate)</option>
+          <option value="A">Rank A (CQS: High)</option>
+          <option value="S">Rank S (CQS: Highest)</option>
         </select>
       </div>
       <div className="form-group" style={{ position: 'relative' }}>

@@ -152,18 +152,18 @@ export default function UserForm({
         />
       </div>
       <div className="form-group">
-        <label htmlFor="userRank">Account Rank (Reddit CQM)*</label>
+        <label htmlFor="userRank">Account Rank (Reddit CQS)*</label>
         <select
           id="userRank"
           className="form-input"
           value={newRankId}
           onChange={(e) => setNewRankId(e.target.value)}
         >
-          <option value="D">Rank D (CQM: Lowest)</option>
-          <option value="C">Rank C (CQM: Low)</option>
-          <option value="B">Rank B (CQM: Moderate)</option>
-          <option value="A">Rank A (CQM: High)</option>
-          <option value="S">Rank S (CQM: Highest)</option>
+          <option value="D">Rank D (CQS: Lowest)</option>
+          <option value="C">Rank C (CQS: Low)</option>
+          <option value="B">Rank B (CQS: Moderate)</option>
+          <option value="A">Rank A (CQS: High)</option>
+          <option value="S">Rank S (CQS: Highest)</option>
         </select>
       </div>
       <div className="form-group">

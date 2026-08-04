@@ -52,9 +52,9 @@ export default function UserStatsProfileTab({ stats }: UserStatsProfileTabProps)
               padding: '0.2rem 0.6rem',
               borderRadius: '12px',
               fontWeight: 'bold',
-              backgroundColor: 'rgba(33, 150, 243, 0.1)',
-              color: '#2196f3',
-              border: '1px solid rgba(33, 150, 243, 0.3)',
+              backgroundColor: 'rgba(99, 102, 241, 0.15)',
+              color: '#818cf8',
+              border: '1px solid rgba(99, 102, 241, 0.3)',
             }}
           >
             {stats.user.rankName || `Rank ${stats.user.rankId}`} ({stats.user.cqmLevel || 'Lowest'})

@@ -21,7 +21,7 @@ export default function UserCard({
 }: UserCardProps) {
   const rankId = user.rankId || 'D';
   const rankName = user.rankName || `Rank ${rankId}`;
-  const cqmLevel = user.cqmLevel || 'Lowest';
+  const cqsLevel = user.cqmLevel || 'Lowest';
 
   return (
     <div className="glass-card compact-card">
@@ -42,12 +42,12 @@ export default function UserCard({
               fontWeight: 700,
               padding: '0.1rem 0.5rem',
               borderRadius: '12px',
-              backgroundColor: 'rgba(33, 150, 243, 0.1)',
-              color: '#2196f3',
-              border: '1px solid rgba(33, 150, 243, 0.3)',
+              backgroundColor: 'rgba(99, 102, 241, 0.15)',
+              color: '#818cf8',
+              border: '1px solid rgba(99, 102, 241, 0.3)',
             }}
           >
-            {rankName} ({cqmLevel})
+            {rankName} ({cqsLevel})
           </span>
         </div>
 

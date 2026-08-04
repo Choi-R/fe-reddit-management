@@ -3,7 +3,7 @@
 export interface AccountRank {
   id: string; // 'D', 'C', 'B', 'A', 'S'
   rank_name: string; // 'Rank D', 'Rank C', etc.
-  cqm_level: string; // 'Lowest', 'Low', 'Moderate', 'High', 'Highest'
+  cqm_level: string; // Reddit CQS: 'Lowest', 'Low', 'Moderate', 'High', 'Highest'
   rank_level: number; // 1, 2, 3, 4, 5
 }
 

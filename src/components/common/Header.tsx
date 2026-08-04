@@ -14,17 +14,17 @@ export default function Header({ user, isAdmin, isChoi, onLogout }: HeaderProps)
 
   const rankId = user.account_rank?.id || user.rank_id || 'D';
   const rankName = user.account_rank?.rank_name || `Rank ${rankId}`;
-  const cqmLevel = user.account_rank?.cqm_level || 'Lowest';
+  const cqsLevel = user.account_rank?.cqm_level || 'Lowest';
 
   const roleName = isChoi ? 'Choi' : isAdmin ? 'Admin' : 'Basic';
   const roleClass = isChoi ? 'role-choi' : isAdmin ? 'role-admin' : 'role-basic';
 
   const rankColors: Record<string, { bg: string; color: string; border: string }> = {
-    D: { bg: '#edf2f7', color: '#4a5568', border: '#cbd5e0' },
-    C: { bg: '#e6fffa', color: '#234e52', border: '#81e6d9' },
-    B: { bg: '#ebf8ff', color: '#2b6cb0', border: '#90cdf4' },
-    A: { bg: '#faf5ff', color: '#6b46c1', border: '#d6bcfa' },
-    S: { bg: '#fffaf0', color: '#c05621', border: '#fbd38d' },
+    D: { bg: 'rgba(156, 163, 175, 0.15)', color: '#9ca3af', border: 'rgba(156, 163, 175, 0.3)' },
+    C: { bg: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: 'rgba(16, 185, 129, 0.3)' },
+    B: { bg: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', border: 'rgba(59, 130, 246, 0.3)' },
+    A: { bg: 'rgba(168, 85, 247, 0.15)', color: '#c084fc', border: 'rgba(168, 85, 247, 0.3)' },
+    S: { bg: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: 'rgba(245, 158, 11, 0.3)' },
   };
 
   const currentRankStyle = rankColors[rankId] || rankColors.D;
@@ -58,21 +58,21 @@ export default function Header({ user, isAdmin, isChoi, onLogout }: HeaderProps)
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.35rem',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                 transition: 'transform 0.15s ease, boxShadow 0.15s ease'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.15)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
               }}
             >
               <span>{rankName}</span>
-              <span style={{ opacity: 0.75, fontSize: '0.725rem', fontWeight: 500 }}>({cqmLevel})</span>
-              <span style={{ fontSize: '0.7rem', opacity: 0.65 }}>ℹ️</span>
+              <span style={{ opacity: 0.85, fontSize: '0.725rem', fontWeight: 500 }}>({cqsLevel})</span>
+              <span style={{ fontSize: '0.7rem', opacity: 0.75 }}>ℹ️</span>
             </button>
           </div>
 
