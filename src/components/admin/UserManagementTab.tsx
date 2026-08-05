@@ -226,7 +226,7 @@ export default function UserManagementTab({
           <div style={{ position: 'relative', width: '100%' }}>
             <input
               type="text"
-              className="form-control"
+              className="form-input"
               placeholder="Search by nickname, email, or u/reddit..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
@@ -288,7 +288,7 @@ export default function UserManagementTab({
                 Filter by CQS
               </label>
               <select
-                className="form-control"
+                className="form-input"
                 value={cqsFilter}
                 onChange={(e) => handleCqsChange(e.target.value)}
                 style={{ fontSize: '0.8rem', height: '34px', padding: '0 0.5rem' }}
@@ -316,7 +316,7 @@ export default function UserManagementTab({
                 Sort By
               </label>
               <select
-                className="form-control"
+                className="form-input"
                 value={sortBy}
                 onChange={(e) => handleSortByChange(e.target.value as 'abc' | 'cqs' | 'joinTime')}
                 style={{ fontSize: '0.8rem', height: '34px', padding: '0 0.5rem' }}
