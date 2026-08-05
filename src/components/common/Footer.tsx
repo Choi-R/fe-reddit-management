@@ -2,7 +2,7 @@
 const TELEGRAM_HANDLE = 'Choi';
 const TELEGRAM_URL = 'https://t.me/Choirul_R';
 const TELEGRAM_GROUP_URL = 'https://t.me/+cvtVOk8THhk3YThl';
-const CONTACT_EMAIL = 'rahmadityac@gmail.com';
+const CONTACT_EMAIL = 'choirulfreelance@gmail.com';
 // ─────────────────────────────────────────────────────────────────────
 
 export default function Footer() {

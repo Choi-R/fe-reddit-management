@@ -2,8 +2,15 @@ import type { User, Task, BasicUserSummary, UserDetailStats, PendingSubmission, 
 import { authenticatedRequest } from './apiClient';
 
 export const adminService = {
-  getUsers: (): Promise<{ users: BasicUserSummary[] }> =>
-    authenticatedRequest('/api/admin/users'),
+  getUsers: (params?: { search?: string; sortBy?: string; sortOrder?: string; cqs?: string }): Promise<{ users: BasicUserSummary[] }> => {
+    const queryParts: string[] = [];
+    if (params?.search) queryParts.push(`search=${encodeURIComponent(params.search)}`);
+    if (params?.sortBy) queryParts.push(`sortBy=${encodeURIComponent(params.sortBy)}`);
+    if (params?.sortOrder) queryParts.push(`sortOrder=${encodeURIComponent(params.sortOrder)}`);
+    if (params?.cqs && params.cqs !== 'ALL') queryParts.push(`cqs=${encodeURIComponent(params.cqs)}`);
+    const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
+    return authenticatedRequest(`/api/admin/users${queryString}`);
+  },
 
   searchUsers: (q: string): Promise<{ users: BasicUserSummary[] }> =>
     authenticatedRequest(`/api/admin/users/search?q=${encodeURIComponent(q)}`),
