@@ -1,4 +1,4 @@
-import type { User, Task, BasicUserSummary, UserDetailStats, PendingSubmission } from '../types';
+import type { User, Task, BasicUserSummary, UserDetailStats, PendingSubmission, TaskHistoryResponse } from '../types';
 import { authenticatedRequest } from './apiClient';
 
 export const adminService = {
@@ -36,6 +36,18 @@ export const adminService = {
 
   getTasks: (): Promise<{ tasks: Task[]; archivedTasks: Task[] }> =>
     authenticatedRequest('/api/admin/tasks'),
+
+  getTaskHistory: (params?: { statuses?: string[]; search?: string }): Promise<TaskHistoryResponse> => {
+    const query = new URLSearchParams();
+    if (params?.statuses && params.statuses.length > 0) {
+      query.set('statuses', params.statuses.join(','));
+    }
+    if (params?.search && params.search.trim()) {
+      query.set('search', params.search.trim());
+    }
+    const queryString = query.toString();
+    return authenticatedRequest(`/api/admin/tasks/history${queryString ? `?${queryString}` : ''}`);
+  },
 
   createTask: (data: {
     subreddit?: string | null;
@@ -107,3 +119,4 @@ export const adminService = {
       body: JSON.stringify({ userId }),
     }),
 };
+

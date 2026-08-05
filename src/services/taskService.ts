@@ -1,9 +1,21 @@
-import type { Task, Booking, ActiveBooking } from '../types';
+import type { Task, Booking, ActiveBooking, TaskHistoryResponse } from '../types';
 import { authenticatedRequest } from './apiClient';
 
 export const taskService = {
   getAvailable: (): Promise<{ available: Task[]; active: ActiveBooking[] }> =>
     authenticatedRequest('/api/tasks/available'),
+
+  getTaskHistory: (params?: { statuses?: string[]; search?: string }): Promise<TaskHistoryResponse> => {
+    const query = new URLSearchParams();
+    if (params?.statuses && params.statuses.length > 0) {
+      query.set('statuses', params.statuses.join(','));
+    }
+    if (params?.search && params.search.trim()) {
+      query.set('search', params.search.trim());
+    }
+    const queryString = query.toString();
+    return authenticatedRequest(`/api/tasks/history${queryString ? `?${queryString}` : ''}`);
+  },
 
   book: (taskId: string): Promise<{ success: boolean; booking: unknown }> =>
     authenticatedRequest('/api/tasks/book', {
@@ -26,3 +38,4 @@ export const taskService = {
   getEarnings: (): Promise<{ history: Booking[]; paidBalance: number; pendingBalance: number }> =>
     authenticatedRequest('/api/tasks/earnings'),
 };
+

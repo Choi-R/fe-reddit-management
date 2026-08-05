@@ -159,3 +159,39 @@ export interface PendingSubmission {
   subreddit: string;
   price: string;
 }
+
+export interface TaskHistoryEntry {
+  booking_id: string;
+  status_id: string;
+  reply_url: string | null;
+  note: string | null;
+  admin_note?: string | null;
+  created_at: string;
+  updated_at: string;
+  user_id?: string;
+  user_email?: string;
+  user_reddit?: string;
+  user_nickname?: string | null;
+  task_id: string;
+  subreddit: string | null;
+  task_url?: string;
+  client_request?: string;
+  price: string;
+  deadline?: string | null;
+  min_rank_name?: string | null;
+}
+
+export interface TaskHistoryResponse {
+  success: boolean;
+  history: TaskHistoryEntry[];
+  total: number;
+  statusCounts: {
+    incomplete: number;
+    pending: number;
+    success: number;
+    paid: number;
+    failed: number;
+    total: number;
+  };
+}
+

@@ -7,9 +7,10 @@ import Guidelines from '../components/user/Guidelines';
 import OnboardingModal from '../components/user/OnboardingModal';
 import UserTasksTab from '../components/user/UserTasksTab';
 import UserEarningsTab from '../components/user/UserEarningsTab';
+import UserTaskHistoryTab from '../components/user/UserTaskHistoryTab';
 
 export default function BasicDashboard() {
-  const [basicTab, setBasicTab] = useState<'tasks' | 'earnings' | 'guidelines'>('tasks');
+  const [basicTab, setBasicTab] = useState<'tasks' | 'history' | 'earnings' | 'guidelines'>('tasks');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -151,6 +152,12 @@ export default function BasicDashboard() {
             Tasks ({availableTasks.length})
           </button>
           <button
+            onClick={() => setBasicTab('history')}
+            className={`tab-button ${basicTab === 'history' ? 'active' : ''}`}
+          >
+            Task History
+          </button>
+          <button
             onClick={() => setBasicTab('earnings')}
             className={`tab-button ${basicTab === 'earnings' ? 'active' : ''}`}
           >
@@ -185,6 +192,8 @@ export default function BasicDashboard() {
           onCancelBooking={handleCancelBooking}
           onRefreshData={loadData}
         />
+      ) : basicTab === 'history' ? (
+        <UserTaskHistoryTab />
       ) : basicTab === 'earnings' ? (
         <UserEarningsTab
           paidBalance={paidBalance}
@@ -212,3 +221,4 @@ export default function BasicDashboard() {
     </div>
   );
 }
+

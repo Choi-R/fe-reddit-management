@@ -5,12 +5,13 @@ import type { Task, BasicUserSummary, UserDetailStats, PendingSubmission } from 
 import TasksTab from '../components/admin/TasksTab';
 import ArchivedTasksTab from '../components/admin/ArchivedTasksTab';
 import PendingReviewsTab from '../components/admin/PendingReviewsTab';
+import TaskingHistoryTab from '../components/admin/TaskingHistoryTab';
 import PayoutsTab from '../components/admin/PayoutsTab';
 import UserManagementTab from '../components/admin/UserManagementTab';
 import UserStatsModal from '../components/admin/UserStatsModal';
 
 export default function AdminDashboard() {
-  const [adminTab, setAdminTab] = useState<'tasks' | 'archived' | 'reviews' | 'payouts' | 'users'>('tasks');
+  const [adminTab, setAdminTab] = useState<'tasks' | 'archived' | 'reviews' | 'history' | 'payouts' | 'users'>('tasks');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -134,6 +135,12 @@ export default function AdminDashboard() {
             Pending Reviews ({pendingSubmissions.length})
           </button>
           <button
+            onClick={() => setAdminTab('history')}
+            className={`tab-button ${adminTab === 'history' ? 'active' : ''}`}
+          >
+            Tasking History
+          </button>
+          <button
             onClick={() => setAdminTab('payouts')}
             className={`tab-button ${adminTab === 'payouts' ? 'active' : ''}`}
           >
@@ -192,7 +199,18 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* Tab 4: Payouts */}
+      {/* Tab 4: Tasking History */}
+      {adminTab === 'history' && (
+        <TaskingHistoryTab
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
+          setErrorMsg={setErrorMsg}
+          setSuccessMsg={setSuccessMsg}
+          onRefreshData={loadTabData}
+        />
+      )}
+
+      {/* Tab 5: Payouts */}
       {adminTab === 'payouts' && (
         <PayoutsTab
           users={adminUsers}
@@ -204,8 +222,9 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* Tab 5: User Profiles */}
+      {/* Tab 6: User Profiles */}
       {adminTab === 'users' && (
+
         <UserManagementTab
           users={adminUsers}
           usersPage={usersPage}
