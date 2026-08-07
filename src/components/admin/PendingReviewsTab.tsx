@@ -35,6 +35,12 @@ export default function PendingReviewsTab({
       const data = await adminService.reviewSubmission(bookingId, statusId, note);
       if (statusId === 'failed' && data.quotaReturned) {
         setSuccessMsg('Task marked as Failed. Task quota has been returned by 1.');
+      } else if (statusId === 'success') {
+        if (data.telegramNotified) {
+          setSuccessMsg('Task marked as Approved! Telegram notice sent to group.');
+        } else {
+          setSuccessMsg('Task marked as Approved.');
+        }
       } else {
         setSuccessMsg(`Task marked as ${statusId === 'success' ? 'Approved' : 'Failed'}.`);
       }
