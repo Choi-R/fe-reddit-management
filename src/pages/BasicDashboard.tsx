@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { taskService } from '../services/taskService';
 import AlertBanner from '../components/common/AlertBanner';
-import type { Task, Booking, ActiveBooking } from '../types';
+import type { Task, Booking, ActiveBooking, CooldownInfo } from '../types';
 import { useAuth } from '../hooks/useAuth';
 import Guidelines from '../components/user/Guidelines';
 import OnboardingModal from '../components/user/OnboardingModal';
@@ -41,6 +41,7 @@ export default function BasicDashboard() {
   // Task & Earnings states
   const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
   const [activeBookings, setActiveBookings] = useState<ActiveBooking[]>([]);
+  const [cooldown, setCooldown] = useState<CooldownInfo | undefined>(undefined);
   const [tasksPage, setTasksPage] = useState(1);
   const [earningsHistory, setEarningsHistory] = useState<Booking[]>([]);
   const [paidBalance, setPaidBalance] = useState(0);
@@ -62,6 +63,7 @@ export default function BasicDashboard() {
 
       setAvailableTasks(tasksData.available);
       setActiveBookings(tasksData.active || []);
+      setCooldown(tasksData.cooldown);
       setEarningsHistory(earningsData.history);
       setPaidBalance(earningsData.paidBalance);
       setPendingBalance(earningsData.pendingBalance);
@@ -180,6 +182,7 @@ export default function BasicDashboard() {
         <UserTasksTab
           availableTasks={availableTasks}
           activeBookings={activeBookings}
+          cooldown={cooldown}
           bookingLimit={bookingLimit}
           userRankLevel={user?.account_rank?.rank_level || 1}
           userRankName={user?.account_rank?.rank_name || 'Rank D'}

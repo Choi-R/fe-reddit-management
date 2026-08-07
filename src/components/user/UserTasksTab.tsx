@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Task, ActiveBooking } from '../../types';
+import type { Task, ActiveBooking, CooldownInfo } from '../../types';
 import AlertBanner from '../common/AlertBanner';
 import Pagination from '../common/Pagination';
 import AvailableTaskCard from './AvailableTaskCard';
@@ -8,6 +8,7 @@ import ActiveBookingCard from './ActiveBookingCard';
 interface UserTasksTabProps {
   availableTasks: Task[];
   activeBookings: ActiveBooking[];
+  cooldown?: CooldownInfo;
   bookingLimit: number;
   userRankLevel?: number;
   userRankName?: string;
@@ -21,9 +22,26 @@ interface UserTasksTabProps {
   onRefreshData: () => void;
 }
 
+function formatRemainingCooldown(ms: number): string {
+  if (ms <= 0) return '0 minutes';
+  const totalMinutes = Math.floor(ms / (1000 * 60));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const days = Math.floor(hours / 24);
+  const remHours = hours % 24;
+
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days} day${days > 1 ? 's' : ''}`);
+  if (remHours > 0) parts.push(`${remHours} hour${remHours > 1 ? 's' : ''}`);
+  if (minutes > 0 || parts.length === 0) parts.push(`${minutes} minute${minutes !== 1 ? 's' : ''}`);
+
+  return parts.join(' ');
+}
+
 export default function UserTasksTab({
   availableTasks,
   activeBookings,
+  cooldown,
   bookingLimit,
   userRankLevel = 1,
   userRankName = 'Rank D',
@@ -51,6 +69,7 @@ export default function UserTasksTab({
   };
 
   const incompleteCount = activeBookings.filter((b) => b.status_id === 'incomplete').length;
+  const isCooldownActive = Boolean(cooldown?.isActive);
 
   return (
     <div className="grid-2">
@@ -62,6 +81,35 @@ export default function UserTasksTab({
           type="warning"
           message="Safety Warning: Do not perform these tasks too frequently, as it may put your account at risk of being banned. Increase your organic activity on Reddit (commenting, voting) to mitigate this risk."
         />
+
+        {isCooldownActive && (
+          <div
+            style={{
+              marginBottom: '1.25rem',
+              padding: '0.85rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              color: '#f87171',
+              fontSize: '0.875rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.35rem',
+            }}
+          >
+            <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              ⏱️ 2-Day Cooldown Period Active
+            </div>
+            <div>
+              You recently submitted proof for a task. To protect Reddit accounts from excessive activity, a <strong>2-day cooldown</strong> is required between task submissions.
+            </div>
+            {cooldown?.cooldownUntil && (
+              <div style={{ fontSize: '0.8rem', opacity: 0.95, marginTop: '0.15rem' }}>
+                Next task available in: <strong>{formatRemainingCooldown(cooldown.remainingMs)}</strong> (on {new Date(cooldown.cooldownUntil).toLocaleString()})
+              </div>
+            )}
+          </div>
+        )}
 
         {availableTasks.length === 0 ? (
           <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>
@@ -82,11 +130,12 @@ export default function UserTasksTab({
                       userRankLevel={userRankLevel}
                       userRankName={userRankName}
                       isAdmin={isAdmin}
+                      cooldown={cooldown}
                       isExpanded={expandedTasks.has(task.id)}
                       onToggleExpand={() => toggleTaskExpanded(task.id)}
                       onBookTask={onBookTask}
                       isLoading={isLoading}
-                      isBookingDisabled={incompleteCount >= bookingLimit}
+                      isBookingDisabled={incompleteCount >= bookingLimit || isCooldownActive}
                     />
                   ))}
                 </div>

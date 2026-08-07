@@ -195,3 +195,12 @@ export interface TaskHistoryResponse {
   };
 }
 
+export interface CooldownInfo {
+  isActive: boolean;
+  cooldownUntil: string | null;
+  remainingMs: number;
+  lastSubmittedAt: string | null;
+  reason: string | null;
+}
+
+

@@ -1,8 +1,8 @@
-import type { Task, Booking, ActiveBooking, TaskHistoryResponse } from '../types';
+import type { Task, Booking, ActiveBooking, TaskHistoryResponse, CooldownInfo } from '../types';
 import { authenticatedRequest } from './apiClient';
 
 export const taskService = {
-  getAvailable: (): Promise<{ available: Task[]; active: ActiveBooking[] }> =>
+  getAvailable: (): Promise<{ available: Task[]; active: ActiveBooking[]; cooldown?: CooldownInfo }> =>
     authenticatedRequest('/api/tasks/available'),
 
   getTaskHistory: (params?: { statuses?: string[]; search?: string }): Promise<TaskHistoryResponse> => {

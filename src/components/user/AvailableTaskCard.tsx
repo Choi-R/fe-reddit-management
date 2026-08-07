@@ -1,10 +1,11 @@
-import type { Task } from '../../types';
+import type { Task, CooldownInfo } from '../../types';
 
 interface AvailableTaskCardProps {
   task: Task;
   userRankLevel?: number;
   userRankName?: string;
   isAdmin?: boolean;
+  cooldown?: CooldownInfo;
   isExpanded: boolean;
   onToggleExpand: () => void;
   onBookTask: (taskId: string) => void;
@@ -17,6 +18,7 @@ export default function AvailableTaskCard({
   userRankLevel = 1,
   userRankName = 'Rank D',
   isAdmin = false,
+  cooldown,
   isExpanded,
   onToggleExpand,
   onBookTask,
@@ -25,13 +27,18 @@ export default function AvailableTaskCard({
 }: AvailableTaskCardProps) {
   const taskMinLevel = task.min_rank_level || 0;
   const isRankInsufficient = Boolean(!isAdmin && task.min_rank_id && taskMinLevel > userRankLevel);
+  const isCooldownActive = Boolean(cooldown?.isActive);
 
   return (
     <div
       className="glass-card compact-card"
       style={{
-        borderLeft: isRankInsufficient ? '4px solid #f59e0b' : 'none',
-        opacity: isRankInsufficient ? 0.88 : 1,
+        borderLeft: isRankInsufficient
+          ? '4px solid #f59e0b'
+          : isCooldownActive
+          ? '4px solid #ef4444'
+          : 'none',
+        opacity: isRankInsufficient || isCooldownActive ? 0.88 : 1,
       }}
     >
       <div className="task-card-header" onClick={onToggleExpand}>
@@ -129,6 +136,22 @@ export default function AvailableTaskCard({
         </div>
       )}
 
+      {isCooldownActive && !isRankInsufficient && (
+        <div style={{
+          fontSize: '0.75rem',
+          color: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.08)',
+          padding: '0.35rem 0.6rem',
+          borderRadius: '4px',
+          marginBottom: '0.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35rem'
+        }}>
+          ⏱️ <span>Booking disabled during <strong>2-day post-submission cooldown</strong>.</span>
+        </div>
+      )}
+
       {isExpanded && (
         <div
           style={{
@@ -149,13 +172,23 @@ export default function AvailableTaskCard({
               padding: '0.3rem 0.65rem',
               fontSize: '0.75rem',
               borderRadius: '4px',
-              opacity: isRankInsufficient ? 0.6 : 1,
-              cursor: isRankInsufficient ? 'not-allowed' : 'pointer',
+              opacity: isRankInsufficient || isCooldownActive ? 0.6 : 1,
+              cursor: isRankInsufficient || isCooldownActive ? 'not-allowed' : 'pointer',
             }}
             disabled={isLoading || isBookingDisabled || isRankInsufficient}
-            title={isRankInsufficient ? `Requires ${task.min_rank_name || 'higher rank'}` : undefined}
+            title={
+              isRankInsufficient
+                ? `Requires ${task.min_rank_name || 'higher rank'}`
+                : isCooldownActive
+                ? (cooldown?.reason || '2-day post-submission cooldown in effect')
+                : undefined
+            }
           >
-            {isRankInsufficient ? `Requires ${task.min_rank_name || 'Higher Rank'}` : 'Book Task'}
+            {isRankInsufficient
+              ? `Requires ${task.min_rank_name || 'Higher Rank'}`
+              : isCooldownActive
+              ? '⏱️ Cooldown Active'
+              : 'Book Task'}
           </button>
         </div>
       )}
