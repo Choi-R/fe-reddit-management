@@ -42,7 +42,7 @@ export default function PendingReviewsTab({
           setSuccessMsg('Task marked as Approved.');
         }
       } else {
-        setSuccessMsg(`Task marked as ${statusId === 'success' ? 'Approved' : 'Failed'}.`);
+        setSuccessMsg('Task marked as Failed.');
       }
       setItemNotes((prev) => {
         const next = { ...prev };
