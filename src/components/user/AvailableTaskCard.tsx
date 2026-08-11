@@ -26,14 +26,17 @@ export default function AvailableTaskCard({
   isBookingDisabled,
 }: AvailableTaskCardProps) {
   const taskMinLevel = task.min_rank_level || 0;
-  const isRankInsufficient = Boolean(!isAdmin && task.min_rank_id && taskMinLevel > userRankLevel);
+  const isRankE = userRankLevel === 0 || userRankName === 'Rank E';
+  const isRankInsufficient = Boolean(!isAdmin && (isRankE || (task.min_rank_id && taskMinLevel > userRankLevel)));
   const isCooldownActive = Boolean(cooldown?.isActive);
 
   return (
     <div
       className="glass-card compact-card"
       style={{
-        borderLeft: isRankInsufficient
+        borderLeft: isRankE
+          ? '4px solid #ef4444'
+          : isRankInsufficient
           ? '4px solid #f59e0b'
           : isCooldownActive
           ? '4px solid #ef4444'
@@ -60,20 +63,30 @@ export default function AvailableTaskCard({
             style={{
               fontSize: '0.7rem',
               fontWeight: '600',
-              background: task.min_rank_id
+              background: isRankE
+                ? 'rgba(239, 68, 68, 0.15)'
+                : task.min_rank_id
                 ? (isRankInsufficient ? 'rgba(245, 158, 11, 0.15)' : 'rgba(33, 150, 243, 0.15)')
                 : 'rgba(255, 255, 255, 0.05)',
-              color: task.min_rank_id
+              color: isRankE
+                ? '#ef4444'
+                : task.min_rank_id
                 ? (isRankInsufficient ? '#d97706' : '#2196f3')
                 : 'var(--text-secondary)',
               padding: '0.1rem 0.45rem',
               borderRadius: '4px',
-              border: task.min_rank_id
+              border: isRankE
+                ? '1px solid rgba(239, 68, 68, 0.4)'
+                : task.min_rank_id
                 ? (isRankInsufficient ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid rgba(33, 150, 243, 0.4)')
                 : '1px solid var(--border-color)',
             }}
           >
-            {task.min_rank_name ? (isRankInsufficient ? `🔒 Requires ${task.min_rank_name}` : `Min: ${task.min_rank_name}`) : 'All Ranks'}
+            {isRankE
+              ? '🔒 Banned Account'
+              : task.min_rank_name
+              ? (isRankInsufficient ? `🔒 Requires ${task.min_rank_name}` : `Min: ${task.min_rank_name}`)
+              : 'All Ranks (D to S)'}
           </span>
         </span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -123,8 +136,8 @@ export default function AvailableTaskCard({
       {isRankInsufficient && (
         <div style={{
           fontSize: '0.75rem',
-          color: '#d97706',
-          backgroundColor: 'rgba(245, 158, 11, 0.08)',
+          color: isRankE ? '#ef4444' : '#d97706',
+          backgroundColor: isRankE ? 'rgba(239, 68, 68, 0.08)' : 'rgba(245, 158, 11, 0.08)',
           padding: '0.35rem 0.6rem',
           borderRadius: '4px',
           marginBottom: '0.5rem',
@@ -132,7 +145,11 @@ export default function AvailableTaskCard({
           alignItems: 'center',
           gap: '0.35rem'
         }}>
-          ⚠️ <span>Your rank (<strong>{userRankName}</strong>) is insufficient for this task. Minimum required: <strong>{task.min_rank_name || 'Rank ' + task.min_rank_id}</strong>.</span>
+          ⚠️ <span>
+            {isRankE
+              ? <>Your account is <strong>Rank E (Banned Account)</strong> and cannot book or perform any tasks.</>
+              : <>Your rank (<strong>{userRankName}</strong>) is insufficient for this task. Minimum required: <strong>{task.min_rank_name || 'Rank ' + task.min_rank_id}</strong>.</>}
+          </span>
         </div>
       )}
 
@@ -177,14 +194,18 @@ export default function AvailableTaskCard({
             }}
             disabled={isLoading || isBookingDisabled || isRankInsufficient}
             title={
-              isRankInsufficient
+              isRankE
+                ? 'Account Rank E (Banned Account) cannot book tasks'
+                : isRankInsufficient
                 ? `Requires ${task.min_rank_name || 'higher rank'}`
                 : isCooldownActive
                 ? (cooldown?.reason || '2-day post-submission cooldown in effect')
                 : undefined
             }
           >
-            {isRankInsufficient
+            {isRankE
+              ? '🔒 Banned (Rank E)'
+              : isRankInsufficient
               ? `Requires ${task.min_rank_name || 'Higher Rank'}`
               : isCooldownActive
               ? '⏱️ Cooldown Active'

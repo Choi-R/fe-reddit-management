@@ -7,7 +7,8 @@ interface AccountRankModalProps {
 }
 
 export const RANKS_INFO = [
-  { id: 'D', name: 'Rank D', cqs: 'Lowest', level: 1, color: '#9ca3af', bg: 'rgba(156, 163, 175, 0.15)', desc: 'Starter account with lowest CQS. Access to tasks with no minimum rank requirement.' },
+  { id: 'E', name: 'Rank E', cqs: 'Banned', level: 0, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)', desc: 'Banned account with lowest score / banned status. Cannot book or perform any task.' },
+  { id: 'D', name: 'Rank D', cqs: 'Lowest', level: 1, color: '#9ca3af', bg: 'rgba(156, 163, 175, 0.15)', desc: 'Starter account with lowest CQS. Access to tasks with no minimum rank requirement (Rank D to S).' },
   { id: 'C', name: 'Rank C', cqs: 'Low', level: 2, color: '#34d399', bg: 'rgba(16, 185, 129, 0.15)', desc: 'Basic account with low CQS. Has potential for basic task execution and access to Rank D and C tasks.' },
   { id: 'B', name: 'Rank B', cqs: 'Moderate', level: 3, color: '#60a5fa', bg: 'rgba(59, 130, 246, 0.15)', desc: 'Moderate quality account with good engagement history. Better potential to achieve task success.' },
   { id: 'A', name: 'Rank A', cqs: 'High', level: 4, color: '#c084fc', bg: 'rgba(168, 85, 247, 0.15)', desc: 'High quality account with established karma and trust score. High potential to achieve task success.' },
@@ -109,7 +110,7 @@ export default function AccountRankModal({ user, isOpen, onClose }: AccountRankM
             style={{ color: '#6ee7b7', textDecoration: 'underline', fontWeight: 600 }}
           >
             r/WhatIsMyCQS
-          </a>.
+          </a>. After checking, report to admin to have your account rank updated.
         </div>
 
         {/* Rank List */}

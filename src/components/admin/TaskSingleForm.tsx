@@ -197,7 +197,7 @@ export default function TaskSingleForm({
           value={newTaskMinRankId}
           onChange={(e) => setNewTaskMinRankId(e.target.value)}
         >
-          <option value="">None (Available to All Ranks)</option>
+          <option value="">None (All Ranks: Rank D to S)</option>
           <option value="D">Rank D (CQS: Lowest)</option>
           <option value="C">Rank C (CQS: Low)</option>
           <option value="B">Rank B (CQS: Moderate)</option>

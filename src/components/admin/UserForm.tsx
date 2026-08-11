@@ -159,6 +159,7 @@ export default function UserForm({
           value={newRankId}
           onChange={(e) => setNewRankId(e.target.value)}
         >
+          <option value="E">Rank E (CQS: Banned)</option>
           <option value="D">Rank D (CQS: Lowest)</option>
           <option value="C">Rank C (CQS: Low)</option>
           <option value="B">Rank B (CQS: Moderate)</option>

@@ -294,6 +294,7 @@ export default function UserManagementTab({
                 style={{ fontSize: '0.8rem', height: '34px', padding: '0 0.5rem' }}
               >
                 <option value="ALL">All CQS (Ranks)</option>
+                <option value="E">Rank E (Banned)</option>
                 <option value="D">Rank D (Lowest)</option>
                 <option value="C">Rank C (Low)</option>
                 <option value="B">Rank B (Moderate)</option>

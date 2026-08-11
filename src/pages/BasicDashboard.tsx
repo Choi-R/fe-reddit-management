@@ -184,7 +184,7 @@ export default function BasicDashboard() {
           activeBookings={activeBookings}
           cooldown={cooldown}
           bookingLimit={bookingLimit}
-          userRankLevel={user?.account_rank?.rank_level || 1}
+          userRankLevel={typeof user?.account_rank?.rank_level === 'number' ? user.account_rank.rank_level : 1}
           userRankName={user?.account_rank?.rank_name || 'Rank D'}
           isAdmin={user?.roles.includes('admin') || user?.roles.includes('choi') || false}
           tasksPage={tasksPage}
