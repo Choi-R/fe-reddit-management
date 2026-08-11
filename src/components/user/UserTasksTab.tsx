@@ -79,7 +79,7 @@ export default function UserTasksTab({
 
         <AlertBanner
           type="warning"
-          message="Safety Warning: Do not perform these tasks too frequently, as it may put your account at risk of being banned. Increase your organic activity on Reddit (commenting, voting) to mitigate this risk."
+          message="Safety Warning: Read the subreddit rule before doing any task. Do not do any task with 'no link' explicitly written in the rule."
         />
 
         {isCooldownActive && (

@@ -200,7 +200,7 @@ export default function ActiveBookingCard({
             textAlign: 'center',
           }}
         >
-          <p>Awaiting Admin validation. You can book other available tasks.</p>
+          <p>Awaiting Admin validation</p>
         </div>
       )}
     </div>
