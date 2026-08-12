@@ -25,7 +25,34 @@ function AppContent() {
     setCurrentPath(path);
   };
 
-  const isAdminRoute = currentPath.startsWith('/admin');
+  const isKnownRoute =
+    currentPath === '/' ||
+    currentPath === '/admin' ||
+    currentPath === '/forgot-password' ||
+    currentPath.startsWith('/reset-password');
+
+  if (!isKnownRoute) {
+    return (
+      <div className="app-layout container">
+        <main className="app-main flex-center" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
+          <div className="glass-card" style={{ maxWidth: '480rem', padding: '2.5rem', width: '100%' }}>
+            <h1 style={{ fontSize: '3rem', margin: '0 0 1rem 0', color: 'var(--accent-red, #ff4500)' }}>404</h1>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Halaman Tidak Ditemukan / Page Not Found</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+              Halaman yang Anda cari tidak ada atau telah dipindahkan.
+            </p>
+            <button
+              className="btn btn-primary"
+              onClick={() => navigateTo(isAuthenticated ? (isAdmin ? '/admin' : '/') : '/')}
+            >
+              Kembali ke Beranda
+            </button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   // ─── Login & Auth Screens ─────────────────────────────────────────
 
@@ -50,6 +77,8 @@ function AppContent() {
       </div>
     );
   }
+
+  const isAdminRoute = currentPath.startsWith('/admin');
 
   if (!isAuthenticated) {
     return (
