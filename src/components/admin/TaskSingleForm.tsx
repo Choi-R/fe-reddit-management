@@ -25,7 +25,11 @@ export default function TaskSingleForm({
 }: TaskSingleFormProps) {
   const [newTaskUrl, setNewTaskUrl] = useState(editingTask?.url || '');
   const [newTaskClientRequest, setNewTaskClientRequest] = useState(editingTask?.client_request || '');
-  const [newTaskQuota, setNewTaskQuota] = useState(editingTask?.quota || 1);
+  const [newTaskQuota, setNewTaskQuota] = useState(
+    (editingTask?.original_quota && editingTask.original_quota > 0)
+      ? editingTask.original_quota
+      : (editingTask?.quota || 1)
+  );
   const [newTaskPrice, setNewTaskPrice] = useState(editingTask?.price || '');
   const [newTaskMinRankId, setNewTaskMinRankId] = useState(editingTask?.min_rank_id || '');
   const [newTaskAssignedTo, setNewTaskAssignedTo] = useState(editingTask?.assigned_to_email || '');
@@ -68,6 +72,7 @@ export default function TaskSingleForm({
           url: newTaskUrl,
           clientRequest: newTaskClientRequest,
           quota: newTaskQuota,
+          originalQuota: newTaskQuota,
           price: priceNum,
           minRankId: newTaskMinRankId || null,
           assignedTo: newTaskAssignedTo || null,
@@ -177,7 +182,9 @@ export default function TaskSingleForm({
           />
         </div>
         <div className="form-group">
-          <label htmlFor="taskQuota">Quota (Available slots)*</label>
+          <label htmlFor="taskQuota">
+            {editingTask ? 'Total Quota (Target completions)*' : 'Quota (Available slots)*'}
+          </label>
           <input
             id="taskQuota"
             type="number"

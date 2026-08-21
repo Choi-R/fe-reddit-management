@@ -88,6 +88,7 @@ export const adminService = {
     url: string;
     clientRequest: string;
     quota: number;
+    originalQuota?: number;
     price: number;
     minRankId?: string | null;
     assignedTo?: string | null;
