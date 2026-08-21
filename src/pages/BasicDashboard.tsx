@@ -51,10 +51,12 @@ export default function BasicDashboard() {
     setTasksPage(1);
   }, [basicTab]);
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (clearError = true) => {
     try {
       setIsLoading(true);
-      setErrorMsg(null);
+      if (clearError) {
+        setErrorMsg(null);
+      }
 
       const [tasksData, earningsData] = await Promise.all([
         taskService.getAvailable(),
@@ -85,9 +87,10 @@ export default function BasicDashboard() {
     try {
       await taskService.book(taskId);
       setSuccessMsg('Task booked successfully! Go to My Tasks to perform it.');
-      loadData();
+      await loadData(false);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to book task.');
+      await loadData(false);
     } finally {
       setIsLoading(false);
     }
@@ -100,9 +103,10 @@ export default function BasicDashboard() {
     try {
       await taskService.submit(taskId, replyUrl, note);
       setSuccessMsg('Submission sent successfully! Awaiting Admin approval.');
-      loadData();
+      await loadData(false);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to submit task.');
+      await loadData(false);
       throw err;
     } finally {
       setIsLoading(false);
@@ -116,9 +120,10 @@ export default function BasicDashboard() {
     try {
       await taskService.cancel(taskId);
       setSuccessMsg('Booking cancelled successfully! The task is back in the available list.');
-      loadData();
+      await loadData(false);
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to cancel booking.');
+      await loadData(false);
       throw err;
     } finally {
       setIsLoading(false);
