@@ -59,10 +59,36 @@ export default function TasksTab({
     }
   };
 
+  const handleArchiveTask = async (taskId: string) => {
+    if (
+      !window.confirm(
+        'Are you sure you want to archive this task? It will be moved to the Archived tab.'
+      )
+    ) {
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    try {
+      await adminService.archiveTask(taskId);
+      setSuccessMsg('Task moved to Archived successfully.');
+      if (editingTask?.id === taskId) {
+        handleCancelEdit();
+      }
+      onRefreshData();
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to archive task.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleDeleteTask = async (taskId: string) => {
     if (
       !window.confirm(
-        'Are you sure you want to remove this task from the available list? Users who have already booked or submitted will not be affected and can still complete their work.'
+        'Are you sure you want to delete this task? This action will move it to the deleted list and cannot be undone from the site.'
       )
     ) {
       return;
@@ -161,6 +187,7 @@ export default function TasksTab({
                       isExpanded={expandedTasks.has(task.id)}
                       onToggleExpand={() => toggleTaskExpanded(task.id)}
                       onEdit={handleEditClick}
+                      onArchive={handleArchiveTask}
                       onDelete={handleDeleteTask}
                       isLoading={isLoading}
                     />

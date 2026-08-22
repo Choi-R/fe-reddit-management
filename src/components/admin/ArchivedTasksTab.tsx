@@ -5,27 +5,33 @@ import ArchivedTaskCard from './ArchivedTaskCard';
 import { adminService } from '../../services/adminService';
 
 interface ArchivedTasksTabProps {
-  archivedTasks: Task[];
-  archivedPage: number;
-  setArchivedPage: (page: number) => void;
+  tasks: Task[];
+  page: number;
+  setPage: (page: number) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   setErrorMsg: (msg: string | null) => void;
   setSuccessMsg: (msg: string | null) => void;
   onRefreshData: () => void;
   onEditTask?: (task: Task) => void;
+  mode?: 'archived' | 'completed' | 'deleted';
+  title?: string;
+  subtitle?: string;
 }
 
 export default function ArchivedTasksTab({
-  archivedTasks,
-  archivedPage,
-  setArchivedPage,
+  tasks,
+  page,
+  setPage,
   isLoading,
   setIsLoading,
   setErrorMsg,
   setSuccessMsg,
   onRefreshData,
   onEditTask,
+  mode = 'archived',
+  title,
+  subtitle,
 }: ArchivedTasksTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [reasonFilter, setReasonFilter] = useState<string>('all');
@@ -67,10 +73,30 @@ export default function ArchivedTasksTab({
     }
   };
 
-  const handlePermanentDelete = async (taskId: string) => {
+  const handleArchiveTask = async (taskId: string) => {
+    if (!window.confirm('Are you sure you want to move this task to Archived?')) {
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      await adminService.archiveTask(taskId);
+      setSuccessMsg('Task moved to Archived successfully.');
+      onRefreshData();
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to archive task.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
     if (
       !window.confirm(
-        '⚠️ PERMANENT DELETE WARNING: Are you sure you want to permanently delete this task? This action cannot be undone.'
+        'Are you sure you want to delete this task? This action will move it to the deleted list and cannot be undone from the site.'
       )
     ) {
       return;
@@ -81,18 +107,18 @@ export default function ArchivedTasksTab({
     setSuccessMsg(null);
 
     try {
-      await adminService.deleteTask(taskId, true);
-      setSuccessMsg('Task permanently deleted.');
+      await adminService.deleteTask(taskId);
+      setSuccessMsg('Task deleted successfully.');
       onRefreshData();
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to permanently delete task.');
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to delete task.');
     } finally {
       setIsLoading(false);
     }
   };
 
   // Filter tasks based on search & reason
-  const filteredTasks = archivedTasks.filter((task) => {
+  const filteredTasks = tasks.filter((task) => {
     const matchesSearch =
       (task.subreddit || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -101,7 +127,6 @@ export default function ArchivedTasksTab({
     if (!matchesSearch) return false;
 
     if (reasonFilter === 'all') return true;
-    if (reasonFilter === 'deleted') return task.archive_reason?.includes('Deleted');
     if (reasonFilter === 'quota') return task.archive_reason?.includes('Quota');
     if (reasonFilter === 'deadline') return task.archive_reason?.includes('Deadline');
     if (reasonFilter === 'failures') return task.archive_reason?.includes('Failures');
@@ -111,8 +136,11 @@ export default function ArchivedTasksTab({
 
   const itemsPerPage = 6;
   const totalPages = Math.ceil(filteredTasks.length / itemsPerPage);
-  const currentPage = Math.max(1, Math.min(archivedPage, totalPages || 1));
+  const currentPage = Math.max(1, Math.min(page, totalPages || 1));
   const displayedTasks = filteredTasks.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const displayTitle = title || (mode === 'archived' ? `📦 Archived Tasks (${tasks.length})` : mode === 'completed' ? `🏁 Completed & Expired Tasks (${tasks.length})` : `🗑️ Deleted Tasks (${tasks.length})`);
+  const displaySubtitle = subtitle || (mode === 'archived' ? 'Explicitly archived campaigns by administrator.' : mode === 'completed' ? 'Tasks that have completed their target quota or passed their deadline.' : 'Soft-deleted tasks stored to keep worker earnings and proof links intact (cannot be restored).');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -121,10 +149,10 @@ export default function ArchivedTasksTab({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h2 style={{ fontSize: '1.25rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              📦 Archived Tasks ({archivedTasks.length})
+              {displayTitle}
             </h2>
             <p style={{ color: 'var(--text-secondary)', margin: '0.25rem 0 0 0', fontSize: '0.85rem' }}>
-              Tasks moved to Archive when deleted, expired deadline, 0 quota, or &gt;3x failure threshold.
+              {displaySubtitle}
             </p>
           </div>
 
@@ -136,38 +164,39 @@ export default function ArchivedTasksTab({
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
-                setArchivedPage(1);
+                setPage(1);
               }}
               style={{ minWidth: '220px', padding: '0.4rem 0.75rem', fontSize: '0.85rem' }}
             />
 
-            <select
-              className="input"
-              value={reasonFilter}
-              onChange={(e) => {
-                setReasonFilter(e.target.value);
-                setArchivedPage(1);
-              }}
-              style={{ minWidth: '160px', padding: '0.4rem 0.75rem', fontSize: '0.85rem' }}
-            >
-              <option value="all">All Archive Reasons</option>
-              <option value="deleted">🗑️ Deleted by Admin</option>
-              <option value="quota">📉 Quota Depleted</option>
-              <option value="deadline">⏰ Deadline Passed</option>
-              <option value="failures">⚠️ Excessive Failures</option>
-            </select>
+            {mode === 'completed' && (
+              <select
+                className="input"
+                value={reasonFilter}
+                onChange={(e) => {
+                  setReasonFilter(e.target.value);
+                  setPage(1);
+                }}
+                style={{ minWidth: '160px', padding: '0.4rem 0.75rem', fontSize: '0.85rem' }}
+              >
+                <option value="all">All Reasons</option>
+                <option value="quota">📉 Quota Depleted</option>
+                <option value="deadline">⏰ Deadline Passed</option>
+                <option value="failures">⚠️ Excessive Failures</option>
+              </select>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Archived Cards List */}
+      {/* Cards List */}
       <div className="glass-panel" style={{ padding: '1.5rem' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {filteredTasks.length === 0 ? (
             <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '3rem 1rem' }}>
-              {archivedTasks.length === 0
-                ? 'No archived tasks found. Active tasks will appear here when archived or deleted.'
-                : 'No archived tasks match your search filters.'}
+              {tasks.length === 0
+                ? `No ${mode} tasks found.`
+                : 'No tasks match your search filter.'}
             </p>
           ) : (
             <>
@@ -177,14 +206,16 @@ export default function ArchivedTasksTab({
                   task={task}
                   isExpanded={expandedTasks.has(task.id)}
                   onToggleExpand={() => toggleTaskExpanded(task.id)}
-                  onRestore={handleRestoreTask}
-                  onEdit={onEditTask}
-                  onPermanentDelete={handlePermanentDelete}
+                  onRestore={mode === 'archived' ? handleRestoreTask : undefined}
+                  onArchive={mode === 'completed' ? handleArchiveTask : undefined}
+                  onEdit={mode !== 'deleted' ? onEditTask : undefined}
+                  onDelete={mode !== 'deleted' ? handleDeleteTask : undefined}
+                  isDeletedView={mode === 'deleted'}
                   isLoading={isLoading}
                 />
               ))}
               {totalPages > 1 && (
-                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setArchivedPage} />
+                <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} />
               )}
             </>
           )}

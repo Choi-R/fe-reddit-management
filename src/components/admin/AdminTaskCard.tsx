@@ -6,6 +6,7 @@ interface AdminTaskCardProps {
   isExpanded: boolean;
   onToggleExpand: () => void;
   onEdit: (task: Task) => void;
+  onArchive?: (taskId: string) => void;
   onDelete: (taskId: string) => void;
   isLoading: boolean;
 }
@@ -15,6 +16,7 @@ export default function AdminTaskCard({
   isExpanded,
   onToggleExpand,
   onEdit,
+  onArchive,
   onDelete,
   isLoading,
 }: AdminTaskCardProps) {
@@ -132,6 +134,17 @@ export default function AdminTaskCard({
             <StatusTag status="failed">Fail: {task.count_failed}</StatusTag>
           </div>
           <div style={{ display: 'flex', gap: '0.4rem' }}>
+            {onArchive && (
+              <button
+                onClick={() => onArchive(task.id)}
+                className="btn btn-secondary"
+                style={{ padding: '0.2rem 0.5rem', fontSize: '0.7rem', borderRadius: '4px', backgroundColor: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.3)' }}
+                disabled={isLoading}
+                title="Move task to Archived list"
+              >
+                Archive
+              </button>
+            )}
             <button
               onClick={() => onEdit(task)}
               className="btn btn-secondary"

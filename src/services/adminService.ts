@@ -41,7 +41,7 @@ export const adminService = {
       method: 'DELETE',
     }),
 
-  getTasks: (): Promise<{ tasks: Task[]; archivedTasks: Task[] }> =>
+  getTasks: (): Promise<{ tasks: Task[]; archivedTasks: Task[]; completedTasks: Task[]; deletedTasks: Task[] }> =>
     authenticatedRequest('/api/admin/tasks'),
 
   getTaskHistory: (params?: { statuses?: string[]; search?: string }): Promise<TaskHistoryResponse> => {
@@ -94,10 +94,18 @@ export const adminService = {
     assignedTo?: string | null;
     deadline?: string | null;
     restore?: boolean;
+    isArchived?: boolean;
   }): Promise<{ success: boolean; task: Task }> =>
     authenticatedRequest(`/api/admin/tasks/${taskId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
+    }),
+
+  archiveTask: (
+    taskId: string
+  ): Promise<{ success: boolean; message: string; task: Task }> =>
+    authenticatedRequest(`/api/admin/tasks/${taskId}/archive`, {
+      method: 'POST',
     }),
 
   restoreTask: (
@@ -107,8 +115,8 @@ export const adminService = {
       method: 'POST',
     }),
 
-  deleteTask: (taskId: string, permanent?: boolean): Promise<{ success: boolean; message: string }> =>
-    authenticatedRequest(`/api/admin/tasks/${taskId}${permanent ? '?permanent=true' : ''}`, {
+  deleteTask: (taskId: string): Promise<{ success: boolean; message: string }> =>
+    authenticatedRequest(`/api/admin/tasks/${taskId}`, {
       method: 'DELETE',
     }),
 
