@@ -1,5 +1,3 @@
-import * as XLSX from 'xlsx';
-
 export interface ParsedTaskRow {
   url: string;
   clientRequest: string;
@@ -16,10 +14,11 @@ export function parseSpreadsheetFile(
   onError: (errMsg: string) => void
 ): void {
   const reader = new FileReader();
-  reader.onload = (evt) => {
+  reader.onload = async (evt) => {
     try {
-      const bstr = evt.target?.result;
-      const wb = XLSX.read(bstr, { type: 'binary', cellDates: true });
+      const buffer = evt.target?.result as ArrayBuffer;
+      const XLSX = await import('xlsx');
+      const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
       const wsName = wb.SheetNames[0];
       const ws = wb.Sheets[wsName];
 
@@ -88,10 +87,10 @@ export function parseSpreadsheetFile(
       });
 
       onSuccess(parsed);
-    } catch (err: unknown) {
+    } catch {
       onError('Failed to parse file. Please ensure it is a valid Excel or CSV spreadsheet.');
     }
   };
 
-  reader.readAsBinaryString(file);
+  reader.readAsArrayBuffer(file);
 }

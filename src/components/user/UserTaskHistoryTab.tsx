@@ -76,7 +76,7 @@ export default function UserTaskHistoryTab() {
   const handleCompletedAndPaid = () => setSelectedStatuses(['success', 'paid']);
   const handleFailedOnly = () => setSelectedStatuses(['failed']);
 
-  // Pagination calculation
+  // ponytail: client-side slicing ceiling is ~1,000 records. Upgrade path: add page/limit params to taskService.getTaskHistory backend query when table size exceeds ceiling.
   const totalPages = Math.ceil(history.length / pageSize) || 1;
   const paginatedHistory = history.slice((page - 1) * pageSize, page * pageSize);
 

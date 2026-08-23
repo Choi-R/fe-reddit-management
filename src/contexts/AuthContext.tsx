@@ -1,20 +1,11 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { authService } from '../services/authService';
 import { setSessionExpiredHandler } from '../services/apiClient';
 import type { User } from '../types';
+import { AuthContext, type AuthContextType } from '../hooks/useAuth';
 
-export interface AuthContextType {
-  token: string | null;
-  user: User | null;
-  login: (email: string, password: string) => Promise<User>;
-  logout: () => void;
-  isAuthenticated: boolean;
-  isAdmin: boolean;
-  isChoi: boolean;
-}
-
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export type { AuthContextType };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('crm_token'));

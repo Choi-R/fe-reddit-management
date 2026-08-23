@@ -9,11 +9,17 @@ export const authService = {
       body: JSON.stringify({ email, password }),
     });
 
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result.error || 'Login failed.');
+    let result: Record<string, any> = {};
+    try {
+      result = await response.json();
+    } catch {
+      // Non-JSON response fallback
     }
-    return result;
+
+    if (!response.ok) {
+      throw new Error(result.error || result.message || `Login failed (${response.status})`);
+    }
+    return result as { token: string; user: User };
   },
 
   forgotPassword: async (email: string): Promise<{ success: boolean; message: string }> => {
@@ -23,11 +29,17 @@ export const authService = {
       body: JSON.stringify({ email }),
     });
 
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result.error || 'Request failed.');
+    let result: Record<string, any> = {};
+    try {
+      result = await response.json();
+    } catch {
+      // Non-JSON response fallback
     }
-    return result;
+
+    if (!response.ok) {
+      throw new Error(result.error || result.message || `Request failed (${response.status})`);
+    }
+    return result as { success: boolean; message: string };
   },
 
   resetPassword: async (token: string, password: string): Promise<{ success: boolean; message: string }> => {
@@ -37,10 +49,16 @@ export const authService = {
       body: JSON.stringify({ token, password }),
     });
 
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result.error || 'Password reset failed.');
+    let result: Record<string, any> = {};
+    try {
+      result = await response.json();
+    } catch {
+      // Non-JSON response fallback
     }
-    return result;
+
+    if (!response.ok) {
+      throw new Error(result.error || result.message || `Password reset failed (${response.status})`);
+    }
+    return result as { success: boolean; message: string };
   },
 };

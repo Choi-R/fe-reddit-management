@@ -6,7 +6,7 @@ interface AccountRankModalProps {
   onClose: () => void;
 }
 
-export const RANKS_INFO = [
+const RANKS_INFO = [
   { id: 'E', name: 'Rank E', cqs: 'Banned', level: 0, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)', desc: 'Banned account with lowest score / banned status. Cannot book or perform any task.' },
   { id: 'D', name: 'Rank D', cqs: 'Lowest', level: 1, color: '#9ca3af', bg: 'rgba(156, 163, 175, 0.15)', desc: 'Starter account with lowest CQS. Access to tasks with no minimum rank requirement (Rank D to S).' },
   { id: 'C', name: 'Rank C', cqs: 'Low', level: 2, color: '#34d399', bg: 'rgba(16, 185, 129, 0.15)', desc: 'Basic account with low CQS. Has potential for basic task execution and access to Rank D and C tasks.' },

@@ -1,9 +1,5 @@
 import { useState } from 'react';
-import type { UserDetailStats } from '../../types';
-import UserStatsOverviewCards from './UserStatsOverviewCards';
-import UserStatsBookingsTab from './UserStatsBookingsTab';
-import UserStatsPendingTab from './UserStatsPendingTab';
-import UserStatsProfileTab from './UserStatsProfileTab';
+import type { UserDetailStats, UserDetailMetrics, UserTaskDetailItem } from '../../types';
 import StatusTag from '../common/StatusTag';
 
 interface UserStatsModalProps {
@@ -11,6 +7,178 @@ interface UserStatsModalProps {
   isLoading: boolean;
   stats: UserDetailStats | null;
   onClose: () => void;
+}
+
+function OverviewCards({ metrics }: { metrics: UserDetailMetrics }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
+      <div className="glass-card" style={{ padding: '0.85rem', borderLeft: '4px solid var(--color-primary)' }}>
+        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Active Bookings</span>
+        <h4 style={{ fontSize: '1.25rem', color: 'var(--color-primary)', margin: '0.25rem 0 0 0' }}>
+          {metrics.activeBookingCount}
+        </h4>
+      </div>
+      <div className="glass-card" style={{ padding: '0.85rem', borderLeft: '4px solid var(--color-warning)' }}>
+        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Under Review</span>
+        <h4 style={{ fontSize: '1.25rem', color: 'var(--color-warning)', margin: '0.25rem 0 0 0' }}>
+          {metrics.pendingReviewCount}
+        </h4>
+      </div>
+      <div className="glass-card" style={{ padding: '0.85rem', borderLeft: '4px solid var(--color-success)' }}>
+        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Completed Tasks</span>
+        <h4 style={{ fontSize: '1.25rem', color: 'var(--color-success)', margin: '0.25rem 0 0 0' }}>
+          {metrics.completedCount}
+        </h4>
+      </div>
+      <div className="glass-card" style={{ padding: '0.85rem', borderLeft: '4px solid #8b5cf6' }}>
+        <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Total Balance</span>
+        <h4 style={{ fontSize: '1.25rem', color: '#8b5cf6', margin: '0.25rem 0 0 0' }}>
+          ${metrics.totalBalance.toFixed(2)}
+        </h4>
+      </div>
+    </div>
+  );
+}
+
+function BookingsTab({ bookings }: { bookings: UserTaskDetailItem[] }) {
+  if (bookings.length === 0) {
+    return (
+      <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem' }}>
+        User currently has no active bookings.
+      </div>
+    );
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {bookings.map((item) => (
+        <div
+          key={item.booking_id}
+          className="glass-card"
+          style={{ padding: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+        >
+          <div>
+            <div style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>
+              {item.subreddit ? `r/${item.subreddit}` : 'Direct Task'}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{item.client_request}</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
+              Booked at: {new Date(item.created_at).toLocaleString()}
+            </div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <span style={{ color: 'var(--color-success)', fontWeight: 'bold' }}>
+              ${parseFloat(item.price).toFixed(2)}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PendingTab({ pendingSubmissions }: { pendingSubmissions: UserTaskDetailItem[] }) {
+  if (pendingSubmissions.length === 0) {
+    return (
+      <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem' }}>
+        No pending task submissions under review.
+      </div>
+    );
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {pendingSubmissions.map((item) => (
+        <div key={item.booking_id} className="glass-card" style={{ padding: '0.85rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+            <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>
+              {item.subreddit ? `r/${item.subreddit}` : 'Direct Task'}
+            </span>
+            <span style={{ color: 'var(--color-success)', fontWeight: 'bold' }}>
+              ${parseFloat(item.price).toFixed(2)}
+            </span>
+          </div>
+          {item.reply_url && (
+            <div style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+              Submitted URL:{' '}
+              <a href={item.reply_url} target="_blank" rel="noreferrer" style={{ color: 'var(--color-primary)' }}>
+                {item.reply_url}
+              </a>
+            </div>
+          )}
+          {item.note && (
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+              Note: "{item.note}"
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProfileTab({ stats }: { stats: UserDetailStats }) {
+  return (
+    <div className="glass-card" style={{ padding: '1.25rem' }}>
+      <h4 style={{ fontSize: '0.95rem', margin: '0 0 1rem 0' }}>Profile & Account Details</h4>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.85rem' }}>
+        <div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>User ID:</span>
+          <br />
+          <strong style={{ wordBreak: 'break-all' }}>{stats.user.id}</strong>
+        </div>
+        <div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Email Address:</span>
+          <br />
+          <strong>{stats.user.email}</strong>
+        </div>
+        <div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Reddit Username:</span>
+          <br />
+          <strong>
+            <a
+              href={`https://reddit.com/u/${stats.user.reddit}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}
+            >
+              u/{stats.user.reddit}
+            </a>
+          </strong>
+        </div>
+        <div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Nickname (Admin-only):</span>
+          <br />
+          <strong style={{ color: 'var(--text-primary)' }}>{stats.user.nickname || 'None'}</strong>
+        </div>
+        <div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>PayPal Email:</span>
+          <br />
+          <strong style={{ color: 'var(--text-primary)' }}>{stats.user.paypal || 'Not configured'}</strong>
+        </div>
+        <div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Account Rank:</span>
+          <br />
+          <span
+            style={{
+              fontSize: '0.75rem',
+              padding: '0.2rem 0.6rem',
+              borderRadius: '12px',
+              fontWeight: 'bold',
+              backgroundColor: 'rgba(99, 102, 241, 0.15)',
+              color: '#818cf8',
+              border: '1px solid rgba(99, 102, 241, 0.3)',
+            }}
+          >
+            {stats.user.rankName || `Rank ${stats.user.rankId}`} ({stats.user.cqmLevel || 'Lowest'})
+          </span>
+        </div>
+        <div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Account Created At:</span>
+          <br />
+          <strong>{new Date(stats.user.createdAt).toLocaleString()}</strong>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function UserStatsModal({
@@ -89,7 +257,7 @@ export default function UserStatsModal({
           </div>
         ) : stats ? (
           <>
-            <UserStatsOverviewCards metrics={stats.metrics} />
+            <OverviewCards metrics={stats.metrics} />
 
             {/* Sub-tabs */}
             <div className="tab-navigation" style={{ marginBottom: '1.25rem' }}>
@@ -121,9 +289,9 @@ export default function UserStatsModal({
 
             {/* Sub-tab view body */}
             <div style={{ flex: 1, overflowY: 'auto', paddingRight: '0.25rem' }}>
-              {activeTab === 'bookings' && <UserStatsBookingsTab bookings={stats.activeBookings} />}
+              {activeTab === 'bookings' && <BookingsTab bookings={stats.activeBookings} />}
 
-              {activeTab === 'pending' && <UserStatsPendingTab pendingSubmissions={stats.pendingSubmissions} />}
+              {activeTab === 'pending' && <PendingTab pendingSubmissions={stats.pendingSubmissions} />}
 
               {activeTab === 'history' && (
                 <div className="table-container">
@@ -167,7 +335,7 @@ export default function UserStatsModal({
                 </div>
               )}
 
-              {activeTab === 'profile' && <UserStatsProfileTab stats={stats} />}
+              {activeTab === 'profile' && <ProfileTab stats={stats} />}
             </div>
           </>
         ) : null}

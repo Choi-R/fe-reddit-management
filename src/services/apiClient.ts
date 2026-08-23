@@ -30,9 +30,15 @@ export async function authenticatedRequest<T = unknown>(endpoint: string, option
     throw new Error('Session expired. Please log in again.');
   }
 
-  const result = await response.json();
+  let result: Record<string, any> = {};
+  try {
+    result = await response.json();
+  } catch {
+    // Non-JSON response from edge/proxy (e.g. 502/504 Bad Gateway HTML)
+  }
+
   if (!response.ok) {
-    throw new Error(result.error || 'Server error.');
+    throw new Error(result.error || result.message || `Server error (${response.status})`);
   }
   return result as T;
 }

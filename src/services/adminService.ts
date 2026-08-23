@@ -3,13 +3,13 @@ import { authenticatedRequest } from './apiClient';
 
 export const adminService = {
   getUsers: (params?: { search?: string; sortBy?: string; sortOrder?: string; cqs?: string }): Promise<{ users: BasicUserSummary[] }> => {
-    const queryParts: string[] = [];
-    if (params?.search) queryParts.push(`search=${encodeURIComponent(params.search)}`);
-    if (params?.sortBy) queryParts.push(`sortBy=${encodeURIComponent(params.sortBy)}`);
-    if (params?.sortOrder) queryParts.push(`sortOrder=${encodeURIComponent(params.sortOrder)}`);
-    if (params?.cqs && params.cqs !== 'ALL') queryParts.push(`cqs=${encodeURIComponent(params.cqs)}`);
-    const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
-    return authenticatedRequest(`/api/admin/users${queryString}`);
+    const query = new URLSearchParams();
+    if (params?.search) query.set('search', params.search);
+    if (params?.sortBy) query.set('sortBy', params.sortBy);
+    if (params?.sortOrder) query.set('sortOrder', params.sortOrder);
+    if (params?.cqs && params.cqs !== 'ALL') query.set('cqs', params.cqs);
+    const queryString = query.toString();
+    return authenticatedRequest(`/api/admin/users${queryString ? `?${queryString}` : ''}`);
   },
 
   searchUsers: (q: string): Promise<{ users: BasicUserSummary[] }> =>
