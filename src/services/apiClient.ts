@@ -12,20 +12,20 @@ function getToken(): string | null {
   return localStorage.getItem('crm_token');
 }
 
-export async function authenticatedRequest<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const token = getToken();
-  if (!token) throw new Error('Unauthenticated');
+async function request<T = unknown>(endpoint: string, options: RequestInit = {}, auth: boolean): Promise<T> {
+  const token = auth ? getToken() : null;
+  if (auth && !token) throw new Error('Unauthenticated');
 
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...(auth ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });
 
-  if (response.status === 401) {
+  if (auth && response.status === 401) {
     onSessionExpired?.();
     throw new Error('Session expired. Please log in again.');
   }
@@ -41,4 +41,19 @@ export async function authenticatedRequest<T = unknown>(endpoint: string, option
     throw new Error(result.error || result.message || `Server error (${response.status})`);
   }
   return result as T;
+}
+
+export const authenticatedRequest = <T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> =>
+  request<T>(endpoint, options, true);
+
+export const publicRequest = <T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> =>
+  request<T>(endpoint, options, false);
+
+/** Builds the `?statuses=&search=` query string shared by task-history endpoints. */
+export function buildHistoryQuery(params?: { statuses?: string[]; search?: string }): string {
+  const query = new URLSearchParams();
+  if (params?.statuses && params.statuses.length > 0) query.set('statuses', params.statuses.join(','));
+  if (params?.search && params.search.trim()) query.set('search', params.search.trim());
+  const qs = query.toString();
+  return qs ? `?${qs}` : '';
 }

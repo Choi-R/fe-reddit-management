@@ -1,5 +1,5 @@
 import type { User, Task, BasicUserSummary, UserDetailStats, PendingSubmission, TaskHistoryResponse } from '../types';
-import { authenticatedRequest } from './apiClient';
+import { authenticatedRequest, buildHistoryQuery } from './apiClient';
 
 export const adminService = {
   getUsers: (params?: { search?: string; sortBy?: string; sortOrder?: string; cqs?: string }): Promise<{ users: BasicUserSummary[] }> => {
@@ -44,17 +44,8 @@ export const adminService = {
   getTasks: (): Promise<{ tasks: Task[]; archivedTasks: Task[]; completedTasks: Task[]; deletedTasks: Task[] }> =>
     authenticatedRequest('/api/admin/tasks'),
 
-  getTaskHistory: (params?: { statuses?: string[]; search?: string }): Promise<TaskHistoryResponse> => {
-    const query = new URLSearchParams();
-    if (params?.statuses && params.statuses.length > 0) {
-      query.set('statuses', params.statuses.join(','));
-    }
-    if (params?.search && params.search.trim()) {
-      query.set('search', params.search.trim());
-    }
-    const queryString = query.toString();
-    return authenticatedRequest(`/api/admin/tasks/history${queryString ? `?${queryString}` : ''}`);
-  },
+  getTaskHistory: (params?: { statuses?: string[]; search?: string }): Promise<TaskHistoryResponse> =>
+    authenticatedRequest(`/api/admin/tasks/history${buildHistoryQuery(params)}`),
 
   createTask: (data: {
     subreddit?: string | null;

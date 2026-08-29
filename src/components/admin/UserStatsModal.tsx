@@ -155,6 +155,28 @@ function ProfileTab({ stats }: { stats: UserDetailStats }) {
           <strong style={{ color: 'var(--text-primary)' }}>{stats.user.paypal || 'Not configured'}</strong>
         </div>
         <div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Payment Methods:</span>
+          <br />
+          {stats.user.paymentInfo && stats.user.paymentInfo.length > 0 ? (
+            <div style={{ marginTop: '0.35rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              {stats.user.paymentInfo.map((p, i) => (
+                <div key={i} style={{ fontSize: '0.85rem' }}>
+                  <strong style={{ textTransform: 'capitalize' }}>{p.type}</strong>: {' '}
+                  {p.type === 'paypal' ? (
+                    p.account_details.username
+                  ) : p.type === 'bank' ? (
+                    `${p.account_details.account_holder || ''} (${p.account_details.bank_name || ''})`
+                  ) : (
+                    `${p.account_details.coin || ''} ${p.account_details.wallet || ''}`
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <strong style={{ color: 'var(--text-primary)' }}>None configured</strong>
+          )}
+        </div>
+        <div>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Account Rank:</span>
           <br />
           <span

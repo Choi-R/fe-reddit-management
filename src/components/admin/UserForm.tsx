@@ -172,14 +172,14 @@ export default function UserForm({
       </div>
       <div className="form-group">
         <label>Payment Info (Optional)</label>
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
-          <select value={newPaymentType} onChange={(e) => setNewPaymentType(e.target.value as any)} className="form-input" style={{ flex: '0 0 140px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '0.5rem' }}>
+          <select value={newPaymentType} onChange={(e) => setNewPaymentType(e.target.value as any)} className="form-input" style={{ width: '220px' }}>
             <option value="paypal">PayPal</option>
             <option value="bank">Bank</option>
             <option value="crypto">Crypto</option>
           </select>
 
-          {/* Dynamic fields based on type */}
+          {/* Dynamic fields based on type - stacked vertically for clarity */}
           {newPaymentType === 'paypal' && (
             <input
               type="email"
@@ -187,7 +187,6 @@ export default function UserForm({
               className="form-input"
               value={newPaymentFields.username || ''}
               onChange={(e) => setNewPaymentFields({ ...newPaymentFields, username: e.target.value })}
-              style={{ flex: 1 }}
             />
           )}
           {newPaymentType === 'bank' && (
@@ -198,7 +197,6 @@ export default function UserForm({
                 className="form-input"
                 value={newPaymentFields.bank_name || ''}
                 onChange={(e) => setNewPaymentFields({ ...newPaymentFields, bank_name: e.target.value })}
-                style={{ flex: 1 }}
               />
               <input
                 type="text"
@@ -206,7 +204,6 @@ export default function UserForm({
                 className="form-input"
                 value={newPaymentFields.account_number || ''}
                 onChange={(e) => setNewPaymentFields({ ...newPaymentFields, account_number: e.target.value })}
-                style={{ flex: 1 }}
               />
               <input
                 type="text"
@@ -214,7 +211,6 @@ export default function UserForm({
                 className="form-input"
                 value={newPaymentFields.account_holder || ''}
                 onChange={(e) => setNewPaymentFields({ ...newPaymentFields, account_holder: e.target.value })}
-                style={{ flex: 1 }}
               />
             </>
           )}
@@ -226,7 +222,6 @@ export default function UserForm({
                 className="form-input"
                 value={newPaymentFields.wallet || ''}
                 onChange={(e) => setNewPaymentFields({ ...newPaymentFields, wallet: e.target.value })}
-                style={{ flex: 1 }}
               />
               <input
                 type="text"
@@ -234,7 +229,7 @@ export default function UserForm({
                 className="form-input"
                 value={newPaymentFields.coin || ''}
                 onChange={(e) => setNewPaymentFields({ ...newPaymentFields, coin: e.target.value })}
-                style={{ flex: '0 0 120px' }}
+                style={{ width: '140px' }}
               />
               <input
                 type="text"
@@ -242,24 +237,35 @@ export default function UserForm({
                 className="form-input"
                 value={newPaymentFields.network || ''}
                 onChange={(e) => setNewPaymentFields({ ...newPaymentFields, network: e.target.value })}
-                style={{ flex: '0 0 140px' }}
+                style={{ width: '180px' }}
               />
             </>
           )}
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => {
-              // validate minimal fields
-              if (newPaymentType === 'paypal' && !newPaymentFields.username) return;
-              if (newPaymentType === 'bank' && !newPaymentFields.account_number) return;
-              if (newPaymentType === 'crypto' && !newPaymentFields.wallet) return;
-              setPaymentInfo((prev) => [...prev, { type: newPaymentType, account_details: newPaymentFields }]);
-              setNewPaymentFields({});
-            }}
-          >
-            Add
-          </button>
+
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => {
+                // validate minimal fields
+                if (newPaymentType === 'paypal' && !newPaymentFields.username) return;
+                if (newPaymentType === 'bank' && !newPaymentFields.account_number) return;
+                if (newPaymentType === 'crypto' && !newPaymentFields.wallet) return;
+                setPaymentInfo((prev) => [...prev, { type: newPaymentType, account_details: newPaymentFields }]);
+                setNewPaymentFields({});
+              }}
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => setNewPaymentFields({})}
+              style={{ alignSelf: 'center' }}
+            >
+              Clear
+            </button>
+          </div>
         </div>
 
         {/* Existing entries list */}
