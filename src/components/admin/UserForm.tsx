@@ -22,23 +22,27 @@ export default function UserForm({
   onRefreshData,
 }: UserFormProps) {
   const [newEmail, setNewEmail] = useState(editingUser?.email || '');
-  const [newPaypal, setNewPaypal] = useState(editingUser?.paypal || '');
+  
   const [newReddit, setNewReddit] = useState(editingUser?.reddit || '');
   const [newNickname, setNewNickname] = useState(editingUser?.nickname || '');
   const [newRankId, setNewRankId] = useState(editingUser?.rankId || 'D');
   const [newPassword, setNewPassword] = useState('');
+  const [paymentInfo, setPaymentInfo] = useState<any[]>([]);
+  const [newPaymentType, setNewPaymentType] = useState<'paypal' | 'bank' | 'crypto'>('paypal');
+  const [newPaymentFields, setNewPaymentFields] = useState<any>({});
 
   useEffect(() => {
     if (editingUser) {
       setNewEmail(editingUser.email);
-      setNewPaypal(editingUser.paypal || '');
+      // Initialize paymentInfo from editingUser.paymentInfo or legacy paypal
+      setPaymentInfo(editingUser.paymentInfo || (editingUser.paypal ? [{ type: 'paypal', account_details: { username: editingUser.paypal } }] : []));
       setNewReddit(editingUser.reddit || '');
       setNewNickname(editingUser.nickname || '');
       setNewRankId(editingUser.rankId || 'D');
       setNewPassword('');
     } else {
       setNewEmail('');
-      setNewPaypal('');
+      setPaymentInfo([]);
       setNewReddit('');
       setNewNickname('');
       setNewRankId('D');
@@ -61,7 +65,7 @@ export default function UserForm({
       if (editingUser) {
         await adminService.updateUser(editingUser.id, {
           email: newEmail,
-          paypal: newPaypal || null,
+          paymentInfo: paymentInfo,
           reddit: newReddit,
           nickname: newNickname || null,
           rankId: newRankId,
@@ -93,14 +97,13 @@ export default function UserForm({
         await adminService.createUser({
           email: newEmail,
           password: newPassword,
-          paypal: newPaypal || null,
+          paymentInfo: paymentInfo,
           reddit: newReddit,
           nickname: newNickname || null,
           rankId: newRankId,
         });
         setSuccessMsg('User created successfully!');
         setNewEmail('');
-        setNewPaypal('');
         setNewReddit('');
         setNewNickname('');
         setNewRankId('D');
@@ -168,15 +171,114 @@ export default function UserForm({
         </select>
       </div>
       <div className="form-group">
-        <label htmlFor="userPaypal">PayPal Email (Optional)</label>
-        <input
-          id="userPaypal"
-          type="email"
-          className="form-input"
-          placeholder="paypal@example.com"
-          value={newPaypal}
-          onChange={(e) => setNewPaypal(e.target.value)}
-        />
+        <label>Payment Info (Optional)</label>
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
+          <select value={newPaymentType} onChange={(e) => setNewPaymentType(e.target.value as any)} className="form-input" style={{ flex: '0 0 140px' }}>
+            <option value="paypal">PayPal</option>
+            <option value="bank">Bank</option>
+            <option value="crypto">Crypto</option>
+          </select>
+
+          {/* Dynamic fields based on type */}
+          {newPaymentType === 'paypal' && (
+            <input
+              type="email"
+              placeholder="paypal@example.com"
+              className="form-input"
+              value={newPaymentFields.username || ''}
+              onChange={(e) => setNewPaymentFields({ ...newPaymentFields, username: e.target.value })}
+              style={{ flex: 1 }}
+            />
+          )}
+          {newPaymentType === 'bank' && (
+            <>
+              <input
+                type="text"
+                placeholder="Bank Name"
+                className="form-input"
+                value={newPaymentFields.bank_name || ''}
+                onChange={(e) => setNewPaymentFields({ ...newPaymentFields, bank_name: e.target.value })}
+                style={{ flex: 1 }}
+              />
+              <input
+                type="text"
+                placeholder="Account Number"
+                className="form-input"
+                value={newPaymentFields.account_number || ''}
+                onChange={(e) => setNewPaymentFields({ ...newPaymentFields, account_number: e.target.value })}
+                style={{ flex: 1 }}
+              />
+              <input
+                type="text"
+                placeholder="Account Holder"
+                className="form-input"
+                value={newPaymentFields.account_holder || ''}
+                onChange={(e) => setNewPaymentFields({ ...newPaymentFields, account_holder: e.target.value })}
+                style={{ flex: 1 }}
+              />
+            </>
+          )}
+          {newPaymentType === 'crypto' && (
+            <>
+              <input
+                type="text"
+                placeholder="Wallet Address"
+                className="form-input"
+                value={newPaymentFields.wallet || ''}
+                onChange={(e) => setNewPaymentFields({ ...newPaymentFields, wallet: e.target.value })}
+                style={{ flex: 1 }}
+              />
+              <input
+                type="text"
+                placeholder="Coin (e.g. USDT)"
+                className="form-input"
+                value={newPaymentFields.coin || ''}
+                onChange={(e) => setNewPaymentFields({ ...newPaymentFields, coin: e.target.value })}
+                style={{ flex: '0 0 120px' }}
+              />
+              <input
+                type="text"
+                placeholder="Network (e.g. ethereum)"
+                className="form-input"
+                value={newPaymentFields.network || ''}
+                onChange={(e) => setNewPaymentFields({ ...newPaymentFields, network: e.target.value })}
+                style={{ flex: '0 0 140px' }}
+              />
+            </>
+          )}
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => {
+              // validate minimal fields
+              if (newPaymentType === 'paypal' && !newPaymentFields.username) return;
+              if (newPaymentType === 'bank' && !newPaymentFields.account_number) return;
+              if (newPaymentType === 'crypto' && !newPaymentFields.wallet) return;
+              setPaymentInfo((prev) => [...prev, { type: newPaymentType, account_details: newPaymentFields }]);
+              setNewPaymentFields({});
+            }}
+          >
+            Add
+          </button>
+        </div>
+
+        {/* Existing entries list */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {paymentInfo.length === 0 ? (
+            <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>No payment methods added.</div>
+          ) : (
+            paymentInfo.map((p, idx) => (
+              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <div style={{ flex: 1, fontSize: '0.9rem' }}>
+                  <strong style={{ textTransform: 'capitalize' }}>{p.type}</strong>: {p.type === 'paypal' ? p.account_details.username : p.type === 'bank' ? `${p.account_details.account_holder || ''} (${p.account_details.bank_name || ''})` : `${p.account_details.coin || ''} ${p.account_details.wallet || ''}`}
+                </div>
+                <button type="button" className="btn btn-danger" onClick={() => setPaymentInfo(paymentInfo.filter((_, i) => i !== idx))}>
+                  Remove
+                </button>
+              </div>
+            ))
+          )}
+        </div>
       </div>
       <div className="form-group" style={{ marginBottom: '1.5rem' }}>
         <label htmlFor="userPassword">

@@ -84,8 +84,19 @@ export default function UserCard({
         >
           u/{user.reddit}
         </a>{' '}
-        | PayPal:{' '}
-        <strong style={{ color: 'var(--text-primary)' }}>{user.paypal || 'None'}</strong>
+        | Payment:{' '}
+        <strong style={{ color: 'var(--text-primary)' }}>
+          {user.paymentInfo && user.paymentInfo.length > 0 ? (
+            user.paymentInfo.map((p) => {
+              if (p.type === 'paypal') return p.account_details.username;
+              if (p.type === 'bank') return `${p.account_details.account_holder || ''} (${p.account_details.bank_name || ''})`;
+              if (p.type === 'crypto') return `${p.account_details.coin || ''} ${p.account_details.wallet || ''}`;
+              return '';
+            }).join(' • ')
+          ) : (
+            user.paypal || 'None'
+          )}
+        </strong>
       </div>
 
       {/* Full Detail Modal Link */}

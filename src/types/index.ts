@@ -11,6 +11,7 @@ export interface User {
   id: string;
   email: string;
   paypal: string | null;
+  paymentInfo?: PaymentInfoEntry[];
   reddit: string;
   nickname?: string | null;
   role_id?: string;
@@ -78,6 +79,7 @@ export interface BasicUserSummary {
   id: string;
   email: string;
   paypal: string | null;
+  paymentInfo?: PaymentInfoEntry[];
   reddit: string;
   nickname?: string | null;
   roleId?: string;
@@ -130,6 +132,7 @@ export interface UserDetailStats {
     id: string;
     email: string;
     paypal: string | null;
+    paymentInfo?: PaymentInfoEntry[];
     reddit: string;
     nickname?: string | null;
     roleId?: string;
@@ -144,6 +147,12 @@ export interface UserDetailStats {
   activeBookings: UserTaskDetailItem[];
   pendingSubmissions: UserTaskDetailItem[];
   taskHistory: UserTaskDetailItem[];
+}
+
+export interface PaymentInfoEntry {
+  id?: string;
+  type: 'paypal' | 'bank' | 'crypto';
+  account_details: { [key: string]: any };
 }
 
 export interface PendingSubmission {
