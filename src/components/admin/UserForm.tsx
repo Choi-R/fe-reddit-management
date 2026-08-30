@@ -276,7 +276,7 @@ export default function UserForm({
             paymentInfo.map((p, idx) => (
               <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <div style={{ flex: 1, fontSize: '0.9rem' }}>
-                  <strong style={{ textTransform: 'capitalize' }}>{p.type}</strong>: {p.type === 'paypal' ? p.account_details.username : p.type === 'bank' ? `${p.account_details.account_holder || ''} (${p.account_details.bank_name || ''})` : `${p.account_details.coin || ''} ${p.account_details.wallet || ''}`}
+                  <strong style={{ textTransform: 'capitalize' }}>{p.type}</strong>: {p.type === 'paypal' ? p.account_details.username : p.type === 'bank' ? `${p.account_details.account_holder || ''} (${p.account_details.bank_name || ''}) — ${p.account_details.account_number || ''}` : `${p.account_details.coin || ''} ${p.account_details.wallet || ''}`}
                 </div>
                 <button type="button" className="btn btn-danger" onClick={() => setPaymentInfo(paymentInfo.filter((_, i) => i !== idx))}>
                   Remove

@@ -165,7 +165,7 @@ function ProfileTab({ stats }: { stats: UserDetailStats }) {
                   {p.type === 'paypal' ? (
                     p.account_details.username
                   ) : p.type === 'bank' ? (
-                    `${p.account_details.account_holder || ''} (${p.account_details.bank_name || ''})`
+                    `${p.account_details.account_holder || ''} (${p.account_details.bank_name || ''}) — ${p.account_details.account_number || ''}`
                   ) : (
                     `${p.account_details.coin || ''} ${p.account_details.wallet || ''}`
                   )}

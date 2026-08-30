@@ -89,7 +89,7 @@ export default function UserCard({
           {user.paymentInfo && user.paymentInfo.length > 0 ? (
             user.paymentInfo.map((p) => {
               if (p.type === 'paypal') return p.account_details.username;
-              if (p.type === 'bank') return `${p.account_details.account_holder || ''} (${p.account_details.bank_name || ''})`;
+              if (p.type === 'bank') return `${p.account_details.account_holder || ''} (${p.account_details.bank_name || ''}) — ${p.account_details.account_number || ''}`;
               if (p.type === 'crypto') return `${p.account_details.coin || ''} ${p.account_details.wallet || ''}`;
               return '';
             }).join(' • ')
