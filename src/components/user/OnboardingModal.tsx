@@ -123,7 +123,7 @@ export default function OnboardingModal({ isOpen, onAcknowledge }: OnboardingMod
             />
             <span>
               {hasScrolledOnboarding
-                ? 'I have fully read, understood, and agree to adhere to the Reddit promotion eligibility requirements, payment cycle, and safety rules.'
+                ? 'I have fully read, understood, and agree to adhere to the platform promotion eligibility requirements, payment cycle, and safety rules.'
                 : 'Please scroll to the bottom of the guidelines document to enable verification.'}
             </span>
           </label>

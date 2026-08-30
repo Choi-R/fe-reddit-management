@@ -120,7 +120,7 @@ export default function ArchivedTasksTab({
   // Filter tasks based on search & reason
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch =
-      (task.subreddit || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ((task.target_subreddit || task.subreddit || '')).toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.client_request.toLowerCase().includes(searchQuery.toLowerCase());
 

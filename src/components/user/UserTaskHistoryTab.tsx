@@ -11,9 +11,12 @@ const ALL_STATUSES = [
   { id: 'incomplete', label: 'Incomplete / Booked', color: '#6b7280' },
 ];
 
+type PlatformFilter = 'ALL' | 'REDDIT' | 'PRODUCTHUNT';
+
 export default function UserTaskHistoryTab() {
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [platformFilter, setPlatformFilter] = useState<PlatformFilter>('ALL');
   const [history, setHistory] = useState<TaskHistoryEntry[]>([]);
   const [statusCounts, setStatusCounts] = useState<{
     incomplete: number;
@@ -77,8 +80,11 @@ export default function UserTaskHistoryTab() {
   const handleFailedOnly = () => setSelectedStatuses(['failed']);
 
   // ponytail: client-side slicing ceiling is ~1,000 records. Upgrade path: add page/limit params to taskService.getTaskHistory backend query when table size exceeds ceiling.
-  const totalPages = Math.ceil(history.length / pageSize) || 1;
-  const paginatedHistory = history.slice((page - 1) * pageSize, page * pageSize);
+  const filteredByPlatform = platformFilter === 'ALL'
+    ? history
+    : history.filter((h) => h.platform === platformFilter);
+  const totalPages = Math.ceil(filteredByPlatform.length / pageSize) || 1;
+  const paginatedHistory = filteredByPlatform.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div className="glass-panel" style={{ padding: '1.5rem' }}>
@@ -197,7 +203,28 @@ export default function UserTaskHistoryTab() {
           }}
         >
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Presets:</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Platform:</span>
+            {(['ALL', 'REDDIT', 'PRODUCTHUNT'] as PlatformFilter[]).map((pf) => (
+              <button
+                key={pf}
+                type="button"
+                onClick={() => setPlatformFilter(pf)}
+                style={{
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: '6px',
+                  border: `1px solid ${platformFilter === pf ? 'var(--color-primary)' : 'var(--border-color)'}`,
+                  background: platformFilter === pf ? 'var(--color-primary)' : 'transparent',
+                  color: platformFilter === pf ? '#fff' : 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {pf === 'ALL' ? 'All' : pf === 'REDDIT' ? 'Reddit' : 'ProductHunt'}
+              </button>
+            ))}
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>| Presets:</span>
             <button
               className="btn btn-secondary"
               style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
@@ -231,7 +258,7 @@ export default function UserTaskHistoryTab() {
           <div style={{ position: 'relative', minWidth: '240px', flex: '1', maxWidth: '380px' }}>
             <input
               type="text"
-              placeholder="Search subreddit, reply URL, or note..."
+              placeholder="Search target, reply URL, or note..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
@@ -286,7 +313,7 @@ export default function UserTaskHistoryTab() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
-                <th style={{ padding: '0.75rem' }}>Subreddit & Details</th>
+                <th style={{ padding: '0.75rem' }}>Platform & Target</th>
                 <th style={{ padding: '0.75rem' }}>Payout Price</th>
                 <th style={{ padding: '0.75rem' }}>Last Updated (Latest)</th>
                 <th style={{ padding: '0.75rem' }}>Status</th>
@@ -304,8 +331,22 @@ export default function UserTaskHistoryTab() {
                 >
                   {/* Subreddit */}
                   <td style={{ padding: '0.75rem', fontSize: '0.85rem', maxWidth: '240px' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>
-                      {item.subreddit ? `r/${item.subreddit}` : 'Direct Link'}
+                    <div style={{ fontWeight: 'bold', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                      <span
+                        style={{
+                          fontSize: '0.6rem',
+                          fontWeight: '700',
+                          textTransform: 'uppercase',
+                          background: item.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255, 107, 53, 0.15)',
+                          color: item.platform === 'PRODUCTHUNT' ? '#fbbf24' : '#ff6b35',
+                          padding: '0.1rem 0.3rem',
+                          borderRadius: '3px',
+                          letterSpacing: '0.05em',
+                        }}
+                      >
+                        {item.platform || 'REDDIT'}
+                      </span>
+                      {(item.target_subreddit || item.subreddit) ? `${item.platform === 'PRODUCTHUNT' ? '' : 'r/'}${item.target_subreddit || item.subreddit}` : 'Direct Link'}
                     </div>
                     {item.task_url && (
                       <a

@@ -22,6 +22,8 @@ interface UserTasksTabProps {
   onRefreshData: () => void;
 }
 
+type PlatformFilter = 'ALL' | 'REDDIT' | 'PRODUCTHUNT';
+
 function formatRemainingCooldown(ms: number): string {
   if (ms <= 0) return '0 minutes';
   const totalMinutes = Math.floor(ms / (1000 * 60));
@@ -55,6 +57,7 @@ export default function UserTasksTab({
   onRefreshData,
 }: UserTasksTabProps) {
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
+  const [platformFilter, setPlatformFilter] = useState<PlatformFilter>('ALL');
 
   const toggleTaskExpanded = (taskId: string) => {
     setExpandedTasks((prev) => {
@@ -71,15 +74,43 @@ export default function UserTasksTab({
   const incompleteCount = activeBookings.filter((b) => b.status_id === 'incomplete').length;
   const isCooldownActive = Boolean(cooldown?.isActive);
 
+  // Filter tasks by platform
+  const filteredTasks = platformFilter === 'ALL'
+    ? availableTasks
+    : availableTasks.filter((t) => t.platform === platformFilter);
+
   return (
     <div className="grid-2">
       {/* Left Column: Available Tasks */}
       <div className="glass-panel" style={{ padding: '1.75rem' }}>
-        <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Available Tasks ({availableTasks.length})</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+          <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Available Tasks ({filteredTasks.length})</h2>
+          <div style={{ display: 'flex', gap: '0.4rem' }}>
+            {(['ALL', 'REDDIT', 'PRODUCTHUNT'] as PlatformFilter[]).map((pf) => (
+              <button
+                key={pf}
+                onClick={() => setPlatformFilter(pf)}
+                style={{
+                  padding: '0.3rem 0.75rem',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  background: platformFilter === pf ? 'var(--color-primary)' : 'transparent',
+                  color: platformFilter === pf ? '#fff' : 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {pf === 'ALL' ? 'All' : pf === 'REDDIT' ? 'Reddit' : 'ProductHunt'}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <AlertBanner
           type="warning"
-          message="Safety Warning: Read the subreddit rule before doing any task. Do not do any task with 'no link' explicitly written in the rule."
+          message="Safety Warning: Read the platform rules before doing any task. Do not do any task with 'no link' explicitly written in the rule."
         />
 
         {isCooldownActive && (
@@ -101,7 +132,7 @@ export default function UserTasksTab({
               ⏱️ 2-Day Cooldown Period Active
             </div>
             <div>
-              You recently submitted proof for a task. To protect Reddit accounts from excessive activity, a <strong>2-day cooldown</strong> is required between task submissions.
+              You recently submitted proof for a task. To protect accounts from excessive activity, a <strong>2-day cooldown</strong> is required between task submissions.
             </div>
             {cooldown?.cooldownUntil && (
               <div style={{ fontSize: '0.8rem', opacity: 0.95, marginTop: '0.15rem' }}>
@@ -111,15 +142,15 @@ export default function UserTasksTab({
           </div>
         )}
 
-        {availableTasks.length === 0 ? (
+        {filteredTasks.length === 0 ? (
           <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '2rem' }}>
-            No tasks currently available. Check back later!
+            No tasks currently available{platformFilter !== 'ALL' ? ` for ${platformFilter}` : ''}. Check back later!
           </p>
         ) : (
           (() => {
-            const totalPages = Math.ceil(availableTasks.length / 5);
+            const totalPages = Math.ceil(filteredTasks.length / 5);
             const currentPage = Math.max(1, Math.min(tasksPage, totalPages || 1));
-            const displayedTasks = availableTasks.slice((currentPage - 1) * 5, currentPage * 5);
+            const displayedTasks = filteredTasks.slice((currentPage - 1) * 5, currentPage * 5);
             return (
               <>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

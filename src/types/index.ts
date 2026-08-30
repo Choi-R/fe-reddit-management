@@ -1,10 +1,22 @@
-// Shared TypeScript interfaces for the Reddit CRM frontend
+// Shared TypeScript interfaces for the Reddit & ProductHunt CRM frontend
+
+export type Platform = 'REDDIT' | 'PRODUCTHUNT';
 
 export interface AccountRank {
   id: string; // 'D', 'C', 'B', 'A', 'S'
   rank_name: string; // 'Rank D', 'Rank C', etc.
   cqm_level: string; // Reddit CQS: 'Lowest', 'Low', 'Moderate', 'High', 'Highest'
   rank_level: number; // 1, 2, 3, 4, 5
+}
+
+export interface ProductHuntAccount {
+  id: string;
+  user_id: string;
+  username: string;
+  headline?: string | null;
+  bio?: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface User {
@@ -18,11 +30,14 @@ export interface User {
   roles: string[];
   rank_id?: string;
   account_rank?: AccountRank;
+  producthunt_accounts?: ProductHuntAccount[];
 }
 
 export interface Task {
   id: string;
-  subreddit: string | null;
+  platform?: Platform;
+  target_subreddit?: string | null;
+  subreddit?: string | null; // legacy alias for target_subreddit
   url: string;
   client_request: string;
   quota: number;
@@ -53,7 +68,9 @@ export interface Booking {
   created_at: string;
   updated_at: string;
   task_id: string;
-  subreddit: string;
+  platform?: Platform;
+  target_subreddit?: string | null;
+  subreddit?: string; // legacy alias for target_subreddit
   price: string;
   min_rank_id?: string | null;
   min_rank_name?: string | null;
@@ -64,7 +81,9 @@ export interface ActiveBooking {
   status_id: string;
   booked_at: string;
   id: string; // task_id
-  subreddit: string | null;
+  platform?: Platform;
+  target_subreddit?: string | null;
+  subreddit?: string | null; // legacy alias for target_subreddit
   url: string;
   client_request: string;
   quota: number;
@@ -100,7 +119,9 @@ export interface UserTaskDetailItem {
   booking_id: string;
   task_id: string;
   status_id: string;
-  subreddit: string | null;
+  platform?: Platform;
+  target_subreddit?: string | null;
+  subreddit?: string | null; // legacy alias for target_subreddit
   url: string;
   client_request: string;
   price: string;
@@ -142,6 +163,7 @@ export interface UserDetailStats {
     cqmLevel: string;
     rankLevel: number;
     bookingLimit: number;
+    producthunt_accounts?: ProductHuntAccount[];
   };
   metrics: UserDetailMetrics;
   activeBookings: UserTaskDetailItem[];
@@ -165,7 +187,9 @@ export interface PendingSubmission {
   user_email: string;
   user_reddit: string;
   task_id: string;
-  subreddit: string;
+  platform?: Platform;
+  target_subreddit?: string | null;
+  subreddit?: string; // legacy alias for target_subreddit
   price: string;
 }
 
@@ -182,7 +206,9 @@ export interface TaskHistoryEntry {
   user_reddit?: string;
   user_nickname?: string | null;
   task_id: string;
-  subreddit: string | null;
+  platform?: Platform;
+  target_subreddit?: string | null;
+  subreddit?: string | null; // legacy alias for target_subreddit
   task_url?: string;
   client_request?: string;
   price: string;

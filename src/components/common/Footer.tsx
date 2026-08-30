@@ -12,7 +12,7 @@ export default function Footer() {
     <footer className="footer-container glass-panel">
       <div className="footer-content">
         <div className="footer-copyright">
-          <span>&copy; {currentYear} Reddit CRM. All rights reserved.</span>
+          <span>&copy; {currentYear} CRM. All rights reserved.</span>
         </div>
 
         <div className="footer-contacts">

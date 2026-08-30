@@ -33,7 +33,7 @@ export default function Header({ user, isAdmin, isChoi, onLogout }: HeaderProps)
     <>
       <header className="header">
         <div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>Reddit CRM</h1>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0 }}>CRM</h1>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
           <div className="user-badge" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>

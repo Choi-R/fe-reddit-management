@@ -3,6 +3,7 @@ export interface ParsedTaskRow {
   clientRequest: string;
   deadline: string | null;
   price: number;
+  platform?: 'REDDIT' | 'PRODUCTHUNT';
   isValid: boolean;
   error?: string;
 }
@@ -30,17 +31,21 @@ export function parseSpreadsheetFile(
       }
 
       const parsed: ParsedTaskRow[] = rows.map((row) => {
-        const rawUrl = row[0] ? String(row[0]).trim() : '';
-        const rawRequest = row[1] ? String(row[1]).trim() : '';
-        const rawDeadline = row[2] ? row[2] : null;
-        const rawPrice = row[3] !== undefined ? parseFloat(String(row[3])) : NaN;
+        const rawPlatform = row[0] ? String(row[0]).trim().toUpperCase() : 'REDDIT';
+        const validPlatforms = ['REDDIT', 'PRODUCTHUNT'];
+        const platform = validPlatforms.includes(rawPlatform) ? rawPlatform as 'REDDIT' | 'PRODUCTHUNT' : 'REDDIT';
+        
+        const rawUrl = row[1] ? String(row[1]).trim() : '';
+        const rawRequest = row[2] ? String(row[2]).trim() : '';
+        const rawDeadline = row[3] ? row[3] : null;
+        const rawPrice = row[4] !== undefined ? parseFloat(String(row[4])) : NaN;
 
         let isValid = true;
         let error = '';
 
         if (!rawUrl) {
           isValid = false;
-          error = 'Missing Reddit URL';
+          error = 'Missing URL';
         } else {
           try {
             new URL(rawUrl);
@@ -81,6 +86,7 @@ export function parseSpreadsheetFile(
           clientRequest: rawRequest,
           deadline: formattedDeadline,
           price: isNaN(rawPrice) ? 0 : rawPrice,
+          platform,
           isValid,
           error,
         };

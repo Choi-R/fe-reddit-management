@@ -176,6 +176,28 @@ function ProfileTab({ stats }: { stats: UserDetailStats }) {
             <strong style={{ color: 'var(--text-primary)' }}>None configured</strong>
           )}
         </div>
+        {stats.user.producthunt_accounts && stats.user.producthunt_accounts.length > 0 && (
+          <div style={{ gridColumn: '1 / -1' }}>
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>ProductHunt Accounts:</span>
+            <div style={{ marginTop: '0.35rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              {stats.user.producthunt_accounts.map((ph) => (
+                <div key={ph.id} style={{ fontSize: '0.85rem' }}>
+                  <a
+                    href={`https://www.producthunt.com/@${ph.username}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}
+                  >
+                    @{ph.username}
+                  </a>
+                  {ph.headline && (
+                    <span style={{ color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>— {ph.headline}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <div>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Account Rank:</span>
           <br />

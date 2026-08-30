@@ -330,7 +330,7 @@ export default function TaskingHistoryTab({
               <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
                 <th style={{ padding: '0.75rem' }}>Date & Time (Latest)</th>
                 <th style={{ padding: '0.75rem' }}>User</th>
-                <th style={{ padding: '0.75rem' }}>Subreddit & Task</th>
+                <th style={{ padding: '0.75rem' }}>Platform & Target</th>
                 <th style={{ padding: '0.75rem' }}>Status</th>
                 <th style={{ padding: '0.75rem' }}>Proof / Notes</th>
                 <th style={{ padding: '0.75rem', textAlign: 'center' }}>Action</th>
@@ -375,8 +375,22 @@ export default function TaskingHistoryTab({
 
                     {/* Task details */}
                     <td style={{ padding: '0.75rem', fontSize: '0.85rem', maxWidth: '240px' }}>
-                      <div style={{ fontWeight: 'bold' }}>
-                        {item.subreddit ? `r/${item.subreddit}` : 'Direct Link'}
+                      <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        <span
+                          style={{
+                            fontSize: '0.6rem',
+                            fontWeight: '700',
+                            textTransform: 'uppercase',
+                            background: item.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255, 107, 53, 0.15)',
+                            color: item.platform === 'PRODUCTHUNT' ? '#fbbf24' : '#ff6b35',
+                            padding: '0.1rem 0.3rem',
+                            borderRadius: '3px',
+                            letterSpacing: '0.05em',
+                          }}
+                        >
+                          {item.platform || 'REDDIT'}
+                        </span>
+                        {(item.target_subreddit || item.subreddit) ? `${item.platform === 'PRODUCTHUNT' ? '' : 'r/'}${item.target_subreddit || item.subreddit}` : 'Direct Link'}
                         <span style={{ marginLeft: '0.5rem', color: 'var(--color-success)', fontWeight: '600' }}>
                           ${parseFloat(item.price).toFixed(2)}
                         </span>

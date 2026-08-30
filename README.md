@@ -1,6 +1,6 @@
-# Reddit Account & CRM Task Management Portal
+# Reddit & ProductHunt Account & CRM Task Management Portal
 
-A high-performance, responsive React dashboard designed for managing client Reddit tasks, user assignments, submissions, and developer payouts. Built with a premium, glassmorphic dark theme, the project focuses on zero third-party routing/styling dependencies, high type safety, and fast startup performance.
+A high-performance, responsive React dashboard designed for managing client tasks across Reddit and ProductHunt platforms, user assignments, submissions, and developer payouts. Built with a premium, glassmorphic dark theme, the project focuses on zero third-party routing/styling dependencies, high type safety, and fast startup performance.
 
 ---
 
@@ -35,7 +35,7 @@ Network operations are channeled through a single modular request wrapper ([apiC
 - **Response Interceptor:** Detects `401 Unauthorized` server response statuses (session timeouts) and triggers a centralized callback to clear browser storage keys and redirect users back to the auth page automatically.
 
 ### 3. Outbound Link Privacy Protection
-To guarantee browser privacy and protect internal dashboard paths from referral leakages, all outbound hyperlinks pointing to Reddit submissions or external websites are strictly declared with:
+To guarantee browser privacy and protect internal dashboard paths from referral leakages, all outbound hyperlinks pointing to external platform submissions or websites are strictly declared with:
 - `rel="noreferrer"` and `target="_blank"`
 This instructs client browsers to completely strip out HTTP `Referer` request headers when routing users to third-party endpoints.
 
@@ -44,10 +44,10 @@ This instructs client browsers to completely strip out HTTP `Referer` request he
 ## 📋 Features
 
 ### Standard Client Portal
-- **Available Tasks Panel:** View all active client requests, filter list indices, and request details.
+- **Available Tasks Panel:** View all active client requests across Reddit and ProductHunt, filter by platform, and request details.
 - **Task Booking workflow:** Book standard or private tasks. Booking a task initiates an active live countdown.
 - **UseCountdown Hook (`useCountdown.ts`):** Evaluates a live `HH:MM:SS` ticking countdown based on a **60-hour** task expiration timeframe.
-- **Proof Submission:** Submit Reddit reply comment URLs and optional verification notes for booked tasks.
+- **Proof Submission:** Submit platform-specific URLs (Reddit reply comments or ProductHunt posts) and optional verification notes for booked tasks.
 - **Booking Cancellation:** Cancel an active booking before submission.
 - **History & Earnings Dashboard:** View detailed listings of current bookings, aggregate balances (Pending vs. Paid), and status updates.
 
@@ -56,13 +56,15 @@ This instructs client browsers to completely strip out HTTP `Referer` request he
 - **User Management (CRUD):**
   - Create new portal users (specifying Reddit handles, email IDs, initial passwords, and roles).
   - Update user profiles (PayPal addresses, Reddit profile tags, emails).
+  - Manage multiple ProductHunt accounts per user (username, headline, bio).
   - Modify user credentials (password resets).
   - Permanent account deletion controls.
 - **Task Management (CRUD):**
-  - Add new client campaigns (URLs, subreddit constraints, pricing tiers, quotas, dead-times, and types).
-  - Edit or update task details.
+  - Add new client campaigns for Reddit or ProductHunt (URLs, subreddit constraints for Reddit, pricing tiers, quotas, dead-times).
+  - Edit or update task details with platform selector.
   - Custom target assignment (bind specific tasks to specific users or leave public).
   - Delete expired campaigns.
+  - Bulk import with platform column support.
 - **Submissions Review Grid:** A central grid layout displaying proof submissions awaiting action. Admins can approve or reject (specifying review feedback notes).
 - **Payout Management:** System log recorder to settle a user's pending balance once payment has been processed.
 

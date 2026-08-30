@@ -38,7 +38,7 @@ export default function LoginPage({ isAdminRoute, onLogin, onSwitchRoute, onForg
       <div className="glass-panel login-card">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>
-            {isAdminRoute ? 'Admin Portal' : 'Reddit Tasks CRM'}
+            {isAdminRoute ? 'Admin Portal' : 'Tasks CRM'}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
             {isAdminRoute ? 'Admin & Choi Login' : 'Login to view available tasks'}

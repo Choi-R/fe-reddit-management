@@ -37,7 +37,7 @@ export default function ActiveBookingCard({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyUrl) {
-      setFormError('Please enter your submitted Reddit URL (post or reply).');
+      setFormError('Please enter your submitted URL (post or reply).');
       return;
     }
 
@@ -57,21 +57,29 @@ export default function ActiveBookingCard({
 
     const host = parsedUrl.hostname.toLowerCase();
     const isRedditHost = host === 'reddit.com' || host.endsWith('.reddit.com') || host === 'redd.it';
-    if (!isRedditHost) {
+    const isPhHost = host === 'www.producthunt.com' || host === 'producthunt.com';
+    const isProductHuntTask = booking.platform === 'PRODUCTHUNT';
+
+    if (isProductHuntTask && !isPhHost) {
+      setFormError('The URL must be a valid ProductHunt domain (e.g. www.producthunt.com).');
+      return;
+    }
+    if (!isProductHuntTask && !isRedditHost) {
       setFormError('The URL must be a valid Reddit domain (e.g. reddit.com, old.reddit.com).');
       return;
     }
 
-    // 2. Client-side Subreddit match validation
-    if (booking.subreddit) {
+    // 2. Client-side Subreddit match validation (only for REDDIT tasks)
+    const targetSubreddit = booking.target_subreddit || booking.subreddit;
+    if (!isProductHuntTask && targetSubreddit) {
       const pathParts = parsedUrl.pathname.split('/');
       const rIdx = pathParts.findIndex((part) => part.toLowerCase() === 'r');
       if (
         rIdx === -1 ||
         !pathParts[rIdx + 1] ||
-        pathParts[rIdx + 1].toLowerCase() !== booking.subreddit.toLowerCase()
+        pathParts[rIdx + 1].toLowerCase() !== targetSubreddit.toLowerCase()
       ) {
-        setFormError(`This task requires a post or comment link from the r/${booking.subreddit} subreddit. Please check your link.`);
+        setFormError(`This task requires a post or comment link from the r/${targetSubreddit} subreddit. Please check your link.`);
         return;
       }
     }
@@ -113,8 +121,22 @@ export default function ActiveBookingCard({
       </div>
 
       <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
-        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>
-          {booking.subreddit ? `r/${booking.subreddit}` : 'Direct Link'}
+        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+          <span
+            style={{
+              fontSize: '0.6rem',
+              fontWeight: '700',
+              textTransform: 'uppercase',
+              background: booking.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255, 107, 53, 0.15)',
+              color: booking.platform === 'PRODUCTHUNT' ? '#fbbf24' : '#ff6b35',
+              padding: '0.1rem 0.3rem',
+              borderRadius: '3px',
+              letterSpacing: '0.05em',
+            }}
+          >
+            {booking.platform || 'REDDIT'}
+          </span>
+          {(booking.target_subreddit || booking.subreddit) ? `${booking.platform === 'PRODUCTHUNT' ? '' : 'r/'}${booking.target_subreddit || booking.subreddit}` : 'Direct Link'}
         </h3>
         <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
           <strong style={{ color: 'var(--text-primary)' }}>Client Request: </strong>
@@ -123,7 +145,7 @@ export default function ActiveBookingCard({
 
         {booking.url && (
           <div style={{ marginBottom: '1rem' }}>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Target Reddit URL:</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Target URL:</span>
             <br />
             <a
               href={booking.url}

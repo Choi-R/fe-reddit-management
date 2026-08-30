@@ -65,6 +65,20 @@ export default function ArchivedTaskCard({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <span
               style={{
+                fontSize: '0.65rem',
+                fontWeight: '700',
+                textTransform: 'uppercase',
+                background: task.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255, 107, 53, 0.15)',
+                color: task.platform === 'PRODUCTHUNT' ? '#fbbf24' : '#ff6b35',
+                padding: '0.1rem 0.35rem',
+                borderRadius: '4px',
+                letterSpacing: '0.05em',
+              }}
+            >
+              {task.platform || 'REDDIT'}
+            </span>
+            <span
+              style={{
                 backgroundColor: 'rgba(255,255,255,0.08)',
                 padding: '0.2rem 0.6rem',
                 borderRadius: '6px',
@@ -73,7 +87,7 @@ export default function ArchivedTaskCard({
                 color: 'var(--color-primary)',
               }}
             >
-              r/{task.subreddit || 'general'}
+              {(task.target_subreddit || task.subreddit) ? `${task.platform === 'PRODUCTHUNT' ? '' : 'r/'}${task.target_subreddit || task.subreddit}` : 'Direct Link'}
             </span>
 
             {/* Reason Badge */}

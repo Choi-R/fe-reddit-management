@@ -19,7 +19,7 @@ export default function TaskHistoryTable({ history }: TaskHistoryTableProps) {
       <table>
         <thead>
           <tr>
-            <th>Subreddit</th>
+            <th>Platform & Target</th>
             <th>Min Rank</th>
             <th>Price</th>
             <th>Date Completed</th>
@@ -29,8 +29,22 @@ export default function TaskHistoryTable({ history }: TaskHistoryTableProps) {
         <tbody>
           {history.map((row) => (
             <tr key={row.booking_id}>
-              <td style={{ fontWeight: 'bold' }}>
-                {row.subreddit ? `r/${row.subreddit}` : 'Direct Link'}
+              <td style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                <span
+                  style={{
+                    fontSize: '0.6rem',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    background: row.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255, 107, 53, 0.15)',
+                    color: row.platform === 'PRODUCTHUNT' ? '#fbbf24' : '#ff6b35',
+                    padding: '0.1rem 0.3rem',
+                    borderRadius: '3px',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  {row.platform || 'REDDIT'}
+                </span>
+                {(row.target_subreddit || row.subreddit) ? `${row.platform === 'PRODUCTHUNT' ? '' : 'r/'}${row.target_subreddit || row.subreddit}` : 'Direct Link'}
               </td>
               <td>{row.min_rank_name || 'All'}</td>
               <td style={{ color: 'var(--color-success)', fontWeight: '600' }}>

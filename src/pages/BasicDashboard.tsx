@@ -218,7 +218,7 @@ export default function BasicDashboard() {
               paddingBottom: '0.75rem',
             }}
           >
-            Reddit Promotion Guidelines
+            Platform Promotion Guidelines
           </h2>
           <Guidelines />
         </div>

@@ -53,8 +53,8 @@ export default function TaskBulkImportForm({
     const csvContent =
       'data:text/csv;charset=utf-8,' +
       encodeURIComponent(
-        'Target Reddit URL / Subreddit Link,Client Request,Deadline,Price\n' +
-          'https://www.reddit.com/r/pics/comments/example_post,Please upvote this post and write a positive comment,2026-08-01,5.00'
+        'Platform,Target Reddit URL / Subreddit Link,Client Request,Deadline,Price\n' +
+          'REDDIT,https://www.reddit.com/r/pics/comments/example_post,Please upvote this post and write a positive comment,2026-08-01,5.00'
       );
     const link = document.createElement('a');
     link.href = csvContent;
@@ -81,6 +81,7 @@ export default function TaskBulkImportForm({
 
     try {
       const tasksData = bulkTasks.map((t) => ({
+        platform: t.platform || 'REDDIT',
         url: t.url,
         clientRequest: t.clientRequest,
         price: t.price,

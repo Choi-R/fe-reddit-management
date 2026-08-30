@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { BasicUserSummary } from '../../types';
+import type { BasicUserSummary, ProductHuntAccount } from '../../types';
 import { adminService } from '../../services/adminService';
 
 interface UserFormProps {
@@ -31,6 +31,13 @@ export default function UserForm({
   const [newPaymentType, setNewPaymentType] = useState<'paypal' | 'bank' | 'crypto'>('paypal');
   const [newPaymentFields, setNewPaymentFields] = useState<any>({});
 
+  // ProductHunt account state
+  const [phAccounts, setPhAccounts] = useState<ProductHuntAccount[]>([]);
+  const [newPhUsername, setNewPhUsername] = useState('');
+  const [newPhHeadline, setNewPhHeadline] = useState('');
+  const [newPhBio, setNewPhBio] = useState('');
+  const [editingPhId, setEditingPhId] = useState<string | null>(null);
+
   useEffect(() => {
     if (editingUser) {
       setNewEmail(editingUser.email);
@@ -40,6 +47,12 @@ export default function UserForm({
       setNewNickname(editingUser.nickname || '');
       setNewRankId(editingUser.rankId || 'D');
       setNewPassword('');
+      // Load PH accounts for existing user
+      if (editingUser.id) {
+        adminService.getProductHuntAccounts(editingUser.id).then((res) => {
+          setPhAccounts(res.accounts || []);
+        }).catch(() => setPhAccounts([]));
+      }
     } else {
       setNewEmail('');
       setPaymentInfo([]);
@@ -47,8 +60,70 @@ export default function UserForm({
       setNewNickname('');
       setNewRankId('D');
       setNewPassword('');
+      setPhAccounts([]);
     }
   }, [editingUser]);
+
+  const handleAddPhAccount = async () => {
+    if (!newPhUsername.trim() || !editingUser?.id) return;
+    setIsLoading(true);
+    try {
+      const res = await adminService.createProductHuntAccount(editingUser.id, {
+        username: newPhUsername.trim(),
+        headline: newPhHeadline.trim() || null,
+        bio: newPhBio.trim() || null,
+      });
+      setPhAccounts((prev) => [...prev, res.account]);
+      setNewPhUsername('');
+      setNewPhHeadline('');
+      setNewPhBio('');
+      setSuccessMsg('ProductHunt account added!');
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to add PH account.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdatePhAccount = async (phId: string) => {
+    if (!editingUser?.id) return;
+    setIsLoading(true);
+    try {
+      const res = await adminService.updateProductHuntAccount(editingUser.id, phId, {
+        username: newPhUsername.trim(),
+        headline: newPhHeadline.trim() || null,
+        bio: newPhBio.trim() || null,
+      });
+      setPhAccounts((prev) => prev.map((a) => a.id === phId ? res.account : a));
+      setEditingPhId(null);
+      setNewPhUsername('');
+      setNewPhHeadline('');
+      setNewPhBio('');
+      setSuccessMsg('ProductHunt account updated!');
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to update PH account.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeletePhAccount = async (phId: string) => {
+    if (!editingUser?.id) return;
+    try {
+      await adminService.deleteProductHuntAccount(editingUser.id, phId);
+      setPhAccounts((prev) => prev.filter((a) => a.id !== phId));
+      setSuccessMsg('ProductHunt account deleted.');
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to delete PH account.');
+    }
+  };
+
+  const startEditPh = (account: ProductHuntAccount) => {
+    setEditingPhId(account.id);
+    setNewPhUsername(account.username);
+    setNewPhHeadline(account.headline || '');
+    setNewPhBio(account.bio || '');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -300,6 +375,89 @@ export default function UserForm({
           required={!editingUser}
         />
       </div>
+
+      {/* ProductHunt Accounts Section */}
+      {editingUser && (
+        <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+          <label style={{ fontSize: '0.95rem', fontWeight: 600 }}>ProductHunt Accounts</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+            {phAccounts.length === 0 ? (
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>No ProductHunt accounts added.</div>
+            ) : (
+              phAccounts.map((ph) => (
+                <div key={ph.id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, fontSize: '0.9rem' }}>
+                    <a
+                      href={`https://www.producthunt.com/@${ph.username}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}
+                    >
+                      @{ph.username}
+                    </a>
+                    {ph.headline && (
+                      <span style={{ color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>— {ph.headline}</span>
+                    )}
+                  </div>
+                  {editingPhId === ph.id ? (
+                    <>
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="Username"
+                        value={newPhUsername}
+                        onChange={(e) => setNewPhUsername(e.target.value)}
+                        style={{ width: '140px' }}
+                      />
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="Headline"
+                        value={newPhHeadline}
+                        onChange={(e) => setNewPhHeadline(e.target.value)}
+                        style={{ width: '200px' }}
+                      />
+                      <button type="button" className="btn btn-primary" onClick={() => handleUpdatePhAccount(ph.id)} style={{ padding: '0.35rem 0.75rem' }}>Save</button>
+                      <button type="button" className="btn btn-ghost" onClick={() => { setEditingPhId(null); setNewPhUsername(''); setNewPhHeadline(''); setNewPhBio(''); }} style={{ padding: '0.35rem 0.75rem' }}>Cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" className="btn btn-secondary" onClick={() => startEditPh(ph)} style={{ padding: '0.35rem 0.75rem' }}>Edit</button>
+                      <button type="button" className="btn btn-danger" onClick={() => handleDeletePhAccount(ph.id)} style={{ padding: '0.35rem 0.75rem' }}>Delete</button>
+                    </>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="PH Username"
+              value={newPhUsername}
+              onChange={(e) => setNewPhUsername(e.target.value)}
+              style={{ width: '140px' }}
+            />
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Headline (optional)"
+              value={newPhHeadline}
+              onChange={(e) => setNewPhHeadline(e.target.value)}
+              style={{ width: '200px' }}
+            />
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleAddPhAccount}
+              disabled={isLoading || !newPhUsername.trim()}
+            >
+              Add Account
+            </button>
+          </div>
+        </div>
+      )}
 
       {editingUser ? (
         <div style={{ display: 'flex', gap: '1rem' }}>

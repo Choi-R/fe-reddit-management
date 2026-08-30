@@ -36,6 +36,9 @@ export default function TaskSingleForm({
   const [newTaskDeadline, setNewTaskDeadline] = useState(
     editingTask?.deadline ? editingTask.deadline.substring(0, 10) : ''
   );
+  const [newTaskPlatform, setNewTaskPlatform] = useState<'REDDIT' | 'PRODUCTHUNT'>(
+    (editingTask?.platform as 'REDDIT' | 'PRODUCTHUNT') || 'REDDIT'
+  );
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,7 +62,7 @@ export default function TaskSingleForm({
     try {
       new URL(newTaskUrl);
     } catch {
-      setErrorMsg('Please enter a valid target Reddit URL or subreddit link.');
+      setErrorMsg('Please enter a valid target URL (Reddit or ProductHunt).');
       return;
     }
 
@@ -69,6 +72,7 @@ export default function TaskSingleForm({
     try {
       if (editingTask) {
         await adminService.updateTask(editingTask.id, {
+          platform: newTaskPlatform,
           url: newTaskUrl,
           clientRequest: newTaskClientRequest,
           quota: newTaskQuota,
@@ -82,6 +86,7 @@ export default function TaskSingleForm({
         onCancelEdit();
       } else {
         await adminService.createTask({
+          platform: newTaskPlatform,
           url: newTaskUrl,
           clientRequest: newTaskClientRequest,
           quota: newTaskQuota,
@@ -143,12 +148,26 @@ export default function TaskSingleForm({
   return (
     <form onSubmit={handleSubmit}>
       <div className="form-group">
-        <label htmlFor="taskUrl">Target Reddit URL / Subreddit Link*</label>
+        <label htmlFor="taskPlatform">Platform*</label>
+        <select
+          id="taskPlatform"
+          className="form-input"
+          value={newTaskPlatform}
+          onChange={(e) => setNewTaskPlatform(e.target.value as 'REDDIT' | 'PRODUCTHUNT')}
+        >
+          <option value="REDDIT">Reddit</option>
+          <option value="PRODUCTHUNT">ProductHunt</option>
+        </select>
+      </div>
+      <div className="form-group">
+        <label htmlFor="taskUrl">{newTaskPlatform === 'REDDIT' ? 'Target Reddit URL / Subreddit Link*' : 'Target ProductHunt URL*'}</label>
         <input
           id="taskUrl"
           type="url"
           className="form-input"
-          placeholder="https://www.reddit.com/r/... (post, comment, or subreddit link)"
+          placeholder={newTaskPlatform === 'REDDIT'
+            ? 'https://www.reddit.com/r/... (post, comment, or subreddit link)'
+            : 'https://www.producthunt.com/...'}
           value={newTaskUrl}
           onChange={(e) => setNewTaskUrl(e.target.value)}
           required

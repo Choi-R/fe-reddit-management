@@ -2,8 +2,12 @@ import type { Task, Booking, ActiveBooking, TaskHistoryResponse, CooldownInfo } 
 import { authenticatedRequest, buildHistoryQuery } from './apiClient';
 
 export const taskService = {
-  getAvailable: (): Promise<{ available: Task[]; active: ActiveBooking[]; cooldown?: CooldownInfo }> =>
-    authenticatedRequest('/api/tasks/available'),
+  getAvailable: (params?: { platform?: 'REDDIT' | 'PRODUCTHUNT' }): Promise<{ available: Task[]; active: ActiveBooking[]; cooldown?: CooldownInfo }> => {
+    const query = new URLSearchParams();
+    if (params?.platform) query.set('platform', params.platform);
+    const queryString = query.toString();
+    return authenticatedRequest(`/api/tasks/available${queryString ? `?${queryString}` : ''}`);
+  },
 
   getTaskHistory: (params?: { statuses?: string[]; search?: string }): Promise<TaskHistoryResponse> =>
     authenticatedRequest(`/api/tasks/history${buildHistoryQuery(params)}`),

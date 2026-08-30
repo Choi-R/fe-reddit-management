@@ -59,9 +59,9 @@ export default function PendingReviewsTab({
 
   const presetApprovalNotes = ['Verified & Approved', 'Great submission!'];
   const presetRejectionNotes = [
-    'Invalid/Broken Reddit link',
+    'Invalid/Broken URL',
     'Comment removed by auto-mod',
-    'Wrong subreddit used',
+    'Wrong platform link',
     'Guidelines not followed',
   ];
 
@@ -120,7 +120,7 @@ export default function PendingReviewsTab({
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <span style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>
-                      r/{sub.subreddit}
+                      {(sub.platform === 'REDDIT' && sub.subreddit) ? `r/${sub.subreddit}` : (sub.platform || 'REDDIT')}
                     </span>
                     <br />
                     <span style={{ color: 'var(--color-success)', fontWeight: '600' }}>

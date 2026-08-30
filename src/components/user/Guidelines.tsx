@@ -17,10 +17,10 @@ export default function Guidelines() {
         <div style={{ color: 'var(--color-danger)', fontSize: '2.25rem', lineHeight: '1', marginTop: '0.1rem' }}>⚠️</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
           <h4 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, letterSpacing: '0.01em' }}>
-            CRITICAL WARNING: Account Ban Risk
+            CRITICAL WARNING: Account Risk
           </h4>
           <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0 }}>
-            Doing this task can put your Reddit accounts at a risk of being permanently banned. Account bans harm both your earning potential and our campaign operations, and it is a setback that none of us want. <strong>These guidelines exist specifically to keep your accounts safe and active while ensuring task eligibility.</strong>
+            Performing tasks on external platforms can put your accounts at risk of being flagged or banned. Account bans harm both your earning potential and our campaign operations, and it is a setback that none of us want. <strong>These guidelines exist specifically to keep your accounts safe and active while ensuring task eligibility.</strong>
           </p>
         </div>
       </div>
@@ -52,7 +52,7 @@ export default function Guidelines() {
               <strong style={{ color: 'var(--text-primary)' }}>Fulfill Client Request:</strong> Ensure you insert the client's URL or brand name.
             </li>
             <li>
-              <strong style={{ color: 'var(--text-primary)' }}>Thread Status:</strong> The target Reddit post must not be deleted nor archived.
+              <strong style={{ color: 'var(--text-primary)' }}>Thread Status:</strong> The target post must not be deleted nor archived.
             </li>
           </ul>
         </div>
@@ -96,13 +96,13 @@ export default function Guidelines() {
           </h4>
           <ul style={{ fontSize: '0.98rem', color: 'var(--text-secondary)', paddingLeft: '1.25rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.65rem', lineHeight: '1.5' }}>
             <li>
-              <strong style={{ color: 'var(--text-primary)' }}>Maintain Account Health:</strong> Keep your Reddit account active and natural. Increase your karma and non-promotional activity organically to prevent your account from looking like a bot/ad account.
+              <strong style={{ color: 'var(--text-primary)' }}>Maintain Account Health:</strong> Keep your platform account active and natural. Increase your karma and non-promotional activity organically to prevent your account from looking like a bot/ad account.
             </li>
             <li>
               <strong style={{ color: 'var(--text-primary)' }}>Pacing tasks:</strong> Avoid doing too many tasks in a short timeframe. Spread them out (e.g. 1 task every 1 or 2 days).
             </li>
             <li>
-              <strong style={{ color: 'var(--text-primary)' }}>Subreddit Rules:</strong> You must read each subreddit's rules before participating. Make promotions extremely natural in link-restricted communities.
+              <strong style={{ color: 'var(--text-primary)' }}>Platform Rules:</strong> You must read each subreddit/community's rules before participating. Make promotions extremely natural in link-restricted communities.
             </li>
             <li>
               <strong style={{ color: 'var(--text-primary)' }}>Reporting Issues:</strong> If a target post is deleted or archived, report it to the admin.
@@ -139,7 +139,7 @@ export default function Guidelines() {
           </div>
 
           <div style={{ backgroundColor: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.15)', borderRadius: '8px', padding: '0.85rem', fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-            🔥 <strong>Subreddit Warmup:</strong> Warm up your account in the target subreddit first. Participate in other regular comments or posts within that subreddit before executing the promotion task to avoid immediate automod or moderator flags.
+            🔥 <strong>Community Warmup:</strong> Warm up your account in the target community first. Participate in other regular comments or posts within that community before executing the promotion task to avoid immediate automod or moderator flags.
           </div>
 
           <div style={{ backgroundColor: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.15)', borderRadius: '8px', padding: '0.85rem', fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: '1.5', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
