@@ -18,7 +18,8 @@ export default function BasicDashboard() {
   // Onboarding guidelines states
   const { user } = useAuth();
   const isAdmin = user?.roles.includes('admin') || user?.roles.includes('choi') || false;
-  const bookingLimit = isAdmin ? 99 : 1;
+  const rankId = user?.account_rank?.id ?? user?.rank_id;
+  const bookingLimit = isAdmin ? 99 : rankId === 'S' ? 3 : rankId === 'A' ? 2 : 1;
 
   const [showOnboarding, setShowOnboarding] = useState(false);
 
