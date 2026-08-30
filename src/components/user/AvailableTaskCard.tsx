@@ -70,7 +70,7 @@ export default function AvailableTaskCard({
           >
             {task.platform || 'REDDIT'}
           </span>
-          {(task.target_subreddit || task.subreddit) ? `${task.platform === 'PRODUCTHUNT' ? '' : 'r/'}${task.target_subreddit || task.subreddit}` : 'Direct Link'}
+          {(task.target_subreddit || task.subreddit) ? `${task.platform === 'PRODUCTHUNT' ? '' : 'r/'}${task.target_subreddit || task.subreddit}` : ''}
 
           {/* Rank Requirement Badge */}
           <span

@@ -87,7 +87,7 @@ export default function ArchivedTaskCard({
                 color: 'var(--color-primary)',
               }}
             >
-              {(task.target_subreddit || task.subreddit) ? `${task.platform === 'PRODUCTHUNT' ? '' : 'r/'}${task.target_subreddit || task.subreddit}` : 'Direct Link'}
+              {(task.target_subreddit || task.subreddit) ? `${task.platform === 'PRODUCTHUNT' ? '' : 'r/'}${task.target_subreddit || task.subreddit}` : ''}
             </span>
 
             {/* Reason Badge */}

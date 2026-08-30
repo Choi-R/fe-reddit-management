@@ -390,7 +390,7 @@ export default function TaskingHistoryTab({
                         >
                           {item.platform || 'REDDIT'}
                         </span>
-                        {(item.target_subreddit || item.subreddit) ? `${item.platform === 'PRODUCTHUNT' ? '' : 'r/'}${item.target_subreddit || item.subreddit}` : 'Direct Link'}
+                        {(item.target_subreddit || item.subreddit) ? `${item.platform === 'PRODUCTHUNT' ? '' : 'r/'}${item.target_subreddit || item.subreddit}` : ''}
                         <span style={{ marginLeft: '0.5rem', color: 'var(--color-success)', fontWeight: '600' }}>
                           ${parseFloat(item.price).toFixed(2)}
                         </span>

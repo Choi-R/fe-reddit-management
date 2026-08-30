@@ -136,7 +136,7 @@ export default function ActiveBookingCard({
           >
             {booking.platform || 'REDDIT'}
           </span>
-          {(booking.target_subreddit || booking.subreddit) ? `${booking.platform === 'PRODUCTHUNT' ? '' : 'r/'}${booking.target_subreddit || booking.subreddit}` : 'Direct Link'}
+          {(booking.target_subreddit || booking.subreddit) ? `${booking.platform === 'PRODUCTHUNT' ? '' : 'r/'}${booking.target_subreddit || booking.subreddit}` : ''}
         </h3>
         <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
           <strong style={{ color: 'var(--text-primary)' }}>Client Request: </strong>

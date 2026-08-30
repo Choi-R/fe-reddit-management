@@ -46,7 +46,7 @@ export default function AdminTaskCard({
           >
             {task.platform || 'REDDIT'}
           </span>
-          {(task.target_subreddit || task.subreddit) ? `${task.platform === 'PRODUCTHUNT' ? '' : 'r/'}${task.target_subreddit || task.subreddit}` : 'Direct Link'}
+          {(task.target_subreddit || task.subreddit) ? `${task.platform === 'PRODUCTHUNT' ? '' : 'r/'}${task.target_subreddit || task.subreddit}` : ''}
           <span
             style={{
               fontSize: '0.7rem',

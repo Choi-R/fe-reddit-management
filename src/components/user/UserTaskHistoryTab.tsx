@@ -346,7 +346,7 @@ export default function UserTaskHistoryTab() {
                       >
                         {item.platform || 'REDDIT'}
                       </span>
-                      {(item.target_subreddit || item.subreddit) ? `${item.platform === 'PRODUCTHUNT' ? '' : 'r/'}${item.target_subreddit || item.subreddit}` : 'Direct Link'}
+                      {(item.target_subreddit || item.subreddit) ? `${item.platform === 'PRODUCTHUNT' ? '' : 'r/'}${item.target_subreddit || item.subreddit}` : ''}
                     </div>
                     {item.task_url && (
                       <a

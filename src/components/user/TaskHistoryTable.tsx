@@ -44,7 +44,7 @@ export default function TaskHistoryTable({ history }: TaskHistoryTableProps) {
                 >
                   {row.platform || 'REDDIT'}
                 </span>
-                {(row.target_subreddit || row.subreddit) ? `${row.platform === 'PRODUCTHUNT' ? '' : 'r/'}${row.target_subreddit || row.subreddit}` : 'Direct Link'}
+                {(row.target_subreddit || row.subreddit) ? `${row.platform === 'PRODUCTHUNT' ? '' : 'r/'}${row.target_subreddit || row.subreddit}` : ''}
               </td>
               <td>{row.min_rank_name || 'All'}</td>
               <td style={{ color: 'var(--color-success)', fontWeight: '600' }}>
