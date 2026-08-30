@@ -179,7 +179,7 @@ export default function AvailableTaskCard({
           alignItems: 'center',
           gap: '0.35rem'
         }}>
-          ⏱️ <span>Booking disabled during <strong>2-day post-submission cooldown</strong>.</span>
+          ⏱️ <span>Booking disabled during <strong>1-day post-submission cooldown</strong>.</span>
         </div>
       )}
 
@@ -213,7 +213,7 @@ export default function AvailableTaskCard({
                 : isRankInsufficient
                 ? `Requires ${task.min_rank_name || 'higher rank'}`
                 : isCooldownActive
-                ? (cooldown?.reason || '2-day post-submission cooldown in effect')
+                ? (cooldown?.reason || '1-day post-submission cooldown in effect')
                 : undefined
             }
           >

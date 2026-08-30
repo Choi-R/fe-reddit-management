@@ -129,10 +129,10 @@ export default function UserTasksTab({
             }}
           >
             <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              ⏱️ 2-Day Cooldown Period Active
+              ⏱️ 1-Day Cooldown Period Active
             </div>
             <div>
-              You recently submitted proof for a task. To protect accounts from excessive activity, a <strong>2-day cooldown</strong> is required between task submissions.
+              You recently submitted proof for a task. To protect accounts from excessive activity, a <strong>1-day cooldown</strong> is required between task submissions.
             </div>
             {cooldown?.cooldownUntil && (
               <div style={{ fontSize: '0.8rem', opacity: 0.95, marginTop: '0.15rem' }}>
