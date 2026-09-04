@@ -1,17 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { adminService } from '../services/adminService';
 import AlertBanner from '../components/common/AlertBanner';
-import type { Task, BasicUserSummary, UserDetailStats, PendingSubmission } from '../types';
+import type { Task, BasicUserSummary, UserDetailStats } from '../types';
 import TasksTab from '../components/admin/TasksTab';
 import ArchivedTasksTab from '../components/admin/ArchivedTasksTab';
-import PendingReviewsTab from '../components/admin/PendingReviewsTab';
 import TaskingHistoryTab from '../components/admin/TaskingHistoryTab';
 import PayoutsTab from '../components/admin/PayoutsTab';
 import UserManagementTab from '../components/admin/UserManagementTab';
 import UserStatsModal from '../components/admin/UserStatsModal';
 
 export default function AdminDashboard() {
-  const [adminTab, setAdminTab] = useState<'tasks' | 'archived' | 'completed' | 'deleted' | 'reviews' | 'history' | 'payouts' | 'users'>('tasks');
+  const [adminTab, setAdminTab] = useState<'tasks' | 'archived' | 'completed' | 'deleted' | 'history' | 'payouts' | 'users'>('tasks');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -22,7 +21,6 @@ export default function AdminDashboard() {
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
   const [deletedTasks, setDeletedTasks] = useState<Task[]>([]);
   const [adminUsers, setAdminUsers] = useState<BasicUserSummary[]>([]);
-  const [pendingSubmissions, setPendingSubmissions] = useState<PendingSubmission[]>([]);
 
   // Pagination states
   const [tasksPage, setTasksPage] = useState(1);
@@ -61,9 +59,6 @@ export default function AdminDashboard() {
       } else if (adminTab === 'users' || adminTab === 'payouts') {
         const data = await adminService.getUsers();
         setAdminUsers(data.users || []);
-      } else if (adminTab === 'reviews') {
-        const data = await adminService.getPendingReviews();
-        setPendingSubmissions(data.bookings || []);
       }
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to fetch dashboard data.');
@@ -151,12 +146,6 @@ export default function AdminDashboard() {
             Deleted ({deletedTasks.length})
           </button>
           <button
-            onClick={() => setAdminTab('reviews')}
-            className={`tab-button ${adminTab === 'reviews' ? 'active' : ''}`}
-          >
-            Pending Reviews ({pendingSubmissions.length})
-          </button>
-          <button
             onClick={() => setAdminTab('history')}
             className={`tab-button ${adminTab === 'history' ? 'active' : ''}`}
           >
@@ -240,19 +229,7 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* Tab 5: Reviews */}
-      {adminTab === 'reviews' && (
-        <PendingReviewsTab
-          pendingSubmissions={pendingSubmissions}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-          setErrorMsg={setErrorMsg}
-          setSuccessMsg={setSuccessMsg}
-          onRefreshData={loadTabData}
-        />
-      )}
-
-      {/* Tab 6: Tasking History */}
+      {/* Tab 5: Tasking History */}
       {adminTab === 'history' && (
         <TaskingHistoryTab
           isLoading={isLoading}

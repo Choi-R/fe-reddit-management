@@ -1,4 +1,4 @@
-import type { User, Task, BasicUserSummary, UserDetailStats, PendingSubmission, TaskHistoryResponse, ProductHuntAccount } from '../types';
+import type { User, Task, BasicUserSummary, UserDetailStats, TaskHistoryResponse, ProductHuntAccount } from '../types';
 import { authenticatedRequest, buildHistoryQuery } from './apiClient';
 
 export const adminService = {
@@ -148,9 +148,6 @@ export const adminService = {
       method: 'POST',
       body: JSON.stringify({ bookingId, statusId, note: adminNote, adminNote }),
     }),
-
-  getPendingReviews: (): Promise<{ success: boolean; bookings: PendingSubmission[] }> =>
-    authenticatedRequest('/api/admin/reviews/pending'),
 
   recordPayout: (userId: string): Promise<{ success: boolean; message: string; count: number }> =>
     authenticatedRequest('/api/admin/payouts', {
