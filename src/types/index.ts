@@ -177,22 +177,6 @@ export interface PaymentInfoEntry {
   account_details: { [key: string]: any };
 }
 
-export interface PendingSubmission {
-  booking_id: string;
-  status_id: string;
-  reply_url: string | null;
-  note: string | null;
-  created_at: string;
-  updated_at: string;
-  user_email: string;
-  user_reddit: string;
-  task_id: string;
-  platform?: Platform;
-  target_subreddit?: string | null;
-  subreddit?: string; // legacy alias for target_subreddit
-  price: string;
-}
-
 export interface TaskHistoryEntry {
   booking_id: string;
   status_id: string;
