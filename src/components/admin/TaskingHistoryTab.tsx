@@ -524,6 +524,7 @@ export default function TaskingHistoryTab({
                                 <button
                                   className="btn btn-success"
                                   style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                                  disabled={isLoading}
                                   onClick={() => handleReview(item.booking_id, 'success')}
                                 >
                                   Approve
@@ -531,6 +532,7 @@ export default function TaskingHistoryTab({
                                 <button
                                   className="btn btn-danger"
                                   style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                                  disabled={isLoading}
                                   onClick={() => handleReview(item.booking_id, 'failed')}
                                 >
                                   Reject
