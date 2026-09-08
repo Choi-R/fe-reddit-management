@@ -79,7 +79,7 @@ export default function UserTaskHistoryTab() {
   const handleCompletedAndPaid = () => setSelectedStatuses(['success', 'paid']);
   const handleFailedOnly = () => setSelectedStatuses(['failed']);
 
-  // ponytail: client-side slicing ceiling is ~1,000 records. Upgrade path: add page/limit params to taskService.getTaskHistory backend query when table size exceeds ceiling.
+  // ponytail: client-side slicing is intended for the current history size (~100 records). Upgrade path: add page/limit params to taskService.getTaskHistory backend query when the table grows substantially.
   const filteredByPlatform = platformFilter === 'ALL'
     ? history
     : history.filter((h) => h.platform === platformFilter);
