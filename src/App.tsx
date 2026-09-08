@@ -10,7 +10,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import { AuthProvider } from './contexts/AuthContext';
 
 function AppContent() {
-  const { user, login, logout, isAuthenticated, isAdmin, isChoi } = useAuth();
+  const { user, login, logout, isAuthenticated, isInitializing, isAdmin, isChoi } = useAuth();
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   // Catch browser back/forward navigation
@@ -76,6 +76,10 @@ function AppContent() {
         <Footer />
       </div>
     );
+  }
+
+  if (isInitializing) {
+    return null;
   }
 
   if (!isAuthenticated) {

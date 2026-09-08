@@ -7,6 +7,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<User>;
   logout: () => void;
   isAuthenticated: boolean;
+  isInitializing: boolean;
   isAdmin: boolean;
   isChoi: boolean;
 }

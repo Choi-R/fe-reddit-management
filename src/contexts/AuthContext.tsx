@@ -9,6 +9,7 @@ export type { AuthContextType };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('crm_token'));
+  const [isInitializing, setIsInitializing] = useState(!!localStorage.getItem('crm_token'));
   const [user, setUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('crm_user');
     if (saved) {
@@ -35,6 +36,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, [logout]);
 
+  useEffect(() => {
+    if (!token) {
+      setIsInitializing(false);
+      return;
+    }
+
+    authService
+      .getSession()
+      .then(({ user: sessionUser }) => {
+        setUser((cachedUser) => (cachedUser ? { ...cachedUser, ...sessionUser } : (sessionUser as User)));
+      })
+      .catch(() => {
+        logout();
+      })
+      .finally(() => {
+        setIsInitializing(false);
+      });
+  }, [token, logout]);
+
   const login = useCallback(async (email: string, password: string) => {
     const result = await authService.login(email, password);
     localStorage.setItem('crm_token', result.token);
@@ -56,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         isAuthenticated,
+        isInitializing,
         isAdmin,
         isChoi,
       }}
