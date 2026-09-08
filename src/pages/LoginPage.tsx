@@ -2,13 +2,11 @@ import { useState } from 'react';
 import AlertBanner from '../components/common/AlertBanner';
 
 interface LoginPageProps {
-  isAdminRoute: boolean;
   onLogin: (email: string, password: string) => Promise<void>;
-  onSwitchRoute: () => void;
   onForgotPassword: () => void;
 }
 
-export default function LoginPage({ isAdminRoute, onLogin, onSwitchRoute, onForgotPassword }: LoginPageProps) {
+export default function LoginPage({ onLogin, onForgotPassword }: LoginPageProps) {
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -38,10 +36,10 @@ export default function LoginPage({ isAdminRoute, onLogin, onSwitchRoute, onForg
       <div className="glass-panel login-card">
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>
-            {isAdminRoute ? 'Admin Portal' : 'Tasks CRM'}
+            Tasks CRM
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            {isAdminRoute ? 'Admin & Choi Login' : 'Login to view available tasks'}
+            Login to view available tasks
           </p>
         </div>
 
@@ -94,20 +92,6 @@ export default function LoginPage({ isAdminRoute, onLogin, onSwitchRoute, onForg
           </button>
         </form>
 
-        {isAdminRoute && (
-          <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-            <a
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                onSwitchRoute();
-              }}
-              style={{ color: 'var(--color-primary)', fontSize: '0.85rem', textDecoration: 'none' }}
-            >
-              ← Switch to User Login
-            </a>
-          </div>
-        )}
       </div>
     </div>
   );

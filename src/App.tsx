@@ -78,29 +78,17 @@ function AppContent() {
     );
   }
 
-  const isAdminRoute = currentPath.startsWith('/admin');
-
   if (!isAuthenticated) {
     return (
       <div className="app-layout container">
         <main className="app-main">
           <LoginPage
-            isAdminRoute={isAdminRoute}
             onLogin={async (email, password) => {
               const loggedInUser = await login(email, password);
               const hasAdminRights =
                 loggedInUser.roles.includes('admin') || loggedInUser.roles.includes('choi');
-
-              if (isAdminRoute && !hasAdminRights) {
-                throw new Error('Access denied: Admin credentials required.');
-              }
-              if (!isAdminRoute && hasAdminRights) {
-                throw new Error('Access denied: Please log in at the admin portal (/admin).');
-              }
-
               navigateTo(hasAdminRights ? '/admin' : '/');
             }}
-            onSwitchRoute={() => navigateTo(isAdminRoute ? '/' : '/admin')}
             onForgotPassword={() => navigateTo('/forgot-password')}
           />
         </main>
