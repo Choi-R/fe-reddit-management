@@ -473,7 +473,7 @@ export default function UserTaskHistoryTab() {
           }}
         >
           <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            Showing {((page - 1) * pageSize) + 1} - {Math.min(page * pageSize, history.length)} of {history.length} entries
+            Showing {((page - 1) * pageSize) + 1} - {Math.min(page * pageSize, filteredByPlatform.length)} of {filteredByPlatform.length} entries
           </span>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
