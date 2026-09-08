@@ -2,11 +2,13 @@ import type { User } from '../types';
 import { authenticatedRequest, publicRequest } from './apiClient';
 
 export const authService = {
-  login: (email: string, password: string): Promise<{ token: string; user: User }> =>
+  login: (email: string, password: string): Promise<{ user: User }> =>
     publicRequest('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
 
   getSession: (): Promise<{ user: Pick<User, 'id' | 'email' | 'roles' | 'rank_id' | 'account_rank'> }> =>
     authenticatedRequest('/api/auth/me'),
+
+  logout: (): Promise<{ success: boolean }> => publicRequest('/api/auth/logout', { method: 'POST' }),
 
   forgotPassword: (email: string): Promise<{ success: boolean; message: string }> =>
     publicRequest('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),

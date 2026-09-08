@@ -8,19 +8,12 @@ export function setSessionExpiredHandler(handler: () => void) {
   onSessionExpired = handler;
 }
 
-function getToken(): string | null {
-  return localStorage.getItem('crm_token');
-}
-
 async function request<T = unknown>(endpoint: string, options: RequestInit = {}, auth: boolean): Promise<T> {
-  const token = auth ? getToken() : null;
-  if (auth && !token) throw new Error('Unauthenticated');
-
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(auth ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });
