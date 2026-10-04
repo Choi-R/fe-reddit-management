@@ -1,5 +1,6 @@
 import type { BasicUserSummary } from '../../types';
 import { adminService } from '../../services/adminService';
+import { formatCurrency } from '../../utils/currency';
 
 interface PayoutsTabProps {
   users: BasicUserSummary[];
@@ -58,7 +59,25 @@ export default function PayoutsTab({
             <tbody>
               {users.map((u) => (
                 <tr key={u.id}>
-                  <td>{u.email}</td>
+                  <td>
+                    {u.email}
+                    {Boolean(u.is_indonesian) && (
+                      <span
+                        style={{
+                          marginLeft: '0.4rem',
+                          fontSize: '0.65rem',
+                          fontWeight: 700,
+                          padding: '0.1rem 0.4rem',
+                          borderRadius: '10px',
+                          backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                          color: '#f87171',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                        }}
+                      >
+                        🇮🇩 IDR
+                      </span>
+                    )}
+                  </td>
                   <td>
                     <a
                       href={`https://reddit.com/u/${u.reddit}`}
@@ -77,6 +96,11 @@ export default function PayoutsTab({
                     }}
                   >
                     ${u.pendingBalance.toFixed(2)}
+                    {Boolean(u.is_indonesian) && (
+                      <div style={{ fontSize: '0.75rem', color: 'var(--color-success)', marginTop: '0.15rem' }}>
+                        {formatCurrency(u.pendingBalance, true)}
+                      </div>
+                    )}
                   </td>
                   <td>
                     <button

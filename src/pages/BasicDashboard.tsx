@@ -8,6 +8,7 @@ import OnboardingModal from '../components/user/OnboardingModal';
 import UserTasksTab from '../components/user/UserTasksTab';
 import UserEarningsTab from '../components/user/UserEarningsTab';
 import UserTaskHistoryTab from '../components/user/UserTaskHistoryTab';
+import { formatCurrency } from '../utils/currency';
 
 export default function BasicDashboard() {
   const [basicTab, setBasicTab] = useState<'tasks' | 'history' | 'earnings' | 'guidelines'>('tasks');
@@ -169,7 +170,7 @@ export default function BasicDashboard() {
             onClick={() => setBasicTab('earnings')}
             className={`tab-button ${basicTab === 'earnings' ? 'active' : ''}`}
           >
-            Earnings (${(paidBalance + pendingBalance).toFixed(2)})
+            Earnings ({formatCurrency(paidBalance + pendingBalance, user?.is_indonesian)})
           </button>
           <button
             onClick={() => setBasicTab('guidelines')}

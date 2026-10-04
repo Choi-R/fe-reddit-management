@@ -1,4 +1,5 @@
 import type { BasicUserSummary } from '../../types';
+import { formatCurrency } from '../../utils/currency';
 
 interface UserCardProps {
   user: BasicUserSummary;
@@ -49,6 +50,21 @@ export default function UserCard({
           >
             {rankName} ({cqsLevel})
           </span>
+          {Boolean(user.is_indonesian) && (
+            <span
+              style={{
+                fontSize: '0.68rem',
+                fontWeight: 700,
+                padding: '0.1rem 0.5rem',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                color: '#f87171',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+              }}
+            >
+              🇮🇩 IDR
+            </span>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -136,7 +152,7 @@ export default function UserCard({
           }}
         >
           <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-            Completed: {user.completedCount} | Pending: ${user.pendingBalance.toFixed(2)} | Paid: ${user.paidBalance.toFixed(2)}
+            Completed: {user.completedCount} | Pending: ${user.pendingBalance.toFixed(2)}{user.is_indonesian ? ` (${formatCurrency(user.pendingBalance, true)})` : ''} | Paid: ${user.paidBalance.toFixed(2)}{user.is_indonesian ? ` (${formatCurrency(user.paidBalance, true)})` : ''}
           </div>
 
           <div style={{ display: 'flex', gap: '0.4rem' }}>

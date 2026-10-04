@@ -1,4 +1,6 @@
 import type { Task, CooldownInfo } from '../../types';
+import { useAuth } from '../../hooks/useAuth';
+import { formatCurrency } from '../../utils/currency';
 
 interface AvailableTaskCardProps {
   task: Task;
@@ -11,6 +13,7 @@ interface AvailableTaskCardProps {
   onBookTask: (taskId: string) => void;
   isLoading: boolean;
   isBookingDisabled: boolean;
+  is_indonesian?: boolean;
 }
 
 export default function AvailableTaskCard({
@@ -24,7 +27,10 @@ export default function AvailableTaskCard({
   onBookTask,
   isLoading,
   isBookingDisabled,
+  is_indonesian: propIsIndonesian,
 }: AvailableTaskCardProps) {
+  const { user } = useAuth();
+  const is_indonesian = propIsIndonesian ?? user?.is_indonesian;
   const taskMinLevel = task.min_rank_level || 0;
   const isRankE = userRankLevel === 0 || userRankName === 'Rank E';
   const isRankInsufficient = Boolean(!isAdmin && (isRankE || (task.min_rank_id && taskMinLevel > userRankLevel)));
@@ -105,7 +111,7 @@ export default function AvailableTaskCard({
         </span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ fontWeight: '600', color: 'var(--color-success)', fontSize: '0.95rem' }}>
-            ${parseFloat(task.price).toFixed(2)}
+            {formatCurrency(task.price, is_indonesian)}
           </span>
           <span
             title={`Quota: ${task.quota}`}

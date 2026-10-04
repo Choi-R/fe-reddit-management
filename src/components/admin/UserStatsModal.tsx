@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { UserDetailStats, UserDetailMetrics, UserTaskDetailItem } from '../../types';
 import StatusTag from '../common/StatusTag';
+import { formatCurrency } from '../../utils/currency';
 
 interface UserStatsModalProps {
   isOpen: boolean;
@@ -9,7 +10,7 @@ interface UserStatsModalProps {
   onClose: () => void;
 }
 
-function OverviewCards({ metrics }: { metrics: UserDetailMetrics }) {
+function OverviewCards({ metrics, is_indonesian }: { metrics: UserDetailMetrics; is_indonesian?: boolean }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
       <div className="glass-card" style={{ padding: '0.85rem', borderLeft: '4px solid var(--color-primary)' }}>
@@ -34,6 +35,11 @@ function OverviewCards({ metrics }: { metrics: UserDetailMetrics }) {
         <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Total Balance</span>
         <h4 style={{ fontSize: '1.25rem', color: '#8b5cf6', margin: '0.25rem 0 0 0' }}>
           ${metrics.totalBalance.toFixed(2)}
+          {is_indonesian && (
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginLeft: '0.4rem', fontWeight: 'normal' }}>
+              ({formatCurrency(metrics.totalBalance, true)})
+            </span>
+          )}
         </h4>
       </div>
     </div>
@@ -153,6 +159,13 @@ function ProfileTab({ stats }: { stats: UserDetailStats }) {
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>PayPal Email:</span>
           <br />
           <strong style={{ color: 'var(--text-primary)' }}>{stats.user.paypal || 'Not configured'}</strong>
+        </div>
+        <div>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Account Region:</span>
+          <br />
+          <strong style={{ color: 'var(--text-primary)' }}>
+            {Boolean(stats.user.is_indonesian) ? '🇮🇩 Indonesian (IDR at 15k rate)' : '🌐 Standard (USD)'}
+          </strong>
         </div>
         <div>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Payment Methods:</span>
@@ -283,6 +296,22 @@ export default function UserStatsModal({
                 </a>{' '}
                 | Rank:{' '}
                 <strong>{stats.user.rankName || `Rank ${stats.user.rankId}`}</strong>
+                {Boolean(stats.user.is_indonesian) && (
+                  <span
+                    style={{
+                      marginLeft: '0.4rem',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '0.1rem 0.45rem',
+                      borderRadius: '10px',
+                      backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                      color: '#f87171',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                    }}
+                  >
+                    🇮🇩 IDR
+                  </span>
+                )}
               </span>
             )}
           </div>
@@ -301,7 +330,10 @@ export default function UserStatsModal({
           </div>
         ) : stats ? (
           <>
-            <OverviewCards metrics={stats.metrics} />
+            <OverviewCards
+              metrics={stats.metrics}
+              is_indonesian={Boolean(stats.user.is_indonesian)}
+            />
 
             {/* Sub-tabs */}
             <div className="tab-navigation" style={{ marginBottom: '1.25rem' }}>

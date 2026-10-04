@@ -1,11 +1,16 @@
 import type { Booking } from '../../types';
 import StatusTag from '../common/StatusTag';
+import { useAuth } from '../../hooks/useAuth';
+import { formatCurrency } from '../../utils/currency';
 
 interface TaskHistoryTableProps {
   history: Booking[];
+  is_indonesian?: boolean;
 }
 
-export default function TaskHistoryTable({ history }: TaskHistoryTableProps) {
+export default function TaskHistoryTable({ history, is_indonesian: propIsIndonesian }: TaskHistoryTableProps) {
+  const { user } = useAuth();
+  const is_indonesian = propIsIndonesian ?? user?.is_indonesian;
   if (history.length === 0) {
     return (
       <p style={{ color: 'var(--text-secondary)', padding: '2rem', textAlign: 'center' }}>
@@ -48,7 +53,7 @@ export default function TaskHistoryTable({ history }: TaskHistoryTableProps) {
               </td>
               <td>{row.min_rank_name || 'All'}</td>
               <td style={{ color: 'var(--color-success)', fontWeight: '600' }}>
-                ${parseFloat(row.price).toFixed(2)}
+                {formatCurrency(row.price, is_indonesian)}
               </td>
               <td>{new Date(row.updated_at).toLocaleDateString()}</td>
               <td>

@@ -26,6 +26,7 @@ export default function UserForm({
   const [newReddit, setNewReddit] = useState(editingUser?.reddit || '');
   const [newNickname, setNewNickname] = useState(editingUser?.nickname || '');
   const [newRankId, setNewRankId] = useState(editingUser?.rankId || 'D');
+  const [is_indonesian, setIsIndonesian] = useState(Boolean(editingUser?.is_indonesian ?? false));
   const [newPassword, setNewPassword] = useState('');
   const [paymentInfo, setPaymentInfo] = useState<any[]>([]);
   const [newPaymentType, setNewPaymentType] = useState<'paypal' | 'bank' | 'crypto'>('paypal');
@@ -46,6 +47,7 @@ export default function UserForm({
       setNewReddit(editingUser.reddit || '');
       setNewNickname(editingUser.nickname || '');
       setNewRankId(editingUser.rankId || 'D');
+      setIsIndonesian(Boolean(editingUser.is_indonesian ?? false));
       setNewPassword('');
       // Load PH accounts for existing user
       if (editingUser.id) {
@@ -59,6 +61,7 @@ export default function UserForm({
       setNewReddit('');
       setNewNickname('');
       setNewRankId('D');
+      setIsIndonesian(false);
       setNewPassword('');
       setPhAccounts([]);
     }
@@ -144,6 +147,7 @@ export default function UserForm({
           reddit: newReddit,
           nickname: newNickname || null,
           rankId: newRankId,
+          is_indonesian,
         });
 
         if (newPassword) {
@@ -176,12 +180,14 @@ export default function UserForm({
           reddit: newReddit,
           nickname: newNickname || null,
           rankId: newRankId,
+          is_indonesian,
         });
         setSuccessMsg('User created successfully!');
         setNewEmail('');
         setNewReddit('');
         setNewNickname('');
         setNewRankId('D');
+        setIsIndonesian(false);
         setNewPassword('');
       }
       onRefreshData();
@@ -244,6 +250,34 @@ export default function UserForm({
           <option value="A">Rank A (CQS: High)</option>
           <option value="S">Rank S (CQS: Highest)</option>
         </select>
+      </div>
+      <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+        <label
+          htmlFor="userIsIndonesian"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.65rem',
+            cursor: 'pointer',
+            padding: '0.5rem 0.85rem',
+            background: is_indonesian ? 'rgba(99, 102, 241, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+            border: `1px solid ${is_indonesian ? 'var(--color-primary)' : 'var(--border-color)'}`,
+            borderRadius: '6px',
+            transition: 'all 0.2s ease',
+            userSelect: 'none',
+          }}
+        >
+          <input
+            id="userIsIndonesian"
+            type="checkbox"
+            checked={is_indonesian}
+            onChange={(e) => setIsIndonesian(e.target.checked)}
+            style={{ width: '1.1rem', height: '1.1rem', cursor: 'pointer', accentColor: 'var(--color-primary)' }}
+          />
+          <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)' }}>
+            🇮🇩 Indonesian Account (Displays pay & balance in IDR at 15k rate)
+          </span>
+        </label>
       </div>
       <div className="form-group">
         <label>Payment Info (Optional)</label>

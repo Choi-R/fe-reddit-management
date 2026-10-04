@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import type { TaskHistoryEntry } from '../../types';
 import { taskService } from '../../services/taskService';
 import StatusTag from '../common/StatusTag';
+import { useAuth } from '../../hooks/useAuth';
+import { formatCurrency } from '../../utils/currency';
 
 const ALL_STATUSES = [
   { id: 'pending', label: 'Pending Review', color: 'var(--color-warning, #f59e0b)' },
@@ -14,6 +16,7 @@ const ALL_STATUSES = [
 type PlatformFilter = 'ALL' | 'REDDIT' | 'PRODUCTHUNT';
 
 export default function UserTaskHistoryTab() {
+  const { user } = useAuth();
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [platformFilter, setPlatformFilter] = useState<PlatformFilter>('ALL');
@@ -388,7 +391,7 @@ export default function UserTaskHistoryTab() {
 
                   {/* Price */}
                   <td style={{ padding: '0.75rem', fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--color-success)' }}>
-                    ${parseFloat(item.price).toFixed(2)}
+                    {formatCurrency(item.price, user?.is_indonesian)}
                   </td>
 
                   {/* Timestamp */}

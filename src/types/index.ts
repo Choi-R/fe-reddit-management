@@ -31,6 +31,7 @@ export interface User {
   rank_id?: string;
   account_rank?: AccountRank;
   producthunt_accounts?: ProductHuntAccount[];
+  is_indonesian?: boolean;
 }
 
 export interface Task {
@@ -113,6 +114,7 @@ export interface BasicUserSummary {
   activeBookingCount?: number;
   pendingReviewCount?: number;
   failedCount?: number;
+  is_indonesian?: boolean;
 }
 
 export interface UserTaskDetailItem {
@@ -164,6 +166,7 @@ export interface UserDetailStats {
     rankLevel: number;
     bookingLimit: number;
     producthunt_accounts?: ProductHuntAccount[];
+    is_indonesian?: boolean;
   };
   metrics: UserDetailMetrics;
   activeBookings: UserTaskDetailItem[];

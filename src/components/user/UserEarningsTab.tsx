@@ -1,17 +1,24 @@
 import type { Booking } from '../../types';
 import TaskHistoryTable from './TaskHistoryTable';
+import { useAuth } from '../../hooks/useAuth';
+import { formatCurrency } from '../../utils/currency';
 
 interface UserEarningsTabProps {
   paidBalance: number;
   pendingBalance: number;
   earningsHistory: Booking[];
+  is_indonesian?: boolean;
 }
 
 export default function UserEarningsTab({
   paidBalance,
   pendingBalance,
   earningsHistory,
+  is_indonesian: propIsIndonesian,
 }: UserEarningsTabProps) {
+  const { user } = useAuth();
+  const is_indonesian = propIsIndonesian ?? user?.is_indonesian;
+
   return (
     <div className="glass-panel" style={{ padding: '2rem' }}>
       <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
@@ -26,7 +33,7 @@ export default function UserEarningsTab({
         >
           <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Paid Earned Balance</span>
           <h2 style={{ fontSize: '2rem', color: 'var(--color-success)', marginTop: '0.5rem' }}>
-            ${paidBalance.toFixed(2)}
+            {formatCurrency(paidBalance, is_indonesian)}
           </h2>
         </div>
         <div
@@ -40,13 +47,13 @@ export default function UserEarningsTab({
         >
           <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Pending Earned Balance</span>
           <h2 style={{ fontSize: '2rem', color: 'var(--color-warning)', marginTop: '0.5rem' }}>
-            ${pendingBalance.toFixed(2)}
+            {formatCurrency(pendingBalance, is_indonesian)}
           </h2>
         </div>
       </div>
 
       <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Task Completion History</h3>
-      <TaskHistoryTable history={earningsHistory} />
+      <TaskHistoryTable history={earningsHistory} is_indonesian={is_indonesian} />
     </div>
   );
 }
