@@ -1,6 +1,6 @@
-// Shared TypeScript interfaces for the Reddit & ProductHunt CRM frontend
+// Shared TypeScript interfaces for the Reddit, ProductHunt & X CRM frontend
 
-export type Platform = 'REDDIT' | 'PRODUCTHUNT';
+export type Platform = 'REDDIT' | 'PRODUCTHUNT' | 'X';
 
 export interface AccountRank {
   id: string; // 'D', 'C', 'B', 'A', 'S'
@@ -15,8 +15,20 @@ export interface ProductHuntAccount {
   username: string;
   headline?: string | null;
   bio?: string | null;
+  about?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface XAccount {
+  id: string;
+  user_id: string;
+  username: string;
+  headline?: string | null;
+  bio?: string | null;
+  about?: string | null;
+  created_at: string;
+  updated_at?: string;
 }
 
 export interface User {
@@ -31,6 +43,7 @@ export interface User {
   rank_id?: string;
   account_rank?: AccountRank;
   producthunt_accounts?: ProductHuntAccount[];
+  x_accounts?: XAccount[];
   is_indonesian?: boolean;
 }
 
@@ -114,6 +127,8 @@ export interface BasicUserSummary {
   activeBookingCount?: number;
   pendingReviewCount?: number;
   failedCount?: number;
+  producthunt_accounts?: ProductHuntAccount[];
+  x_accounts?: XAccount[];
   is_indonesian?: boolean;
 }
 
@@ -166,6 +181,7 @@ export interface UserDetailStats {
     rankLevel: number;
     bookingLimit: number;
     producthunt_accounts?: ProductHuntAccount[];
+    x_accounts?: XAccount[];
     is_indonesian?: boolean;
   };
   metrics: UserDetailMetrics;

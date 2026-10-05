@@ -58,20 +58,25 @@ export default function ActiveBookingCard({
     const host = parsedUrl.hostname.toLowerCase();
     const isRedditHost = host === 'reddit.com' || host.endsWith('.reddit.com') || host === 'redd.it';
     const isPhHost = host === 'www.producthunt.com' || host === 'producthunt.com';
-    const isProductHuntTask = booking.platform === 'PRODUCTHUNT';
+    const isXHost = host === 'x.com' || host.endsWith('.x.com') || host === 'twitter.com' || host.endsWith('.twitter.com');
+    const taskPlatform = booking.platform || 'REDDIT';
 
-    if (isProductHuntTask && !isPhHost) {
+    if (taskPlatform === 'PRODUCTHUNT' && !isPhHost) {
       setFormError('The URL must be a valid ProductHunt domain (e.g. www.producthunt.com).');
       return;
     }
-    if (!isProductHuntTask && !isRedditHost) {
+    if (taskPlatform === 'X' && !isXHost) {
+      setFormError('The URL must be a valid X/Twitter domain (e.g. x.com or twitter.com).');
+      return;
+    }
+    if (taskPlatform === 'REDDIT' && !isRedditHost) {
       setFormError('The URL must be a valid Reddit domain (e.g. reddit.com, old.reddit.com).');
       return;
     }
 
     // 2. Client-side Subreddit match validation (only for REDDIT tasks)
     const targetSubreddit = booking.target_subreddit || booking.subreddit;
-    if (!isProductHuntTask && targetSubreddit) {
+    if (taskPlatform === 'REDDIT' && targetSubreddit) {
       const pathParts = parsedUrl.pathname.split('/');
       const rIdx = pathParts.findIndex((part) => part.toLowerCase() === 'r');
       if (
@@ -127,8 +132,8 @@ export default function ActiveBookingCard({
               fontSize: '0.6rem',
               fontWeight: '700',
               textTransform: 'uppercase',
-              background: booking.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255, 107, 53, 0.15)',
-              color: booking.platform === 'PRODUCTHUNT' ? '#fbbf24' : '#ff6b35',
+              background: booking.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : booking.platform === 'X' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 107, 53, 0.15)',
+              color: booking.platform === 'PRODUCTHUNT' ? '#fbbf24' : booking.platform === 'X' ? '#e2e8f0' : '#ff6b35',
               padding: '0.1rem 0.3rem',
               borderRadius: '3px',
               letterSpacing: '0.05em',
@@ -136,7 +141,7 @@ export default function ActiveBookingCard({
           >
             {booking.platform || 'REDDIT'}
           </span>
-          {(booking.target_subreddit || booking.subreddit) ? `${booking.platform === 'PRODUCTHUNT' ? '' : 'r/'}${booking.target_subreddit || booking.subreddit}` : ''}
+          {(booking.target_subreddit || booking.subreddit) ? `${booking.platform === 'REDDIT' || !booking.platform ? 'r/' : booking.platform === 'X' ? '@' : ''}${booking.target_subreddit || booking.subreddit}` : ''}
         </h3>
         <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
           <strong style={{ color: 'var(--text-primary)' }}>Client Request: </strong>
@@ -178,7 +183,13 @@ export default function ActiveBookingCard({
               id={`replyUrl-${booking.id}`}
               type="url"
               className="form-input"
-              placeholder="https://reddit.com/r/... (post or reply link)"
+              placeholder={
+                booking.platform === 'PRODUCTHUNT'
+                  ? 'https://www.producthunt.com/posts/... (or review/discussion link)'
+                  : booking.platform === 'X'
+                  ? 'https://x.com/.../status/... (tweet or reply link)'
+                  : 'https://reddit.com/r/... (post or reply link)'
+              }
               value={replyUrl}
               onChange={(e) => setReplyUrl(e.target.value)}
               required

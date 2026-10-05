@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { BasicUserSummary, ProductHuntAccount } from '../../types';
+import type { BasicUserSummary, ProductHuntAccount, XAccount } from '../../types';
 import { adminService } from '../../services/adminService';
 
 interface UserFormProps {
@@ -39,6 +39,13 @@ export default function UserForm({
   const [newPhBio, setNewPhBio] = useState('');
   const [editingPhId, setEditingPhId] = useState<string | null>(null);
 
+  // X account state
+  const [xAccounts, setXAccounts] = useState<XAccount[]>([]);
+  const [newXUsername, setNewXUsername] = useState('');
+  const [newXHeadline, setNewXHeadline] = useState('');
+  const [newXBio, setNewXBio] = useState('');
+  const [editingXId, setEditingXId] = useState<string | null>(null);
+
   useEffect(() => {
     if (editingUser) {
       setNewEmail(editingUser.email);
@@ -49,11 +56,15 @@ export default function UserForm({
       setNewRankId(editingUser.rankId || 'D');
       setIsIndonesian(Boolean(editingUser.is_indonesian ?? false));
       setNewPassword('');
-      // Load PH accounts for existing user
+      // Load PH and X accounts for existing user
       if (editingUser.id) {
         adminService.getProductHuntAccounts(editingUser.id).then((res) => {
           setPhAccounts(res.accounts || []);
         }).catch(() => setPhAccounts([]));
+
+        adminService.getXAccounts(editingUser.id).then((res) => {
+          setXAccounts(res.accounts || []);
+        }).catch(() => setXAccounts([]));
       }
     } else {
       setNewEmail('');
@@ -64,6 +75,7 @@ export default function UserForm({
       setIsIndonesian(false);
       setNewPassword('');
       setPhAccounts([]);
+      setXAccounts([]);
     }
   }, [editingUser]);
 
@@ -126,6 +138,67 @@ export default function UserForm({
     setNewPhUsername(account.username);
     setNewPhHeadline(account.headline || '');
     setNewPhBio(account.bio || '');
+  };
+
+  const handleAddXAccount = async () => {
+    if (!newXUsername.trim() || !editingUser?.id) return;
+    setIsLoading(true);
+    try {
+      const res = await adminService.createXAccount(editingUser.id, {
+        username: newXUsername.trim(),
+        headline: newXHeadline.trim() || null,
+        bio: newXBio.trim() || null,
+      });
+      setXAccounts((prev) => [...prev, res.account]);
+      setNewXUsername('');
+      setNewXHeadline('');
+      setNewXBio('');
+      setSuccessMsg('X account added!');
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to add X account.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdateXAccount = async (xId: string) => {
+    if (!editingUser?.id) return;
+    setIsLoading(true);
+    try {
+      const res = await adminService.updateXAccount(editingUser.id, xId, {
+        username: newXUsername.trim(),
+        headline: newXHeadline.trim() || null,
+        bio: newXBio.trim() || null,
+      });
+      setXAccounts((prev) => prev.map((a) => a.id === xId ? res.account : a));
+      setEditingXId(null);
+      setNewXUsername('');
+      setNewXHeadline('');
+      setNewXBio('');
+      setSuccessMsg('X account updated!');
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to update X account.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteXAccount = async (xId: string) => {
+    if (!editingUser?.id) return;
+    try {
+      await adminService.deleteXAccount(editingUser.id, xId);
+      setXAccounts((prev) => prev.filter((a) => a.id !== xId));
+      setSuccessMsg('X account deleted.');
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to delete X account.');
+    }
+  };
+
+  const startEditX = (account: XAccount) => {
+    setEditingXId(account.id);
+    setNewXUsername(account.username);
+    setNewXHeadline(account.headline || '');
+    setNewXBio(account.bio || '');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -486,6 +559,89 @@ export default function UserForm({
               className="btn btn-secondary"
               onClick={handleAddPhAccount}
               disabled={isLoading || !newPhUsername.trim()}
+            >
+              Add Account
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* X Accounts Section */}
+      {editingUser && (
+        <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+          <label style={{ fontSize: '0.95rem', fontWeight: 600 }}>X (Twitter) Accounts</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+            {xAccounts.length === 0 ? (
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>No X accounts added.</div>
+            ) : (
+              xAccounts.map((x) => (
+                <div key={x.id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, fontSize: '0.9rem' }}>
+                    <a
+                      href={`https://x.com/${x.username}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}
+                    >
+                      @{x.username}
+                    </a>
+                    {x.headline && (
+                      <span style={{ color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>— {x.headline}</span>
+                    )}
+                  </div>
+                  {editingXId === x.id ? (
+                    <>
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="Username"
+                        value={newXUsername}
+                        onChange={(e) => setNewXUsername(e.target.value)}
+                        style={{ width: '140px' }}
+                      />
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="Headline"
+                        value={newXHeadline}
+                        onChange={(e) => setNewXHeadline(e.target.value)}
+                        style={{ width: '200px' }}
+                      />
+                      <button type="button" className="btn btn-primary" onClick={() => handleUpdateXAccount(x.id)} style={{ padding: '0.35rem 0.75rem' }}>Save</button>
+                      <button type="button" className="btn btn-ghost" onClick={() => { setEditingXId(null); setNewXUsername(''); setNewXHeadline(''); setNewXBio(''); }} style={{ padding: '0.35rem 0.75rem' }}>Cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" className="btn btn-secondary" onClick={() => startEditX(x)} style={{ padding: '0.35rem 0.75rem' }}>Edit</button>
+                      <button type="button" className="btn btn-danger" onClick={() => handleDeleteXAccount(x.id)} style={{ padding: '0.35rem 0.75rem' }}>Delete</button>
+                    </>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="X Username (@handle)"
+              value={newXUsername}
+              onChange={(e) => setNewXUsername(e.target.value)}
+              style={{ width: '140px' }}
+            />
+            <input
+              type="text"
+              className="form-input"
+              placeholder="Headline / Bio (optional)"
+              value={newXHeadline}
+              onChange={(e) => setNewXHeadline(e.target.value)}
+              style={{ width: '200px' }}
+            />
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleAddXAccount}
+              disabled={isLoading || !newXUsername.trim()}
             >
               Add Account
             </button>

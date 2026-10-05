@@ -22,7 +22,7 @@ interface UserTasksTabProps {
   onRefreshData: () => void;
 }
 
-type PlatformFilter = 'ALL' | 'REDDIT' | 'PRODUCTHUNT';
+type PlatformFilter = 'ALL' | 'REDDIT' | 'PRODUCTHUNT' | 'X';
 
 function formatRemainingCooldown(ms: number): string {
   if (ms <= 0) return '0 minutes';
@@ -86,7 +86,7 @@ export default function UserTasksTab({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <h2 style={{ fontSize: '1.25rem', margin: 0 }}>Available Tasks ({filteredTasks.length})</h2>
           <div style={{ display: 'flex', gap: '0.4rem' }}>
-            {(['ALL', 'REDDIT', 'PRODUCTHUNT'] as PlatformFilter[]).map((pf) => (
+            {(['ALL', 'REDDIT', 'PRODUCTHUNT', 'X'] as PlatformFilter[]).map((pf) => (
               <button
                 key={pf}
                 onClick={() => setPlatformFilter(pf)}
@@ -102,7 +102,7 @@ export default function UserTasksTab({
                   transition: 'all 0.15s ease',
                 }}
               >
-                {pf === 'ALL' ? 'All' : pf === 'REDDIT' ? 'Reddit' : 'ProductHunt'}
+                {pf === 'ALL' ? 'All' : pf === 'REDDIT' ? 'Reddit' : pf === 'PRODUCTHUNT' ? 'ProductHunt' : 'X'}
               </button>
             ))}
           </div>

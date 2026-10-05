@@ -40,8 +40,8 @@ export default function TaskHistoryTable({ history, is_indonesian: propIsIndones
                     fontSize: '0.6rem',
                     fontWeight: '700',
                     textTransform: 'uppercase',
-                    background: row.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255, 107, 53, 0.15)',
-                    color: row.platform === 'PRODUCTHUNT' ? '#fbbf24' : '#ff6b35',
+                    background: row.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : row.platform === 'X' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 107, 53, 0.15)',
+                    color: row.platform === 'PRODUCTHUNT' ? '#fbbf24' : row.platform === 'X' ? '#e2e8f0' : '#ff6b35',
                     padding: '0.1rem 0.3rem',
                     borderRadius: '3px',
                     letterSpacing: '0.05em',
@@ -49,7 +49,7 @@ export default function TaskHistoryTable({ history, is_indonesian: propIsIndones
                 >
                   {row.platform || 'REDDIT'}
                 </span>
-                {(row.target_subreddit || row.subreddit) ? `${row.platform === 'PRODUCTHUNT' ? '' : 'r/'}${row.target_subreddit || row.subreddit}` : ''}
+                {(row.target_subreddit || row.subreddit) ? `${row.platform === 'REDDIT' || !row.platform ? 'r/' : row.platform === 'X' ? '@' : ''}${row.target_subreddit || row.subreddit}` : ''}
               </td>
               <td>{row.min_rank_name || 'All'}</td>
               <td style={{ color: 'var(--color-success)', fontWeight: '600' }}>

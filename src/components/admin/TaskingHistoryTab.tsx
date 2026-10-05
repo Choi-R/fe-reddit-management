@@ -381,8 +381,8 @@ export default function TaskingHistoryTab({
                             fontSize: '0.6rem',
                             fontWeight: '700',
                             textTransform: 'uppercase',
-                            background: item.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255, 107, 53, 0.15)',
-                            color: item.platform === 'PRODUCTHUNT' ? '#fbbf24' : '#ff6b35',
+                            background: item.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : item.platform === 'X' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 107, 53, 0.15)',
+                            color: item.platform === 'PRODUCTHUNT' ? '#fbbf24' : item.platform === 'X' ? '#e2e8f0' : '#ff6b35',
                             padding: '0.1rem 0.3rem',
                             borderRadius: '3px',
                             letterSpacing: '0.05em',
@@ -390,7 +390,7 @@ export default function TaskingHistoryTab({
                         >
                           {item.platform || 'REDDIT'}
                         </span>
-                        {(item.target_subreddit || item.subreddit) ? `${item.platform === 'PRODUCTHUNT' ? '' : 'r/'}${item.target_subreddit || item.subreddit}` : ''}
+                        {(item.target_subreddit || item.subreddit) ? `${item.platform === 'REDDIT' || !item.platform ? 'r/' : item.platform === 'X' ? '@' : ''}${item.target_subreddit || item.subreddit}` : ''}
                         <span style={{ marginLeft: '0.5rem', color: 'var(--color-success)', fontWeight: '600' }}>
                           ${parseFloat(item.price).toFixed(2)}
                         </span>

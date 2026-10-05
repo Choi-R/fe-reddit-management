@@ -1,6 +1,6 @@
-# Reddit & ProductHunt Account & CRM Task Management Portal
+# Reddit, ProductHunt & X Account & CRM Task Management Portal
 
-A high-performance, responsive React dashboard designed for managing client tasks across Reddit and ProductHunt platforms, user assignments, submissions, and developer payouts. Built with a premium, glassmorphic dark theme, the project focuses on zero third-party routing/styling dependencies, high type safety, and fast startup performance.
+A high-performance, responsive React dashboard designed for managing client tasks across Reddit, ProductHunt, and X (Twitter) platforms, user assignments, submissions, and developer payouts. Built with a premium, glassmorphic dark theme, the project focuses on zero third-party routing/styling dependencies, high type safety, and fast startup performance.
 
 ---
 
@@ -44,10 +44,10 @@ This instructs client browsers to completely strip out HTTP `Referer` request he
 ## 📋 Features
 
 ### Standard Client Portal
-- **Available Tasks Panel:** View all active client requests across Reddit and ProductHunt, filter by platform, and request details.
+- **Available Tasks Panel:** View all active client requests across Reddit, ProductHunt, and X, filter by platform, and request details.
 - **Task Booking workflow:** Book standard or private tasks. Booking a task initiates an active live countdown.
 - **UseCountdown Hook (`useCountdown.ts`):** Evaluates a live `HH:MM:SS` ticking countdown based on a **60-hour** task expiration timeframe.
-- **Proof Submission:** Submit platform-specific URLs (Reddit reply comments or ProductHunt posts) and optional verification notes for booked tasks.
+- **Proof Submission:** Submit platform-specific URLs (Reddit reply comments, ProductHunt posts, or X replies/posts) and optional verification notes for booked tasks.
 - **Booking Cancellation:** Cancel an active booking before submission.
 - **History & Earnings Dashboard:** View detailed listings of current bookings, aggregate balances (Pending vs. Paid), and status updates.
 
@@ -57,10 +57,11 @@ This instructs client browsers to completely strip out HTTP `Referer` request he
   - Create new portal users (specifying Reddit handles, email IDs, initial passwords, and roles).
   - Update user profiles (PayPal addresses, Reddit profile tags, emails).
   - Manage multiple ProductHunt accounts per user (username, headline, bio).
+  - Manage multiple X (Twitter) accounts per user (username, headline, bio).
   - Modify user credentials (password resets).
   - Permanent account deletion controls.
 - **Task Management (CRUD):**
-  - Add new client campaigns for Reddit or ProductHunt (URLs, subreddit constraints for Reddit, pricing tiers, quotas, dead-times).
+  - Add new client campaigns for Reddit, ProductHunt, or X (URLs, subreddit constraints for Reddit, pricing tiers, quotas, dead-times).
   - Edit or update task details with platform selector.
   - Custom target assignment (bind specific tasks to specific users or leave public).
   - Delete expired campaigns.

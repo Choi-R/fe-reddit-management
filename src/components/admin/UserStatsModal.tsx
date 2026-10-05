@@ -164,7 +164,7 @@ function ProfileTab({ stats }: { stats: UserDetailStats }) {
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Account Region:</span>
           <br />
           <strong style={{ color: 'var(--text-primary)' }}>
-            {Boolean(stats.user.is_indonesian) ? '🇮🇩 Indonesian (IDR at 15k rate)' : '🌐 Standard (USD)'}
+            {stats.user.is_indonesian ? '🇮🇩 Indonesian (IDR at 15k rate)' : '🌐 Standard (USD)'}
           </strong>
         </div>
         <div>
@@ -205,6 +205,28 @@ function ProfileTab({ stats }: { stats: UserDetailStats }) {
                   </a>
                   {ph.headline && (
                     <span style={{ color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>— {ph.headline}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {stats.user.x_accounts && stats.user.x_accounts.length > 0 && (
+          <div style={{ gridColumn: '1 / -1' }}>
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>X (Twitter) Accounts:</span>
+            <div style={{ marginTop: '0.35rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              {stats.user.x_accounts.map((x) => (
+                <div key={x.id} style={{ fontSize: '0.85rem' }}>
+                  <a
+                    href={`https://x.com/${x.username}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: 'var(--color-primary)', textDecoration: 'underline' }}
+                  >
+                    @{x.username}
+                  </a>
+                  {x.headline && (
+                    <span style={{ color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>— {x.headline}</span>
                   )}
                 </div>
               ))}

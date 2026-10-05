@@ -1,4 +1,4 @@
-import type { User, Task, BasicUserSummary, UserDetailStats, TaskHistoryResponse, ProductHuntAccount } from '../types';
+import type { User, Task, BasicUserSummary, UserDetailStats, TaskHistoryResponse, ProductHuntAccount, XAccount, Platform } from '../types';
 import { authenticatedRequest, buildHistoryQuery } from './apiClient';
 
 export const adminService = {
@@ -62,6 +62,27 @@ export const adminService = {
       method: 'DELETE',
     }),
 
+  // X account management
+  createXAccount: (userId: string, data: { username: string; headline?: string | null; bio?: string | null }): Promise<{ success: boolean; account: XAccount }> =>
+    authenticatedRequest(`/api/admin/users/${userId}/x-accounts`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  getXAccounts: (userId: string): Promise<{ success: boolean; accounts: XAccount[] }> =>
+    authenticatedRequest(`/api/admin/users/${userId}/x-accounts`),
+
+  updateXAccount: (userId: string, xId: string, data: { username: string; headline?: string | null; bio?: string | null }): Promise<{ success: boolean; account: XAccount }> =>
+    authenticatedRequest(`/api/admin/users/${userId}/x-accounts/${xId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteXAccount: (userId: string, xId: string): Promise<{ success: boolean; message: string }> =>
+    authenticatedRequest(`/api/admin/users/${userId}/x-accounts/${xId}`, {
+      method: 'DELETE',
+    }),
+
   getTasks: (): Promise<{ tasks: Task[]; archivedTasks: Task[]; completedTasks: Task[]; deletedTasks: Task[] }> =>
     authenticatedRequest('/api/admin/tasks'),
 
@@ -69,7 +90,7 @@ export const adminService = {
     authenticatedRequest(`/api/admin/tasks/history${buildHistoryQuery(params)}`),
 
   createTask: (data: {
-    platform?: 'REDDIT' | 'PRODUCTHUNT';
+    platform?: Platform;
     target_subreddit?: string | null;
     subreddit?: string | null; // legacy alias
     url: string;
@@ -86,7 +107,7 @@ export const adminService = {
     }),
 
   bulkCreateTasks: (tasks: Array<{
-    platform?: 'REDDIT' | 'PRODUCTHUNT';
+    platform?: Platform;
     target_subreddit?: string | null;
     subreddit?: string | null; // legacy alias
     url: string;
@@ -101,7 +122,7 @@ export const adminService = {
     }),
 
   updateTask: (taskId: string, data: {
-    platform?: 'REDDIT' | 'PRODUCTHUNT';
+    platform?: Platform;
     target_subreddit?: string | null;
     subreddit?: string | null; // legacy alias
     url: string;

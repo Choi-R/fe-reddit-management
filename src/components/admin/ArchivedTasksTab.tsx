@@ -121,6 +121,7 @@ export default function ArchivedTasksTab({
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch =
       ((task.target_subreddit || task.subreddit || '')).toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (task.platform || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.client_request.toLowerCase().includes(searchQuery.toLowerCase());
 

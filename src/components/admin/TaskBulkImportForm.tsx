@@ -53,8 +53,10 @@ export default function TaskBulkImportForm({
     const csvContent =
       'data:text/csv;charset=utf-8,' +
       encodeURIComponent(
-        'Platform,Target Reddit URL / Subreddit Link,Client Request,Deadline,Price\n' +
-          'REDDIT,https://www.reddit.com/r/pics/comments/example_post,Please upvote this post and write a positive comment,2026-08-01,5.00'
+        'Platform,Target URL,Client Request,Deadline,Price\n' +
+          'REDDIT,https://www.reddit.com/r/pics/comments/example_post,Please upvote this post and write a positive comment,2026-10-01,5.00\n' +
+          'PRODUCTHUNT,https://www.producthunt.com/posts/example-product,Please support our launch and leave thoughtful feedback,2026-10-01,5.00\n' +
+          'X,https://x.com/example/status/1234567890,Please like and reply to this post,2026-10-01,5.00'
       );
     const link = document.createElement('a');
     link.href = csvContent;

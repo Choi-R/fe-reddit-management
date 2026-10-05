@@ -3,7 +3,7 @@ export interface ParsedTaskRow {
   clientRequest: string;
   deadline: string | null;
   price: number;
-  platform?: 'REDDIT' | 'PRODUCTHUNT';
+  platform?: 'REDDIT' | 'PRODUCTHUNT' | 'X';
   isValid: boolean;
   error?: string;
 }
@@ -32,8 +32,8 @@ export function parseSpreadsheetFile(
 
       const parsed: ParsedTaskRow[] = rows.map((row) => {
         const rawPlatform = row[0] ? String(row[0]).trim().toUpperCase() : 'REDDIT';
-        const validPlatforms = ['REDDIT', 'PRODUCTHUNT'];
-        const platform = validPlatforms.includes(rawPlatform) ? rawPlatform as 'REDDIT' | 'PRODUCTHUNT' : 'REDDIT';
+        const validPlatforms = ['REDDIT', 'PRODUCTHUNT', 'X'];
+        const platform = validPlatforms.includes(rawPlatform) ? rawPlatform as 'REDDIT' | 'PRODUCTHUNT' | 'X' : 'REDDIT';
         
         const rawUrl = row[1] ? String(row[1]).trim() : '';
         const rawRequest = row[2] ? String(row[2]).trim() : '';

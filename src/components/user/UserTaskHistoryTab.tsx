@@ -13,7 +13,7 @@ const ALL_STATUSES = [
   { id: 'incomplete', label: 'Incomplete / Booked', color: '#6b7280' },
 ];
 
-type PlatformFilter = 'ALL' | 'REDDIT' | 'PRODUCTHUNT';
+type PlatformFilter = 'ALL' | 'REDDIT' | 'PRODUCTHUNT' | 'X';
 
 export default function UserTaskHistoryTab() {
   const { user } = useAuth();
@@ -207,7 +207,7 @@ export default function UserTaskHistoryTab() {
         >
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Platform:</span>
-            {(['ALL', 'REDDIT', 'PRODUCTHUNT'] as PlatformFilter[]).map((pf) => (
+            {(['ALL', 'REDDIT', 'PRODUCTHUNT', 'X'] as PlatformFilter[]).map((pf) => (
               <button
                 key={pf}
                 type="button"
@@ -224,7 +224,7 @@ export default function UserTaskHistoryTab() {
                   transition: 'all 0.15s ease',
                 }}
               >
-                {pf === 'ALL' ? 'All' : pf === 'REDDIT' ? 'Reddit' : 'ProductHunt'}
+                {pf === 'ALL' ? 'All' : pf === 'REDDIT' ? 'Reddit' : pf === 'PRODUCTHUNT' ? 'ProductHunt' : 'X'}
               </button>
             ))}
             <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>| Presets:</span>
@@ -340,8 +340,8 @@ export default function UserTaskHistoryTab() {
                           fontSize: '0.6rem',
                           fontWeight: '700',
                           textTransform: 'uppercase',
-                          background: item.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255, 107, 53, 0.15)',
-                          color: item.platform === 'PRODUCTHUNT' ? '#fbbf24' : '#ff6b35',
+                          background: item.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : item.platform === 'X' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 107, 53, 0.15)',
+                          color: item.platform === 'PRODUCTHUNT' ? '#fbbf24' : item.platform === 'X' ? '#e2e8f0' : '#ff6b35',
                           padding: '0.1rem 0.3rem',
                           borderRadius: '3px',
                           letterSpacing: '0.05em',
@@ -349,7 +349,7 @@ export default function UserTaskHistoryTab() {
                       >
                         {item.platform || 'REDDIT'}
                       </span>
-                      {(item.target_subreddit || item.subreddit) ? `${item.platform === 'PRODUCTHUNT' ? '' : 'r/'}${item.target_subreddit || item.subreddit}` : ''}
+                      {(item.target_subreddit || item.subreddit) ? `${item.platform === 'REDDIT' || !item.platform ? 'r/' : item.platform === 'X' ? '@' : ''}${item.target_subreddit || item.subreddit}` : ''}
                     </div>
                     {item.task_url && (
                       <a

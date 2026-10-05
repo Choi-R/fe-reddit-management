@@ -68,8 +68,8 @@ export default function ArchivedTaskCard({
                 fontSize: '0.65rem',
                 fontWeight: '700',
                 textTransform: 'uppercase',
-                background: task.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(255, 107, 53, 0.15)',
-                color: task.platform === 'PRODUCTHUNT' ? '#fbbf24' : '#ff6b35',
+                background: task.platform === 'PRODUCTHUNT' ? 'rgba(234, 179, 8, 0.15)' : task.platform === 'X' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 107, 53, 0.15)',
+                color: task.platform === 'PRODUCTHUNT' ? '#fbbf24' : task.platform === 'X' ? '#e2e8f0' : '#ff6b35',
                 padding: '0.1rem 0.35rem',
                 borderRadius: '4px',
                 letterSpacing: '0.05em',
@@ -87,7 +87,7 @@ export default function ArchivedTaskCard({
                 color: 'var(--color-primary)',
               }}
             >
-              {(task.target_subreddit || task.subreddit) ? `${task.platform === 'PRODUCTHUNT' ? '' : 'r/'}${task.target_subreddit || task.subreddit}` : ''}
+              {(task.target_subreddit || task.subreddit) ? `${task.platform === 'REDDIT' || !task.platform ? 'r/' : task.platform === 'X' ? '@' : ''}${task.target_subreddit || task.subreddit}` : ''}
             </span>
 
             {/* Reason Badge */}

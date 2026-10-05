@@ -1,8 +1,8 @@
-import type { Task, Booking, ActiveBooking, TaskHistoryResponse, CooldownInfo } from '../types';
+import type { Task, Booking, ActiveBooking, TaskHistoryResponse, CooldownInfo, Platform } from '../types';
 import { authenticatedRequest, buildHistoryQuery } from './apiClient';
 
 export const taskService = {
-  getAvailable: (params?: { platform?: 'REDDIT' | 'PRODUCTHUNT' }): Promise<{ available: Task[]; active: ActiveBooking[]; cooldown?: CooldownInfo }> => {
+  getAvailable: (params?: { platform?: Platform }): Promise<{ available: Task[]; active: ActiveBooking[]; cooldown?: CooldownInfo }> => {
     const query = new URLSearchParams();
     if (params?.platform) query.set('platform', params.platform);
     const queryString = query.toString();
