@@ -4,6 +4,7 @@ import { formatCurrency } from '../../utils/currency';
 
 interface AvailableTaskCardProps {
   task: Task;
+  hasXAccount?: boolean;
   userRankLevel?: number;
   userRankName?: string;
   isAdmin?: boolean;
@@ -18,6 +19,7 @@ interface AvailableTaskCardProps {
 
 export default function AvailableTaskCard({
   task,
+  hasXAccount,
   userRankLevel = 1,
   userRankName = 'Rank D',
   isAdmin = false,
@@ -31,23 +33,28 @@ export default function AvailableTaskCard({
 }: AvailableTaskCardProps) {
   const { user } = useAuth();
   const is_indonesian = propIsIndonesian ?? user?.is_indonesian;
+  const isXTask = task.platform === 'X';
+  const effectiveHasXAccount = hasXAccount ?? Boolean(user?.x_accounts && user.x_accounts.length > 0);
+  const isXIneligible = Boolean(!isAdmin && isXTask && !effectiveHasXAccount);
   const taskMinLevel = task.min_rank_level || 0;
   const isRankE = userRankLevel === 0 || userRankName === 'Rank E';
-  const isRankInsufficient = Boolean(!isAdmin && (isRankE || (task.min_rank_id && taskMinLevel > userRankLevel)));
+  const isRankInsufficient = Boolean(!isAdmin && !isXTask && (isRankE || (task.min_rank_id && taskMinLevel > userRankLevel)));
   const isCooldownActive = Boolean(cooldown?.isActive);
 
   return (
     <div
       className="glass-card compact-card"
       style={{
-        borderLeft: isRankE
+        borderLeft: !isAdmin && isRankE
           ? '4px solid #ef4444'
+          : isXIneligible
+          ? '4px solid #f59e0b'
           : isRankInsufficient
           ? '4px solid #f59e0b'
           : isCooldownActive
           ? '4px solid #ef4444'
           : 'none',
-        opacity: isRankInsufficient || isCooldownActive ? 0.88 : 1,
+        opacity: isRankInsufficient || isCooldownActive || isXIneligible || (!isAdmin && isRankE) ? 0.88 : 1,
       }}
     >
       <div className="task-card-header" onClick={onToggleExpand}>
@@ -78,32 +85,40 @@ export default function AvailableTaskCard({
           </span>
           {(task.target_subreddit || task.subreddit) ? `${task.platform === 'REDDIT' || !task.platform ? 'r/' : task.platform === 'X' ? '@' : ''}${task.target_subreddit || task.subreddit}` : ''}
 
-          {/* Rank Requirement Badge */}
+          {/* Requirement Badge */}
           <span
             style={{
               fontSize: '0.7rem',
               fontWeight: '600',
-              background: isRankE
+              background: !isAdmin && isRankE
                 ? 'rgba(239, 68, 68, 0.15)'
+                : isXTask
+                ? (isXIneligible ? 'rgba(245, 158, 11, 0.15)' : 'rgba(33, 150, 243, 0.15)')
                 : task.min_rank_id
                 ? (isRankInsufficient ? 'rgba(245, 158, 11, 0.15)' : 'rgba(33, 150, 243, 0.15)')
                 : 'rgba(255, 255, 255, 0.05)',
-              color: isRankE
+              color: !isAdmin && isRankE
                 ? '#ef4444'
+                : isXTask
+                ? (isXIneligible ? '#d97706' : '#2196f3')
                 : task.min_rank_id
                 ? (isRankInsufficient ? '#d97706' : '#2196f3')
                 : 'var(--text-secondary)',
               padding: '0.1rem 0.45rem',
               borderRadius: '4px',
-              border: isRankE
+              border: !isAdmin && isRankE
                 ? '1px solid rgba(239, 68, 68, 0.4)'
+                : isXTask
+                ? (isXIneligible ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid rgba(33, 150, 243, 0.4)')
                 : task.min_rank_id
                 ? (isRankInsufficient ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid rgba(33, 150, 243, 0.4)')
                 : '1px solid var(--border-color)',
             }}
           >
-            {isRankE
+            {!isAdmin && isRankE
               ? '🔒 Banned Account'
+              : isXTask
+              ? (isXIneligible ? '🔒 Not Eligible' : 'Eligible')
               : task.min_rank_name
               ? (isRankInsufficient ? `🔒 Requires ${task.min_rank_name}` : `Min: ${task.min_rank_name}`)
               : 'All Ranks (D to S)'}
@@ -153,11 +168,11 @@ export default function AvailableTaskCard({
         {task.client_request}
       </p>
 
-      {isRankInsufficient && (
+      {!isAdmin && isRankE ? (
         <div style={{
           fontSize: '0.75rem',
-          color: isRankE ? '#ef4444' : '#d97706',
-          backgroundColor: isRankE ? 'rgba(239, 68, 68, 0.08)' : 'rgba(245, 158, 11, 0.08)',
+          color: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.08)',
           padding: '0.35rem 0.6rem',
           borderRadius: '4px',
           marginBottom: '0.5rem',
@@ -165,15 +180,39 @@ export default function AvailableTaskCard({
           alignItems: 'center',
           gap: '0.35rem'
         }}>
-          ⚠️ <span>
-            {isRankE
-              ? <>Your account is <strong>Rank E (Banned Account)</strong> and cannot book or perform any tasks.</>
-              : <>Your rank (<strong>{userRankName}</strong>) is insufficient for this task. Minimum required: <strong>{task.min_rank_name || 'Rank ' + task.min_rank_id}</strong>.</>}
-          </span>
+          ⚠️ <span>Your account is <strong>Rank E (Banned Account)</strong> and cannot book or perform any tasks.</span>
         </div>
-      )}
+      ) : isXIneligible ? (
+        <div style={{
+          fontSize: '0.75rem',
+          color: '#d97706',
+          backgroundColor: 'rgba(245, 158, 11, 0.08)',
+          padding: '0.35rem 0.6rem',
+          borderRadius: '4px',
+          marginBottom: '0.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35rem'
+        }}>
+          ⚠️ <span>Your account is not eligible yet. Contact admin for further information.</span>
+        </div>
+      ) : isRankInsufficient ? (
+        <div style={{
+          fontSize: '0.75rem',
+          color: '#d97706',
+          backgroundColor: 'rgba(245, 158, 11, 0.08)',
+          padding: '0.35rem 0.6rem',
+          borderRadius: '4px',
+          marginBottom: '0.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35rem'
+        }}>
+          ⚠️ <span>Your rank (<strong>{userRankName}</strong>) is insufficient for this task. Minimum required: <strong>{task.min_rank_name || 'Rank ' + task.min_rank_id}</strong>.</span>
+        </div>
+      ) : null}
 
-      {isCooldownActive && !isRankInsufficient && (
+      {isCooldownActive && !isRankInsufficient && !isXIneligible && (
         <div style={{
           fontSize: '0.75rem',
           color: '#ef4444',
@@ -209,13 +248,15 @@ export default function AvailableTaskCard({
               padding: '0.3rem 0.65rem',
               fontSize: '0.75rem',
               borderRadius: '4px',
-              opacity: isRankInsufficient || isCooldownActive ? 0.6 : 1,
-              cursor: isRankInsufficient || isCooldownActive ? 'not-allowed' : 'pointer',
+              opacity: isRankInsufficient || isCooldownActive || isXIneligible || (!isAdmin && isRankE) ? 0.6 : 1,
+              cursor: isRankInsufficient || isCooldownActive || isXIneligible || (!isAdmin && isRankE) ? 'not-allowed' : 'pointer',
             }}
-            disabled={isLoading || isBookingDisabled || isRankInsufficient}
+            disabled={isLoading || isBookingDisabled || isRankInsufficient || isXIneligible || (!isAdmin && isRankE)}
             title={
-              isRankE
+              !isAdmin && isRankE
                 ? 'Account Rank E (Banned Account) cannot book tasks'
+                : isXIneligible
+                ? 'Your account is not eligible yet. Contact admin for further information.'
                 : isRankInsufficient
                 ? `Requires ${task.min_rank_name || 'higher rank'}`
                 : isCooldownActive
@@ -223,8 +264,10 @@ export default function AvailableTaskCard({
                 : undefined
             }
           >
-            {isRankE
+            {!isAdmin && isRankE
               ? '🔒 Banned (Rank E)'
+              : isXIneligible
+              ? '🔒 Not Eligible'
               : isRankInsufficient
               ? `Requires ${task.min_rank_name || 'Higher Rank'}`
               : isCooldownActive

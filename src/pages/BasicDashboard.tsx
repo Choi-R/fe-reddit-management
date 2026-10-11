@@ -44,6 +44,7 @@ export default function BasicDashboard() {
   const [availableTasks, setAvailableTasks] = useState<Task[]>([]);
   const [activeBookings, setActiveBookings] = useState<ActiveBooking[]>([]);
   const [cooldown, setCooldown] = useState<CooldownInfo | undefined>(undefined);
+  const [hasXAccount, setHasXAccount] = useState<boolean | undefined>(undefined);
   const [tasksPage, setTasksPage] = useState(1);
   const [earningsHistory, setEarningsHistory] = useState<Booking[]>([]);
   const [paidBalance, setPaidBalance] = useState(0);
@@ -68,6 +69,7 @@ export default function BasicDashboard() {
       setAvailableTasks(tasksData.available);
       setActiveBookings(tasksData.active || []);
       setCooldown(tasksData.cooldown);
+      setHasXAccount(tasksData.hasXAccount);
       setEarningsHistory(earningsData.history);
       setPaidBalance(earningsData.paidBalance);
       setPendingBalance(earningsData.pendingBalance);
@@ -190,6 +192,7 @@ export default function BasicDashboard() {
           availableTasks={availableTasks}
           activeBookings={activeBookings}
           cooldown={cooldown}
+          hasXAccount={hasXAccount}
           bookingLimit={bookingLimit}
           userRankLevel={typeof user?.account_rank?.rank_level === 'number' ? user.account_rank.rank_level : 1}
           userRankName={user?.account_rank?.rank_name || 'Rank D'}

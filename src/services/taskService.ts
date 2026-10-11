@@ -2,7 +2,7 @@ import type { Task, Booking, ActiveBooking, TaskHistoryResponse, CooldownInfo, P
 import { authenticatedRequest, buildHistoryQuery } from './apiClient';
 
 export const taskService = {
-  getAvailable: (params?: { platform?: Platform }): Promise<{ available: Task[]; active: ActiveBooking[]; cooldown?: CooldownInfo }> => {
+  getAvailable: (params?: { platform?: Platform }): Promise<{ available: Task[]; active: ActiveBooking[]; cooldown?: CooldownInfo; hasXAccount?: boolean }> => {
     const query = new URLSearchParams();
     if (params?.platform) query.set('platform', params.platform);
     const queryString = query.toString();

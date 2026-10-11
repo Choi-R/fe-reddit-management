@@ -9,6 +9,7 @@ interface UserTasksTabProps {
   availableTasks: Task[];
   activeBookings: ActiveBooking[];
   cooldown?: CooldownInfo;
+  hasXAccount?: boolean;
   bookingLimit: number;
   userRankLevel?: number;
   userRankName?: string;
@@ -44,6 +45,7 @@ export default function UserTasksTab({
   availableTasks,
   activeBookings,
   cooldown,
+  hasXAccount,
   bookingLimit,
   userRankLevel = 1,
   userRankName = 'Rank D',
@@ -158,6 +160,7 @@ export default function UserTasksTab({
                     <AvailableTaskCard
                       key={task.id}
                       task={task}
+                      hasXAccount={hasXAccount}
                       userRankLevel={userRankLevel}
                       userRankName={userRankName}
                       isAdmin={isAdmin}
